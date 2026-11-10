@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nová miniaplikace · SESTA.CODE Junior</title>
+<link rel="stylesheet" href="../../shared/sesta.css">
+<style>
+/* ===== Styly jen pro tuto miniaplikaci ===== */
+.demo-count{font-family:var(--mono);font-size:72px;font-weight:600}
+</style>
+</head>
+<!--
+  ŠABLONA NOVÉ MINIAPLIKACE
+  1. Zkopíruj celou složku apps/sablona a přejmenuj ji, např. na apps/moje-hra.
+  2. Níže v <body> přepiš data-app="sablona" na data-app="moje-hra".
+  3. Do apps.js přidej záznam { id:'moje-hra', name:'…', path:'apps/moje-hra/', desc:'…', chips:[…], icon:'<svg…>' }.
+  Hotovo: miniaplikace se objeví na domovské stránce i v horní liště.
+
+  K dispozici z shared/sesta-core.js (objekt SestaCore):
+    Storage.get(klic, vychozi) / Storage.set(klic, hodnota)  – ukládání (předpona sestajr_ se přidá sama)
+    Settings.get(klic, vychozi) / Settings.set(klic, hodnota)
+    UI.toast(text, 'ok'|'bad'), await UI.confirm({title, text, ok, danger}), UI.fmtTime(ms, desetiny)
+    UI.ring(procenta, barva) + UI.animateRings(prvek), UI.download(nazev, blob)
+    setMeta(id, text) – krátký text pod kartou na domovské stránce
+    $, esc, clamp, shuffle, sample
+  Hotové styly z shared/sesta.css: .panel, .label, .btn .pri/.sec/.danger/.big, .badge, .timer, .bar,
+    .two (dvousloupcové rozvržení), .work + .wHead/.wBody/.wFoot, .center, .stats/.stat, .pillrow, .hint
+-->
+<body data-root="../../" data-app="sablona">
+<div id="app">
+  <header id="sestaHeader"></header>
+  <main>
+    <section class="screen on two">
+      <aside>
+        <section class="panel">
+          <div class="mnum">Nová miniaplikace</div>
+          <h1 class="mtitle">Název</h1>
+        </section>
+        <section class="panel">
+          <div class="label">Jak to funguje</div>
+          <p class="hint" style="font-size:15px;margin:0">Sem patří krátké vysvětlení nebo pravidla.</p>
+        </section>
+      </aside>
+      <section class="panel work">
+        <div class="wHead" id="wHead"></div>
+        <div class="wBody" id="wBody"></div>
+        <div class="wFoot" id="wFoot"></div>
+      </section>
+    </section>
+  </main>
+</div>
+<script src="../../apps.js"></script>
+<script src="../../shared/sesta-core.js"></script>
+<script>
+'use strict';
+const { $, esc, Storage, UI } = SestaCore;
+const APP_ID = document.body.dataset.app;
+
+/* Ukázková logika: počítadlo kliknutí s uložením */
+const Demo = (() => {
+  let count = Storage.get(APP_ID + '_count', 0);
+  function render(){
+    $('wHead').innerHTML = '<div class="headrow"><span class="badge type">Šablona</span><span class="spacer"></span><span class="timer">ukázka</span></div>';
+    $('wBody').innerHTML = '<div class="center"><div class="demo-count">' + count + '</div><div class="sub">Klikni na tlačítko nebo stiskni Enter.</div></div>';
+    $('wFoot').innerHTML = '<span class="spacer"></span><button class="btn pri" id="bPlus">Přidat</button>';
+    $('bPlus').onclick = add;
+  }
+  function add(){ count++; Storage.set(APP_ID + '_count', count); SestaCore.setMeta(APP_ID, 'Kliknuto: ' + count + '×'); render(); }
+  return { render, onKey(e){ if(e.key === 'Enter'){ e.preventDefault(); add(); } } };
+})();
+
+SestaCore.start({ init: Demo.render, onKey: e => Demo.onKey(e) });
+</script>
+</body>
+</html>

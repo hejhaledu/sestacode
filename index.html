@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SESTA.CODE Junior</title>
+<link rel="stylesheet" href="shared/sesta.css">
+</head>
+<body data-root="" data-app="home">
+<!-- Rozcestník SESTA.CODE Junior. Karty i horní lišta se sestaví automaticky z apps.js. -->
+<div id="app">
+  <header id="sestaHeader"></header>
+  <main>
+    <section class="screen on" id="scr-home">
+      <div class="homehead">
+        <h1>Vyber si trénink</h1>
+        <p>Krátká cvičení, která tě připraví na programování ve Scratchi a Pythonu.</p>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+  </main>
+</div>
+<script src="apps.js"></script>
+<script src="shared/sesta-core.js"></script>
+<script>
+'use strict';
+const { $, esc, apps, appUrl, getMeta } = SestaCore;
+
+// Ikona pro miniaplikace, které v apps.js žádnou nemají
+const DEFAULT_ICON = '<svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="28" height="28" rx="6" stroke="#79c0ff"/><path d="M15 16l-4 4 4 4M25 16l4 4-4 4" stroke="#7ee787"/></svg>';
+
+// Karta miniaplikace na domovské stránce
+function card(a, i){
+  return '<article class="panel mcard">' +
+    '<div class="ico">' + (a.icon || DEFAULT_ICON) + '</div>' +
+    '<div><div class="num">MODUL ' + (i + 1) + '</div><h2>' + esc(a.name) + '</h2></div>' +
+    '<p>' + esc(a.desc || '') + '</p>' +
+    '<div class="chips">' + (a.chips || []).map(c => '<span' + (a.mono ? ' class="m"' : '') + '>' + esc(c) + '</span>').join('') + '</div>' +
+    '<div class="foot"><span class="meta">' + esc(getMeta(a.id) || 'Zatím bez výsledku') + '</span>' +
+    '<a class="btn pri" href="' + esc(appUrl(a)) + '" style="text-decoration:none">Spustit</a></div></article>';
+}
+
+SestaCore.start({
+  init(){
+    const list = apps();
+    $('cards').innerHTML = list.length ? list.map(card).join('')
+      : '<div class="panel">V souboru apps.js zatím není zapsaná žádná miniaplikace.</div>';
+  }
+});
+</script>
+</body>
+</html>

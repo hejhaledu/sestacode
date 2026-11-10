@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Detective · SESTA.CODE Junior</title>
+<link rel="stylesheet" href="../../shared/sesta.css">
+<style>
+/* ===== Styly jen pro tuto miniaplikaci ===== */
+/* ===== MODUL 3 – Type Detective ===== */
+.td-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;min-height:100%;justify-content:center}
+.td-q{font-size:20px;margin:0;color:rgba(255,255,255,.9)}
+.dock{width:100%;max-width:760px;min-height:150px;border:1px dashed var(--line2);border-radius:18px;display:flex;align-items:center;justify-content:center;padding:18px}
+.vcard{position:relative;min-width:240px;max-width:100%;padding:22px 40px;border-radius:18px;background:#262a31;border:1px solid var(--line2);box-shadow:0 8px 24px rgba(0,0,0,.25);font-family:var(--mono);font-size:44px;line-height:1.2;color:#fff;text-align:center;cursor:grab;user-select:none;touch-action:none;transition:box-shadow .15s,border-color .15s;white-space:pre}
+.vcard:hover{border-color:rgba(255,255,255,.35)}
+.vcard .cap{position:absolute;left:14px;top:8px;font-family:"Segoe UI",system-ui,sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase}
+.vcard.picked{border-color:var(--fn);box-shadow:0 0 0 3px rgba(121,192,255,.28),0 8px 24px rgba(0,0,0,.3)}
+.vcard.lift{cursor:grabbing;z-index:20;box-shadow:0 18px 40px rgba(0,0,0,.45);transition:none}
+.vcard.res-ok{border-color:var(--ok);background:#1f3326;cursor:default}
+.vcard.res-bad{border-color:var(--bad);background:#3a2224;cursor:default}
+.targets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;width:100%;max-width:960px}
+.tcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 10px 16px;border-radius:16px;border:1.5px solid var(--line2);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;min-height:104px;justify-content:center}
+.tcard:hover{background:rgba(255,255,255,.09)}
+.tcard .tn{font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:1.5px}
+.tcard .tc{font-size:14px;color:var(--muted)}
+.tcard .key{position:absolute;left:10px;top:8px;font-family:var(--mono);font-size:12px;color:var(--dim)}
+.tcard .res{font-size:13px;font-weight:600;min-height:18px}
+.tcard.hov{border-color:var(--fn);background:rgba(121,192,255,.14);transform:translateY(-2px)}
+.picking .tcard{border-style:dashed;border-color:rgba(121,192,255,.55)}
+.tcard.ok{border-style:solid;border-color:var(--ok);background:var(--okbg)}
+.tcard.ok .res{color:var(--ok)}
+.tcard.bad{border-style:solid;border-color:var(--bad);background:var(--badbg)}
+.tcard.bad .res{color:#ff9b95}
+.locked .tcard{cursor:default}
+.locked .tcard:not(.ok):not(.bad){opacity:.45}
+.fb{flex:1;font-size:16px;line-height:1.45}
+.fb .ok{color:var(--ok);font-weight:600} .fb .bad{color:var(--bad);font-weight:600}
+.fb .mono{background:rgba(0,0,0,.3);border-radius:5px;padding:0 5px}
+.typeinfo{display:flex;flex-direction:column;gap:12px}
+.typeinfo .ti{border-left:3px solid var(--line2);padding:2px 0 2px 12px}
+.typeinfo .ti b{font-family:var(--mono);font-size:15px;letter-spacing:.5px}
+.typeinfo .ti p{margin:3px 0 4px;font-size:14px;line-height:1.5;color:rgba(255,255,255,.85)}
+.typeinfo .ti code{font-family:var(--mono);font-size:14px;color:#fff;background:rgba(0,0,0,.3);border-radius:5px;padding:1px 6px;margin-right:4px}
+.bytype{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:760px}
+.bytype div{border:1px solid var(--line);border-radius:12px;padding:10px 8px;background:rgba(255,255,255,.04)}
+.bytype b{display:block;font-family:var(--mono);font-size:14px;letter-spacing:.5px}
+.bytype span{font-size:13px;color:var(--muted)}
+.bytype .e{color:#ff9b95}
+.wronglist{display:flex;flex-direction:column;gap:6px;width:100%;max-width:560px;font-size:14px}
+.wronglist div{display:flex;justify-content:space-between;gap:12px;padding:6px 12px;border-radius:10px;background:var(--badbg);border:1px solid rgba(248,81,73,.3)}
+.wronglist .mono{color:#fff}
+.hist{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.hist div{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.hist b{color:#fff;font-family:var(--mono);font-weight:600}
+
+@media (max-height:760px){
+  .vcard{font-size:38px;padding:20px 34px}
+  .dock{min-height:124px;padding:14px}
+  .tcard{min-height:90px;padding:14px 8px 12px}
+  .td-wrap{gap:14px}
+}
+</style>
+</head>
+<body data-root="../../" data-app="type-detective">
+<!-- Type Detective: Modul 3 – rozpoznávání datových typů Integer, String, Boolean a List.
+     Miniaplikace SESTA.CODE Junior. Horní lištu, okna a ukládání dodává ../../shared/sesta-core.js. -->
+<div id="app">
+  <header id="sestaHeader"></header>
+  <main>
+    <section class="screen on two" id="scr-detect">
+      <aside>
+        <section class="panel">
+          <div class="mnum">Modul 3</div>
+          <h1 class="mtitle">Type Detective</h1>
+        </section>
+        <section class="panel">
+          <div class="label">Jak poznat datový typ</div>
+          <div class="typeinfo">
+            <div class="ti" style="border-color:#ffa657"><b>Integer</b><p>Celé číslo bez uvozovek. Může mít znaménko minus.</p><code>15</code><code>-8</code><code>0</code></div>
+            <div class="ti" style="border-color:#7ee787"><b>String</b><p>Text v uvozovkách. Rozhodují uvozovky, ne to, co je uvnitř.</p><code>"Ahoj"</code><code>"15"</code><code>""</code></div>
+            <div class="ti" style="border-color:#ff7b72"><b>Boolean</b><p>Jen dvě hodnoty: <span class="mono">True</span> a <span class="mono">False</span>. Bez uvozovek a s velkým písmenem.</p><code>True</code><code>False</code></div>
+            <div class="ti" style="border-color:#79c0ff"><b>List</b><p>Seznam v hranatých závorkách. Nezáleží na tom, co je uvnitř.</p><code>[1, 2]</code><code>["pes"]</code><code>[]</code></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="label">Poslední výsledky</div>
+          <div class="hist" id="tdHist"></div>
+        </section>
+      </aside>
+      <section class="panel work" id="tdWork">
+        <div class="wHead" id="tdHead"></div>
+        <div class="wBody" id="tdBody"></div>
+        <div class="wFoot" id="tdFoot"></div>
+      </section>
+    </section>
+  </main>
+</div>
+<script src="../../apps.js"></script>
+<script src="../../shared/sesta-core.js"></script>
+<script>
+'use strict';
+/* Společné nástroje z shared/sesta-core.js */
+const { $, esc, clamp, shuffle, sample, Storage: StorageService, Settings, UI: UIComponents } = SestaCore;
+
+/* =====================================================================
+   TypeDetectiveEngine – rozpoznávání datových typů
+   ===================================================================== */
+const TypeDetectiveEngine = (() => {
+  const TYPES = [
+    { k:'int',  name:'INTEGER', py:'Integer', cz:'celé číslo' },
+    { k:'str',  name:'STRING',  py:'String',  cz:'text' },
+    { k:'bool', name:'BOOLEAN', py:'Boolean', cz:'pravda / nepravda' },
+    { k:'list', name:'LIST',    py:'List',    cz:'seznam' }
+  ];
+  const TN = Object.fromEntries(TYPES.map(t => [t.k, t]));
+  // Databáze hodnot podle typu a obtížnosti (1 základní, 2 střední, 3 náročná)
+  const DB = {
+    int:  { 1:['12','15','7','42','100','999'], 2:['-15','-8','2026','0'], 3:['-100','0','1','-1'] },
+    str:  { 1:['"pes"','"Ahoj"','"Python"','"kočka"','"Ahoj světe"'], 2:['"123"','"15"','"2026"','"0"'], 3:['"True"','"False"','""','"-8"','"2026"'] },
+    bool: { 1:['True','False'], 2:['True','False'], 3:['True','False'] },
+    list: { 1:['[1, 2]','[1, 2, 3]','["pes", "kočka"]'], 2:['[]','[10]','["Ahoj"]','[True, False]'], 3:['["15"]','[True, 5]','[1, "Ahoj", True]','["True"]','[True, False]'] }
+  };
+  // Plán kola: 12 úloh, rostoucí obtížnost, Boolean jen 2× (existují jen dvě hodnoty)
+  const PLAN = [ [1, ['int','str','bool','list']], [2, ['int','str','bool','list']], [3, ['str','str','list','int']] ];
+  const TIER = { 1:['Základní','lvl1'], 2:['Střední','lvl2'], 3:['Náročná','lvl3'] };
+
+  // Kontrola typu podle zápisu hodnoty v Pythonu (jen pro povolené jednoduché zápisy)
+  function classify(v){
+    if(/^-?\d+$/.test(v)) return 'int';
+    if(/^"[^"]*"$/.test(v)) return 'str';
+    if(v === 'True' || v === 'False') return 'bool';
+    if(/^\[.*\]$/.test(v)) return 'list';
+    return null;
+  }
+  // Ověření databáze při startu – každá hodnota musí mít jednoznačný typ
+  Object.keys(DB).forEach(t => Object.values(DB[t]).flat().forEach(v => { if(classify(v) !== t) console.warn('Type Detective: hodnota ' + v + ' nemá typ ' + t); }));
+
+  function explain(v, t){
+    if(t === 'int'){
+      if(v.startsWith('-')) return 'Celé číslo bez uvozovek je Integer. Znaménko minus patří k číslu, i záporné celé číslo je Integer.';
+      if(v === '0') return 'Nula bez uvozovek je celé číslo, tedy Integer.';
+      return 'Celé číslo bez uvozovek je Integer.';
+    }
+    if(t === 'str'){
+      const inner = v.slice(1, -1);
+      if(inner === '') return 'Dvě uvozovky bez ničeho mezi nimi jsou prázdný text. I prázdný text je String.';
+      if(inner === 'True' || inner === 'False') return 'Slovo je v uvozovkách, proto je to text (String). Boolean ' + inner + ' se píše bez uvozovek.';
+      if(/^-?\d+$/.test(inner)) return 'Číslice jsou v uvozovkách, proto je to text (String), ne číslo. ' + v + ' a ' + inner + ' jsou různé hodnoty.';
+      return 'Text v uvozovkách je String.';
+    }
+    if(t === 'bool') return v + ' bez uvozovek je logická hodnota Boolean. Píše se s velkým počátečním písmenem, jako "' + v + '" by to byl text.';
+    if(v === '[]') return 'Prázdné hranaté závorky jsou prázdný seznam. I seznam bez prvků je List.';
+    if(/["]|True|False/.test(v)) return 'Hranaté závorky znamenají seznam (List). Na typech hodnot uvnitř nezáleží, ptáme se na typ celého seznamu.';
+    return 'Hodnoty v hranatých závorkách tvoří seznam (List).';
+  }
+
+  const S = { phase:'intro', tasks:[], pos:0, res:[], answered:false, picked:false, acc:0, t0:0, running:false, tick:null };
+  let prevValues = new Set();
+  function buildRound(){
+    const used = new Set(), out = [];
+    PLAN.forEach(([tier, types]) => {
+      const group = [];
+      types.forEach(t => {
+        let pool = DB[t][tier].filter(v => !used.has(v));
+        if(!pool.length) pool = [1,2,3].flatMap(x => DB[t][x]).filter(v => !used.has(v));
+        const fresh = pool.filter(v => !prevValues.has(v));
+        const from = fresh.length ? fresh : pool;
+        const v = from[Math.floor(Math.random()*from.length)];
+        used.add(v); group.push({ v, t, tier });
+      });
+      out.push(...shuffle(group));
+    });
+    prevValues = used;
+    return out;
+  }
+
+  /* ---------- Čas ---------- */
+  const elapsed = () => S.acc + (S.running ? performance.now() - S.t0 : 0);
+  function startClock(){ if(S.running) return; S.t0 = performance.now(); S.running = true; stopTick(); S.tick = setInterval(() => { const el = $('tdTimer'); if(el) el.textContent = UIComponents.fmtTime(elapsed()); }, 250); }
+  function stopClock(){ if(S.running){ S.acc += performance.now() - S.t0; S.running = false; } stopTick(); }
+  function stopTick(){ if(S.tick){ clearInterval(S.tick); S.tick = null; } }
+
+  function start(){ stopClock(); Object.assign(S, { phase:'task', tasks:buildRound(), pos:0, res:[], answered:false, picked:false, acc:0 }); startClock(); render(); }
+  function answer(k){
+    if(S.phase !== 'task' || S.answered) return;
+    const task = S.tasks[S.pos], ok = k === task.t;
+    S.answered = true; S.picked = false;
+    S.res.push({ v:task.v, t:task.t, a:k, ok });                     // počítá se jen první odpověď
+    const card = $('tdCard'); card.classList.remove('picked'); card.classList.add(ok ? 'res-ok' : 'res-bad');
+    $('tdTargets').classList.remove('picking'); $('tdTargets').classList.add('locked');
+    document.querySelectorAll('.tcard').forEach(c => {
+      const ck = c.dataset.k;
+      if(ck === task.t){ c.classList.add('ok'); c.querySelector('.res').textContent = ok ? '✓ Správně' : '✓ Správný typ'; }
+      else if(ck === k){ c.classList.add('bad'); c.querySelector('.res').textContent = '✗ Tvoje odpověď'; }
+    });
+    $('tdFb').innerHTML = (ok ? '<span class="ok">✓ Správně.</span> ' : '<span class="bad">✗ Chyba.</span> Hodnota <span class="mono">' + esc(task.v) + '</span> je typu <b>' + TN[task.t].py + '</b>. ') + esc(explain(task.v, task.t));
+    const n = $('tdNext'); n.style.display = 'inline-block'; n.focus();
+  }
+  function next(){
+    if(!S.answered) return;
+    S.pos++;
+    if(S.pos >= S.tasks.length) return finish();
+    S.answered = false; render();
+  }
+  function finish(){
+    stopClock();
+    const good = S.res.filter(r => r.ok).length, pct = Math.round(good/S.res.length*100);
+    const byType = {}; TYPES.forEach(t => { const rs = S.res.filter(r => r.t === t.k); byType[t.k] = { total:rs.length, good:rs.filter(r => r.ok).length }; });
+    const hist = StorageService.get('tdHistory', []) || [];
+    hist.unshift({ date:new Date().toISOString(), pct, good, total:S.res.length, time:Math.round(S.acc), byType });
+    StorageService.set('tdHistory', hist.slice(0, 5));
+    SestaCore.setMeta('type-detective', 'Poslední výsledek: ' + pct + ' % (' + good + '/' + S.res.length + ')');
+    S.phase = 'done'; S.summary = { good, pct, byType };
+    render(); renderHist();
+  }
+
+  /* ---------- Vykreslování ---------- */
+  function renderHist(){
+    const hist = StorageService.get('tdHistory', []) || [];
+    $('tdHist').innerHTML = hist.length ? hist.map(h => '<div><span>' + UIComponents.dateCz(h.date) + ' · ' + UIComponents.fmtTime(h.time) + '</span><b>' + h.pct + ' % (' + h.good + '/' + h.total + ')</b></div>').join('')
+      : '<div><span>Zatím žádné procvičování.</span></div>';
+    if(!StorageService.available()) $('tdHist').innerHTML += '<div><span style="color:var(--warn)">Ukládání není dostupné.</span></div>';
+  }
+  function render(){
+    const body = $('tdBody'), foot = $('tdFoot');
+    if(S.phase === 'intro'){
+      $('tdHead').innerHTML = ''; foot.innerHTML = '';
+      body.innerHTML = '<div class="center fade">' +
+        '<svg width="64" height="64" viewBox="0 0 40 40" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="17" r="11" stroke="#79c0ff"/><path d="M25 25l10 10" stroke="#79c0ff"/><path d="M13 12h-1.5v10H13M21 12h1.5v10H21" stroke="#7ee787"/></svg>' +
+        '<h2>Připraveno 12 úloh</h2>' +
+        '<div class="sub">U každé hodnoty urči její datový typ. Rozhoduje to, jak je hodnota zapsaná: uvozovky, hranaté závorky, velké písmeno u True a False.</div>' +
+        '<div class="pillrow"><span>1–4 základní</span><span>5–8 střední</span><span>9–12 náročné</span></div>' +
+        '<div class="btnrow"><button class="btn pri big" id="tdStart">Začít</button></div>' +
+        '<div class="hint">Kartu s hodnotou přetáhni na správný typ, nebo na ni klikni a potom klikni na typ. Klávesy <kbd>1</kbd>–<kbd>4</kbd> vyberou typ, <kbd>Enter</kbd> pokračuje.</div></div>';
+      $('tdStart').onclick = e => { e.currentTarget.blur(); start(); };
+      return;
+    }
+    if(S.phase === 'done'){
+      const sm = S.summary, R = sm.pct >= 90 ? ['Výborně','#3fb950'] : sm.pct >= 70 ? ['Dobře','#79c0ff'] : sm.pct >= 50 ? ['Ještě procvičuj','#ffa657'] : ['Vrať se k vysvětlení vlevo','#f85149'];
+      const wrong = S.res.filter(r => !r.ok);
+      $('tdHead').innerHTML = ''; foot.innerHTML = '';
+      body.innerHTML = '<div class="center fade">' +
+        '<h2>Procvičování dokončeno</h2>' +
+        '<div class="stats">' +
+          '<div class="stat"><span class="k2">Úspěšnost</span>' + UIComponents.ring(sm.pct, R[1]) + '</div>' +
+          '<div class="stat"><span class="k2">Správně</span><span class="v2">' + sm.good + '/12</span></div>' +
+          '<div class="stat"><span class="k2">Čas</span><span class="v2">' + UIComponents.fmtTime(S.acc) + '</span></div>' +
+        '</div>' +
+        '<div class="rating" style="color:' + R[1] + ';font-size:22px;font-weight:600">' + R[0] + '</div>' +
+        '<div class="bytype">' + TYPES.map(t => { const b = sm.byType[t.k], e = b.total - b.good;
+          return '<div><b>' + t.py + '</b><span>' + b.good + '/' + b.total + ' správně</span><br><span class="' + (e ? 'e' : '') + '">' + (e ? 'chyby: ' + e : 'bez chyby') + '</span></div>'; }).join('') + '</div>' +
+        (wrong.length ? '<div class="wronglist">' + wrong.map(r => '<div><span class="mono">' + esc(r.v) + '</span><span>správně ' + TN[r.t].py + ' · tvoje odpověď ' + TN[r.a].py + '</span></div>').join('') + '</div>' : '') +
+        '</div>';
+      foot.innerHTML = '<span class="hint">Nové kolo použije jiné hodnoty. Spustíš ho i klávesou <kbd>Enter</kbd>.</span><span class="spacer"></span><button class="btn pri" id="tdAgain">Nové procvičování</button>';
+      UIComponents.animateRings(body);
+      $('tdAgain').onclick = e => { e.currentTarget.blur(); start(); };
+      return;
+    }
+    const task = S.tasks[S.pos], tier = TIER[task.tier];
+    $('tdHead').innerHTML = '<div class="headrow"><span class="badge type">Type Detective</span><span class="badge ' + tier[1] + '">' + tier[0] + '</span><span class="spacer"></span>' +
+      '<span class="prog">Úloha ' + (S.pos + 1) + ' / ' + S.tasks.length + '</span><span class="timer" id="tdTimer">' + UIComponents.fmtTime(elapsed()) + '</span></div>' +
+      '<div class="bar"><i style="width:' + Math.round(S.pos/S.tasks.length*100) + '%"></i></div>';
+    body.innerHTML = '<div class="td-wrap fade">' +
+      '<p class="td-q">Jakého datového typu je tato hodnota?</p>' +
+      '<div class="dock"><div class="vcard" id="tdCard" tabindex="0" role="button" aria-label="Hodnota ' + esc(task.v) + ', přetáhni ji na typ"><span class="cap">Hodnota</span>' + esc(task.v) + '</div></div>' +
+      '<div class="targets" id="tdTargets">' + TYPES.map((t, i) =>
+        '<button class="tcard" data-k="' + t.k + '" aria-label="Typ ' + t.py + '"><span class="key">' + (i + 1) + '</span><span class="tn">' + t.name + '</span><span class="tc">' + t.cz + '</span><span class="res"></span></button>').join('') + '</div>' +
+      '<div class="hint">Přetáhni kartu na správný typ, nebo klikni na kartu a potom na typ.</div></div>';
+    foot.innerHTML = '<div class="fb" id="tdFb"></div><button class="btn pri" id="tdNext" style="display:none">Další</button>';
+    $('tdNext').onclick = next;
+    document.querySelectorAll('.tcard').forEach(c => c.onclick = () => { if(!S.answered) answer(c.dataset.k); });
+    bindCard();
+  }
+  // Tažení karty s hodnotou (pointer events) a výběr kliknutím
+  function targetAt(x, y){
+    let hit = null;
+    document.querySelectorAll('.tcard').forEach(c => { const r = c.getBoundingClientRect(); if(x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = c; });
+    return hit;
+  }
+  function bindCard(){
+    const card = $('tdCard');
+    card.addEventListener('keydown', e => { if((e.key === ' ') && !S.answered){ e.preventDefault(); togglePick(); } });
+    card.addEventListener('pointerdown', e => {
+      if(S.answered || e.button !== 0) return;
+      e.preventDefault();
+      const sx = e.clientX, sy = e.clientY; let drag = false, hov = null;
+      card.setPointerCapture(e.pointerId);
+      const mv = ev => {
+        const dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if(!drag && Math.hypot(dx, dy) > 5){ drag = true; card.classList.add('lift'); card.classList.remove('picked'); $('tdTargets').classList.add('picking'); }
+        if(!drag) return;
+        card.style.transform = 'translate(' + dx + 'px,' + dy + 'px) rotate(' + clamp(dx/40, -4, 4) + 'deg)';
+        const t = targetAt(ev.clientX, ev.clientY);
+        if(t !== hov){ if(hov) hov.classList.remove('hov'); hov = t; if(hov) hov.classList.add('hov'); }
+      };
+      const up = ev => {
+        card.removeEventListener('pointermove', mv); card.removeEventListener('pointerup', up); card.removeEventListener('pointercancel', up);
+        if(hov) hov.classList.remove('hov');
+        if(!drag){ togglePick(); return; }
+        card.classList.remove('lift'); card.style.transform = '';
+        const t = ev.type === 'pointerup' ? targetAt(ev.clientX, ev.clientY) : null;
+        if(t) answer(t.dataset.k); else if(!S.picked) $('tdTargets').classList.remove('picking');
+      };
+      card.addEventListener('pointermove', mv); card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
+    });
+  }
+  function togglePick(){
+    S.picked = !S.picked;
+    $('tdCard').classList.toggle('picked', S.picked);
+    $('tdTargets').classList.toggle('picking', S.picked);
+  }
+  function onKey(e){
+    const k = e.key;
+    if(S.phase !== 'task'){ if(k === 'Enter'){ e.preventDefault(); start(); } return; }
+    if(k === 'Enter'){ if(S.answered){ e.preventDefault(); next(); } return; }
+    if(/^[1-4]$/.test(k) && !S.answered && !e.ctrlKey && !e.altKey){ e.preventDefault(); answer(TYPES[+k - 1].k); }
+    if(k === 'Escape' && S.picked) togglePick();
+  }
+  return {
+    init(){ renderHist(); render(); },
+    activate(){ renderHist(); if(S.phase === 'task') startClock(); render(); },
+    deactivate(){ stopClock(); },
+    onKey, classify, _state: () => S, _build: buildRound, DB
+  };
+})();
+
+
+SestaCore.start({ init: () => TypeDetectiveEngine.init(), onKey: e => TypeDetectiveEngine.onKey(e) });
+</script>
+</body>
+</html>
