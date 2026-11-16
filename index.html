@@ -49,27 +49,24 @@
         <h1 class="word" aria-label="SestaCode"><span class="pre">SESTA</span><span class="app">CODE</span></h1>
         <p class="tag">Procvičování programování</p>
       </div>
-      <div class="school"><span>Základní škola<br>Šestajovice</span><img src="shared/logo-skoly.png" alt="Logo ZŠ Šestajovice"></div>
+      <div class="school"><img src="shared/logo-skoly.png" alt="Logo ZŠ Šestajovice"></div>
     </div>
     <div class="tl-wrap"><div class="tl" id="tl" aria-label="Rozvrh vyučovacích hodin"></div></div>
   </section>
-  <div id="groups"></div>
+  <h2 class="sec-t">Aplikace</h2>
+  <div class="tiles" id="tiles"></div>
 </div></div></main>
 <script src="shared/apps.js?v=1.1.0"></script>
 <script src="shared/sesta-shell.js?v=1.1.0"></script>
 <script>
 const S = SESTA;
-/* aplikace po skupinách (skupiny a aplikace jsou v shared/apps.js) */
-const apps = S.apps.filter(a => !a.hidden);
-document.getElementById('groups').innerHTML = S.groups.map(g => {
-  const list = apps.filter(a => a.group === g.id); if (!list.length) return '';
-  return `<h2 class="sec-t">${S.esc(g.name)} <small>${S.esc(g.note || '')}</small></h2><div class="tiles">` + list.map(a => `
+/* karty aplikací (seznam je v shared/apps.js) */
+document.getElementById('tiles').innerHTML = S.apps.filter(a => !a.hidden).map(a => `
     <a class="tile" href="${a.path}" data-nav>
       <div class="top"><span class="ic">${S.icon(a.icon)}</span><span><b>${S.esc(a.name)}</b><span class="d">${S.esc(a.desc)}</span></span></div>
       <p>${S.esc(a.long)}</p>
       <div class="meta">verze ${S.esc(a.version)}<span class="go">Otevřít →</span></div>
-    </a>`).join('') + '</div>';
-}).join('');
+    </a>`).join('');
 document.querySelectorAll('[data-nav]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); S.go(a.getAttribute('href')); }));
 /* časová osa – rozvrh je v shared/apps.js (SESTA.bells) */
 const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };

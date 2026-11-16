@@ -5,11 +5,11 @@ Rozcestník a aplikace pro žáky ZŠ Šestajovice. Vzhled a kostra vychází z 
 ## Struktura
 
 ```
-index.html                 rozcestník (časová osa hodin, aplikace po skupinách Junior / Python)
+index.html                 rozcestník (časová osa hodin, karty všech aplikací)
 shared/
   sesta.css                jediný zdroj vzhledu (barvy, písmo, hlavička, karty, lišta, plocha)
   sesta-shell.js           společné chování (hlavička, nabídka aplikací, Nastavení, zkratky, soubory, oznámení)
-  apps.js                  seznam aplikací a skupin, rozvrh hodin
+  apps.js                  seznam aplikací, rozvrh hodin
   fonts/                   Inter (rozhraní) a JetBrains Mono (kód), licence OFL
   logo-skoly.png           logo školy
 flowchart/index.html       Flowchart Puzzle – vývojové diagramy
@@ -30,7 +30,7 @@ Aplikace je potřeba zkoušet přes webový server (GitHub Pages nebo `python3 -
 ## Jak přidat novou aplikaci
 
 1. Zkopíruj složku `sablona` a přejmenuj ji (malá písmena, bez diakritiky).
-2. Přidej záznam do `shared/apps.js` (id, název, složka, ikona, skupina, popisy, verze).
+2. Přidej záznam do `shared/apps.js` (id, název, složka, ikona, popisy, verze).
 3. V nové stránce nastav `app:` v `SESTA.init` na stejné id a smaž řádek, kterým se šablona registruje sama.
 
 Pro soubory `.json` předej v `SESTA.init` funkce `serialize`, `load` a `actions.new`. V hlavičce se pak objeví tlačítka Nový, Otevřít a Uložit. Pro export předej `actions.export`.

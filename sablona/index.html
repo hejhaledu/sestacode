@@ -15,7 +15,7 @@
 <!--
   ŠABLONA NOVÉ APLIKACE SESTACODE
   1. Zkopíruj složku „sablona“ a přejmenuj ji (malá písmena, bez diakritiky), např. „cykly“.
-  2. Do shared/apps.js přidej záznam { id:'cykly', name:'…', path:'cykly/', icon:'code', group:'junior', desc:'…', long:'…', version:'1.0', year:2026 }.
+  2. Do shared/apps.js přidej záznam { id:'cykly', name:'…', path:'cykly/', icon:'code', desc:'…', long:'…', version:'1.0', year:2026 }.
   3. Níže v SESTA.init přepiš app:'sablona' na stejné id.
   Aplikace se pak sama objeví na rozcestníku i v nabídce aplikací u loga.
 
@@ -65,7 +65,7 @@ $('bReset').onclick = () => { const old = count; count = 0; SESTA.store.set('cou
 document.addEventListener('keydown', e => { if(!SESTA.modalOpen() && e.key === 'Enter'){ e.preventDefault(); add(); } });
 
 /* Šablona není v shared/apps.js – pro náhled se dočasně zaregistruje sama. U nové aplikace tento řádek smaž. */
-if(!SESTA.apps.find(a => a.id === 'sablona')) SESTA.apps.push({ id:'sablona', name:'Šablona', path:'sablona/', icon:'code', group:'junior', desc:'Ukázka kostry', version:'1.0', year:2026, hidden:true });
+if(!SESTA.apps.find(a => a.id === 'sablona')) SESTA.apps.push({ id:'sablona', name:'Šablona', path:'sablona/', icon:'code', desc:'Ukázka kostry', version:'1.0', year:2026, hidden:true });
 
 SESTA.init({ app:'sablona', panel:'#side', subtitle: () => 'ukázka kostry', shortcuts:[{ label:'Přidat', keys:'Enter' }] });
 SESTA.cards('#side');

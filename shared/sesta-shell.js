@@ -337,7 +337,7 @@ function header(){
 
   /* nabídka aplikací – najetím, klik na logo = rozcestník */
   const brand = h.querySelector('.s-brand'), am = h.querySelector('#sAppMenu');
-  const groups = S.groups || [{id:null, name:'Aplikace'}];
+  const groups = S.groups || [{id:null, name:'Aplikace'}];   // bez skupin = jeden seznam
   const apps = S.apps.filter(a => !a.hidden);
   am.innerHTML = `<a class="s-am" href="${C.root}" data-nav><span class="s-at home">${icon('home')}</span><span><b>Rozcestník</b><small>Hlavní stránka ${esc(S.brand.name)}</small></span>${isHub?'<span class="s-lbl">otevřeno</span>':''}</a>` +
     groups.map(g => {
