@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Python – SestaCode</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
-<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-rezim')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.1.0">
 <style>
 /* ===== Python ===== */
 .code{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:10px 0;font-family:var(--mono);font-size:16px;line-height:1.8;overflow-x:auto;color:var(--c-var)}
@@ -43,7 +43,7 @@
 .opt .key{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bg-subtle);font:700 13px var(--mono);display:grid;place-items:center;color:var(--muted);margin-top:1px}
 .opt .val{flex:1;min-width:0;font-size:16px;line-height:1.5}
 .opt .code{margin:0}
-.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.ok .key{background:var(--ok);color:var(--accent-fg)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.ok .key{background:var(--accent);color:var(--accent-fg)}
 .opt.bad{border-color:var(--danger);background:var(--danger-soft)} .opt.bad .key{background:var(--danger);color:#fff}
 .locked .opt{cursor:default} .locked .opt:not(.ok):not(.bad){opacity:.5}
 .tok{font:700 19px var(--mono)}
@@ -75,7 +75,7 @@
 .seg3 button{border:0;background:transparent;border-radius:8px;padding:7px 14px;font:500 14px var(--font);cursor:pointer;color:var(--text-2)}
 .seg3 button:hover{color:var(--text)}
 .seg3 button.sel{background:var(--accent);color:var(--accent-fg);font-weight:600}
-.seg3 button.s-ok{background:var(--ok);color:var(--accent-fg);font-weight:600}
+.seg3 button.s-ok{background:var(--accent);color:var(--accent-fg);font-weight:600}
 .seg3 button.s-bad{background:var(--danger);color:#fff;font-weight:600}
 .headrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex .code.sm{font-size:12.5px}
@@ -119,8 +119,8 @@
     </div>
   </section>
 </div></main>
-<script src="../shared/apps.js?v=1.0.0"></script>
-<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script src="../shared/apps.js?v=1.1.0"></script>
+<script src="../shared/sesta-shell.js?v=1.1.0"></script>
 <script>
 'use strict';
 /* =====================================================================

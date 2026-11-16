@@ -17,7 +17,7 @@
 window.SESTA = window.SESTA || {};
 SESTA.brand = {
   name: 'SestaCode',
-  version: '1.0',
+  version: '1.1',
   year: 2026,
   tagline: 'Procvičování programování',
   school: 'Základní škola Šestajovice, okres Praha-východ',
@@ -38,24 +38,24 @@ SESTA.apps = [
     id: 'flowchart', name: 'Flowchart Puzzle', path: 'flowchart/', icon: 'flow', group: 'junior',
     desc: 'Vývojové diagramy',
     long: 'Sestav strukturu algoritmu z prázdných bloků: sekvence, podmínka a cyklus. Hlavně vnořování struktur do sebe.',
-    version: '1.0', year: 2026
+    version: '1.1', year: 2026
   },
   {
     id: 'symbol-sprint', name: 'Symbol Sprint', path: 'symbol-sprint/', icon: 'keys', group: 'junior',
     desc: 'Programátorské znaky na klávesnici',
     long: 'Napiš 15 programátorských znaků co nejrychleji. Naučíš se, kde na české klávesnici najdeš závorky, uvozovky nebo rovnítko.',
-    version: '1.0', year: 2026
+    version: '1.1', year: 2026
   },
   {
     id: 'type-detective', name: 'Type Detective', path: 'type-detective/', icon: 'types', group: 'junior',
     desc: 'Datové typy',
     long: 'Urči datový typ hodnoty podle zápisu: Integer, String, Boolean, List. Poznáš rozdíl mezi 15 a "15".',
-    version: '1.0', year: 2026
+    version: '1.1', year: 2026
   },
   {
     id: 'python', name: 'Python', path: 'python/', icon: 'python', group: 'python',
     desc: 'Procvičování Pythonu',
     long: 'Čtyři lekce: výstup, vstup, podmínka IF a cyklus FOR. Kolo 10 úloh, chyby si na konci zopakuješ.',
-    version: '1.0', year: 2026
+    version: '1.1', year: 2026
   }
 ];

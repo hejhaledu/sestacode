@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flowchart Puzzle – SestaCode</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
-<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-rezim')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.1.0">
 <style>
 /* ===== Flowchart Puzzle ===== */
 :root{--fc-seq:#2563EB;--fc-seq-f:#EAF2FF;--fc-if:#7C3AED;--fc-if-f:#F3EBFF;--fc-loop:#EA580C;--fc-loop-f:#FFF1E5;--fc-line:#57606A}
@@ -103,8 +103,8 @@ body.dragging, body.dragging *{cursor:grabbing !important;user-select:none}
   </section>
 </div></main>
 <div class="fc-ghost" id="dragGhost" hidden></div>
-<script src="../shared/apps.js?v=1.0.0"></script>
-<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script src="../shared/apps.js?v=1.1.0"></script>
+<script src="../shared/sesta-shell.js?v=1.1.0"></script>
 <script>
 'use strict';
 /* Flowchart Puzzle – vývojové diagramy (sekvence, selekce, cyklus, vnořování)
@@ -159,11 +159,11 @@ const FlowchartEngine = (() => {
     dark:  { line:'rgba(230,237,243,.55)', seqFill:'rgba(121,192,255,.10)', seqStroke:'#79c0ff',
              ifFill:'rgba(210,168,255,.12)', ifStroke:'#d2a8ff', loopFill:'rgba(255,166,87,.12)', loopStroke:'#ffa657',
              ret:'#ffa657', yes:'#56d364', no:'#ff7b72', pillBg:'#12171E', text:'rgba(230,237,243,.75)', term:'#e6edf3',
-             slot:'rgba(121,192,255,.42)', slotText:'rgba(230,237,243,.45)', sel:'#3FB950', drop:'#3FB950', dropFg:'#0D1117' },
+             slot:'rgba(121,192,255,.42)', slotText:'rgba(230,237,243,.45)', sel:'#2EA043', drop:'#2EA043', dropFg:'#FFFFFF' },
     light: { line:'#57606A', seqFill:'#EAF2FF', seqStroke:'#2563EB',
              ifFill:'#F3EBFF', ifStroke:'#7C3AED', loopFill:'#FFF1E5', loopStroke:'#EA580C',
              ret:'#EA580C', yes:'#1A7F37', no:'#CF222E', pillBg:'#FFFFFF', text:'#424A53', term:'#1F2328',
-             slot:'#8C959F', slotText:'#8C959F', sel:'#1A7F37', drop:'#1A7F37', dropFg:'#FFFFFF' }
+             slot:'#8C959F', slotText:'#8C959F', sel:'#116329', drop:'#116329', dropFg:'#FFFFFF' }
   };
 
   /* ---------- Stav ---------- */

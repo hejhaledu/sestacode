@@ -1,9 +1,9 @@
 /* =====================================================================
-   SestaCode – sdílený styl v1.0
+   SestaCode – sdílený styl v1.1
    Vychází z CabiNet 1.2. Jediný zdroj barev, písma a společných prvků
    (hlavička, patička, nabídky, okna, oznámení, karty, lišta, plocha).
    Aplikace tyto hodnoty nepřepisují – jen je používají.
-   Barva značky: tmavě zelená (světlý režim) / zelená na tmavě šedé (tmavý režim).
+   Barva značky: tmavá „technická“ zelená, obsah na zelené je vždy bílý. Výchozí je tmavý režim.
    ===================================================================== */
 
 @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/inter-400.woff) format('woff')}
@@ -15,15 +15,15 @@
 
 /* ---------- 1. Barvy ---------- */
 :root{
-  --accent:#1A7F37; --accent-strong:#116329; --accent-soft:#E6F4EA; --accent-fg:#FFFFFF; --accent-text:#116329; --accent-ring:rgba(26,127,55,.22);
-  --primary-bg:#1A7F37; --primary-fg:#FFFFFF;
+  --accent:#116329; --accent-strong:#0B4F20; --accent-soft:#E3F2E7; --accent-fg:#FFFFFF; --accent-text:#116329; --accent-ring:rgba(17,99,41,.22);
+  --primary-bg:#116329; --primary-fg:#FFFFFF;
   --text:#1F2328; --text-2:#424A53; --muted:#59636E;
   --bg-app:#FFFFFF; --bg-work:#F6F8FA; --bg-canvas:#FFFFFF; --bg-subtle:#EFF2F5;
   --border:#D8DEE4; --border-strong:#8C959F; --grid-dot:#CDD4DC;
   --ok:#1A7F37; --ok-soft:#DAFBE1; --warn:#9A6700; --warn-soft:#FFF8C5; --danger:#CF222E; --danger-soft:#FFEBE9;
   --info:#0969DA; --info-soft:#DDF4FF;
   --tip-bg:#1F2328; --tip-fg:#FFFFFF;
-  --focus:#1A7F37; --focus-ring:rgba(26,127,55,.18);
+  --focus:#116329; --focus-ring:rgba(17,99,41,.18);
   --sh-1:0 1px 2px rgba(31,35,40,.06); --sh-2:0 4px 16px rgba(31,35,40,.10); --sh-3:0 12px 36px rgba(31,35,40,.18);
   /* barvy kódu (zvýraznění syntaxe) */
   --code-bg:#F6F8FA; --c-str:#116329; --c-fn:#0550AE; --c-kw:#CF222E; --c-num:#953800; --c-op:#8250DF; --c-cm:#6E7781; --c-var:#1F2328;
@@ -33,15 +33,15 @@
   color-scheme:light;
 }
 [data-theme="dark"]{
-  --accent:#3FB950; --accent-strong:#56D364; --accent-soft:#12261A; --accent-fg:#0D1117; --accent-text:#56D364; --accent-ring:rgba(63,185,80,.25);
-  --primary-bg:#3FB950; --primary-fg:#0D1117;
+  --accent:#1F7A33; --accent-strong:#238636; --accent-soft:#11241A; --accent-fg:#FFFFFF; --accent-text:#4AC26B; --accent-ring:rgba(46,160,67,.30);
+  --primary-bg:#1F7A33; --primary-fg:#FFFFFF;
   --text:#E6EDF3; --text-2:#C9D1D9; --muted:#9198A1;
   --bg-app:#161B22; --bg-work:#0D1117; --bg-canvas:#12171E; --bg-subtle:#21262D;
   --border:#30363D; --border-strong:#6E7681; --grid-dot:#2A313A;
   --ok:#3FB950; --ok-soft:#12261A; --warn:#D29922; --warn-soft:#2B2111; --danger:#F85149; --danger-soft:#2D1517;
   --info:#58A6FF; --info-soft:#0F2338;
   --tip-bg:#E6EDF3; --tip-fg:#0D1117;
-  --focus:#3FB950; --focus-ring:rgba(63,185,80,.22);
+  --focus:#2EA043; --focus-ring:rgba(46,160,67,.25);
   --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 6px 20px rgba(0,0,0,.45); --sh-3:0 16px 44px rgba(0,0,0,.6);
   --code-bg:#0D1117; --c-str:#7EE787; --c-fn:#79C0FF; --c-kw:#FF7B72; --c-num:#FFA657; --c-op:#D2A8FF; --c-cm:#8B949E; --c-var:#E6EDF3;
   color-scheme:dark;
@@ -53,7 +53,7 @@ body.sesta{font-family:var(--font);font-size:14px;line-height:1.45;color:var(--t
   -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;overflow:hidden;
   display:flex;flex-direction:column;height:100vh;height:100dvh}
 body.sesta *,body.sesta *::before,body.sesta *::after{box-sizing:border-box}
-body.sesta button,body.sesta input,body.sesta select,body.sesta textarea{font-family:inherit;color:inherit}
+:where(body.sesta) :where(button,input,select,textarea){font-family:inherit;color:inherit}
 body.sesta > .s-main{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
 body.sesta > .s-main > *{flex:1;min-height:0}
 .s-i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -155,7 +155,7 @@ body.sesta > .s-main > *{flex:1;min-height:0}
 .s-toast .s-i{width:18px;height:18px}
 .s-toast.ok .s-i{color:#4AC26B}
 .s-toast.err .s-i{color:#FF8182}
-[data-theme="dark"] .s-toast.ok .s-i{color:#1A7F37}
+[data-theme="dark"] .s-toast.ok .s-i{color:#116329}
 [data-theme="dark"] .s-toast.err .s-i{color:#CF222E}
 .s-toast button{border:0;background:transparent;color:#4AC26B;font:700 13px var(--font);cursor:pointer;padding:4px 6px;border-radius:6px}
 [data-theme="dark"] .s-toast button{color:#116329}
@@ -206,7 +206,7 @@ body.sesta :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .c-seg button{height:32px;border:0;border-radius:8px;background:transparent;color:var(--text-2);font:500 14px var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:0 12px;white-space:nowrap;transition:background .15s,color .15s}
 .c-seg button:hover{color:var(--text)}
 .c-seg button.on{background:var(--accent);color:var(--accent-fg);font-weight:600}
-.c-seg button b{font-family:var(--mono);font-weight:700}
+.c-seg button b{font-weight:700}
 /* nástroje v liště */
 .c-tool{height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-app);color:var(--text-2);display:inline-flex;align-items:center;gap:7px;font:500 14px var(--font);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
 .c-tool:hover:not([disabled]){background:var(--bg-subtle);color:var(--text)}
@@ -228,7 +228,7 @@ body.sesta :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .c-badge.warn{background:var(--warn-soft);color:var(--warn)}
 .c-badge.bad{background:var(--danger-soft);color:var(--danger)}
 .c-badge.info{background:var(--info-soft);color:var(--info)}
-.c-timer{font:700 13px var(--mono);color:var(--text);background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:4px 10px;white-space:nowrap}
+.c-timer{font:700 13px var(--font);font-variant-numeric:tabular-nums;color:var(--text);background:var(--bg-subtle);border:1px solid var(--border);border-radius:8px;padding:4px 10px;white-space:nowrap}
 .c-prog{font-size:13px;color:var(--muted);white-space:nowrap}
 .c-prog b{color:var(--text)}
 .c-pbar{height:4px;background:var(--bg-subtle);border-radius:4px;overflow:hidden;width:140px;flex:none}
@@ -248,11 +248,11 @@ body.sesta :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .c-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:6px 0}
 .c-stat{background:var(--bg-app);border:1px solid var(--border);border-radius:12px;padding:14px 22px;min-width:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .c-stat .k{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.c-stat .v{font:700 38px var(--mono);line-height:1.2;color:var(--text)}
+.c-stat .v{font:700 38px var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.2;color:var(--text)}
 .c-stat .s{font-size:12px;color:var(--muted)}
 .c-ring{position:relative;width:110px;height:110px}
 .c-ring svg{transform:rotate(-90deg)}
-.c-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 24px var(--mono)}
+.c-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 24px var(--font)}
 /* drobnosti */
 .c-hint{font-size:13px;color:var(--muted);line-height:1.5}
 kbd.c-k{display:inline-block;font:600 12px var(--mono);background:var(--bg-subtle);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 6px;color:var(--text)}

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Symbol Sprint – SestaCode</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
-<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-rezim')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.1.0">
 <style>
 /* ===== Symbol Sprint ===== */
 .sp-steps{margin:0;padding-left:20px;color:var(--text-2);line-height:1.6;font-size:14px}
@@ -50,7 +50,7 @@
 <main class="s-main"><div class="c-app">
   <aside class="c-side" id="side">
     <section class="c-card">
-      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Jak hrát</span><span class="c-meta">15 znaků</span></button>
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Jak hrát</span><span class="c-meta">15 z 19 znaků</span></button>
       <div class="c-card-b">
         <ol class="sp-steps">
           <li>Na obrazovce je vždy jeden znak. Napiš ho na klávesnici.</li>
@@ -73,7 +73,9 @@
       <div class="c-card-b">
         <span class="c-lbl">Kdy ukázat, kde znak na klávesnici najdeš</span>
         <div class="c-opt" id="spHintOpt"><button type="button" data-h="auto">Po 2 chybách</button><button type="button" data-h="always">Vždy</button><button type="button" data-h="off">Nikdy</button></div>
-        <span class="c-lbl">Procvičované znaky</span>
+        <span class="c-lbl">Klávesnice (rozpoznáno automaticky)</span>
+        <div class="c-opt" id="spOsOpt"><button type="button" data-os="win">Windows</button><button type="button" data-os="mac">Mac</button></div>
+        <span class="c-lbl">Procvičované znaky (kolo vylosuje 15 z nich)</span>
         <div class="sp-set" id="spSet"></div>
       </div>
     </section>
@@ -88,8 +90,8 @@
     </div>
   </section>
 </div></main>
-<script src="../shared/apps.js?v=1.0.0"></script>
-<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script src="../shared/apps.js?v=1.1.0"></script>
+<script src="../shared/sesta-shell.js?v=1.1.0"></script>
 <script>
 'use strict';
 /* Symbol Sprint – rychlostní trénink programátorských znaků na české klávesnici.
@@ -99,21 +101,39 @@ const esc = SESTA.esc;
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 const SymbolSprintEngine = (() => {
-  // Základní sada znaků podle zadání (sada se dá rozšířit přidáním znaku sem)
-  const CHARS = ['.', ':', '(', ')', '[', ']', '$', ';', '/', '*', '-', '<', '>', '"', '!', '='];
+  // Sada znaků (od verze 1.1 navíc { } a _); kolo vylosuje 15 různých
+  const CHARS = ['.', ':', '(', ')', '[', ']', '{', '}', '$', ';', '/', '*', '-', '_', '<', '>', '"', '!', '='];
   const ROUND = 15;
   const NAMES = { '.':'tečka', ':':'dvojtečka', '(':'levá kulatá závorka', ')':'pravá kulatá závorka', '[':'levá hranatá závorka',
     ']':'pravá hranatá závorka', '$':'dolar', ';':'středník', '/':'lomítko', '*':'hvězdička', '-':'minus (pomlčka)',
-    '<':'menší než', '>':'větší než', '"':'uvozovky', '!':'vykřičník', '=':'rovnítko' };
-  // Umístění na české klávesnici ve Windows (rozložení „Čeština“, QWERTZ). AltGr = pravý Alt.
+    '<':'menší než', '>':'větší než', '"':'uvozovky', '!':'vykřičník', '=':'rovnítko',
+    '{':'levá složená závorka', '}':'pravá složená závorka', '_':'podtržítko' };
+  // Kde znak najdeš na české klávesnici. Windows: rozložení „Čeština“ (QWERTZ), AltGr = pravý Alt.
+  // Mac: rozložení „Czech“, Option = ⌥. U * a ! na Macu jsme pevnou kombinaci neověřili, proto odkaz na Prohlížeč klávesnic.
   const K = s => '<kbd class="c-k">' + s + '</kbd>';
-  const HINTS = { '.':'klávesa ' + K('.') + ' vpravo vedle čárky', ':':K('Shift') + ' + ' + K('.'),
-    '(':K('Shift') + ' + ' + K(')') + ' (klávesa vpravo od ú)', ')':'klávesa ' + K(')') + ' vpravo od ú',
-    '[':K('AltGr') + ' + ' + K('F'), ']':K('AltGr') + ' + ' + K('G'), '$':K('AltGr') + ' + ' + K('ů'),
-    ';':'klávesa ' + K(';') + ' vlevo nahoře pod Esc', '/':K('Shift') + ' + ' + K('ú') + ' nebo ' + K('/') + ' na numerické klávesnici',
-    '*':K('*') + ' na numerické klávesnici nebo ' + K('AltGr') + ' + ' + K('-'), '-':'klávesa ' + K('-') + ' vpravo dole nebo na numerické klávesnici',
-    '<':K('AltGr') + ' + ' + K(','), '>':K('AltGr') + ' + ' + K('.'), '"':K('Shift') + ' + ' + K('ů'),
-    '!':K('Shift') + ' + ' + K('§') + ' (vpravo od ů)', '=':'klávesa ' + K('=') + ' vpravo od é' };
+  const VIEWER = 'podrž ' + K('Option') + ' nebo ' + K('Shift') + ' a najdi ho v Prohlížeči klávesnic';
+  const HINTS = {
+    win: { '.':'klávesa ' + K('.') + ' vpravo vedle čárky', ':':K('Shift') + ' + ' + K('.'),
+      '(':K('Shift') + ' + ' + K(')') + ' (klávesa vpravo od ú)', ')':'klávesa ' + K(')') + ' vpravo od ú',
+      '[':K('AltGr') + ' + ' + K('F'), ']':K('AltGr') + ' + ' + K('G'), '{':K('AltGr') + ' + ' + K('B'), '}':K('AltGr') + ' + ' + K('N'),
+      '$':K('AltGr') + ' + ' + K('ů'), ';':'klávesa ' + K(';') + ' vlevo nahoře pod Esc',
+      '/':K('Shift') + ' + ' + K('ú') + ' nebo ' + K('/') + ' na numerické klávesnici',
+      '*':K('*') + ' na numerické klávesnici nebo ' + K('AltGr') + ' + ' + K('-'),
+      '-':'klávesa ' + K('-') + ' vpravo dole nebo na numerické klávesnici', '_':K('Shift') + ' + ' + K('-'),
+      '<':K('AltGr') + ' + ' + K(','), '>':K('AltGr') + ' + ' + K('.'), '"':K('Shift') + ' + ' + K('ů'),
+      '!':K('Shift') + ' + ' + K('§') + ' (vpravo od ů)', '=':'klávesa ' + K('=') + ' vpravo od é' },
+    mac: { '.':'klávesa ' + K('.') + ' vpravo vedle čárky', ':':K('Shift') + ' + ' + K('.'),
+      '(':K('Shift') + ' + ' + K(')') + ' (klávesa vpravo od ú)', ')':'klávesa ' + K(')') + ' vpravo od ú',
+      '[':K('Option') + ' + ' + K('ú'), ']':K('Option') + ' + ' + K(')'),
+      '{':K('Option') + ' + ' + K('í') + ' (klávesa 9)', '}':K('Option') + ' + ' + K('é') + ' (klávesa 0)',
+      '$':K('Option') + ' + ' + K('č') + ' (klávesa 4)', ';':K('Option') + ' + ' + K('ů'),
+      '/':K('Shift') + ' + ' + K('ú'), '*':VIEWER + ' (na numerické klávesnici je přímo ' + K('*') + ')',
+      '-':'klávesa ' + K('-') + ' vpravo dole', '_':K('Shift') + ' + ' + K('-'),
+      '<':K('Option') + ' + ' + K(','), '>':K('Option') + ' + ' + K('.'), '"':K('Shift') + ' + ' + K('ů'),
+      '!':VIEWER, '=':'klávesa ' + K('=') + ' vpravo od é' }
+  };
+  const OS_NAMES = { win:'Windows', mac:'Mac' };
+  const osMode = () => { const o = SESTA.store.get('os', SESTA.platform); return OS_NAMES[o] ? o : SESTA.platform; };
   const HINT_NAMES = { auto:'po 2 chybách', always:'vždy', off:'nikdy' };
   const S = { phase:'intro', seq:[], pos:0, errors:0, errBy:{}, curErr:0, lastWrong:null, acc:0, t0:0, running:false, tick:null, result:null };
   const hintMode = () => { const h = SESTA.store.get('hint', 'auto'); return HINT_NAMES[h] ? h : 'auto'; };
@@ -175,8 +195,10 @@ const SymbolSprintEngine = (() => {
     if(k === 'Escape'){ e.preventDefault(); newRound(); return; }        // ruční restart
     if(NAV.includes(k) || k === 'Enter'){ e.preventDefault(); return; }
     if(k.length !== 1) return;                                             // Shift, Ctrl, Alt, AltGr, mrtvé klávesy…
-    if((e.ctrlKey || e.metaKey) && !e.altKey) return;                      // zkratky prohlížeče (AltGr = Ctrl+Alt projde)
-    if(e.altKey && !e.ctrlKey && !(e.getModifierState && e.getModifierState('AltGraph'))) return;
+    if(e.metaKey) return;                                                  // zkratky na Macu (⌘)
+    if(e.ctrlKey && !e.altKey) return;                                     // zkratky prohlížeče (AltGr = Ctrl+Alt projde)
+    const mac = SESTA.isMac || osMode() === 'mac';                         // na Macu se znaky píšou i přes Option
+    if(e.altKey && !e.ctrlKey && !mac && !(e.getModifierState && e.getModifierState('AltGraph'))) return;
     e.preventDefault();
     if(k === S.seq[S.pos]) correct(); else wrong(k);
   }
@@ -188,7 +210,11 @@ const SymbolSprintEngine = (() => {
     $('spBest').innerHTML = row('Bez chyby', b.clean, 'kolo bez jediného chybného stisku') +
       row('Nejrychlejší kolo', b.any, typeof b.anyErr === 'number' ? 'chyb v tomto kole: ' + b.anyErr : 'i s chybami');
     $('spBestMeta').textContent = typeof b.clean === 'number' ? 'bez chyby ' + fmt(b.clean) : typeof b.any === 'number' ? fmt(b.any) : 'zatím žádné';
-    $('spHintMeta').textContent = HINT_NAMES[hintMode()];
+    $('spHintMeta').textContent = OS_NAMES[osMode()];
+    document.querySelectorAll('#spOsOpt button').forEach(b => {
+      b.classList.toggle('on', b.dataset.os === osMode());
+      b.onclick = () => { SESTA.store.set('os', b.dataset.os); b.blur(); renderSide(); if(S.phase === 'play') render(); };
+    });
     $('spSet').innerHTML = CHARS.map(c => '<span title="' + esc(NAMES[c]) + '">' + esc(c) + '</span>').join('');
     document.querySelectorAll('#spHintOpt button').forEach(b => {
       b.classList.toggle('on', b.dataset.h === hintMode());
@@ -221,7 +247,7 @@ const SymbolSprintEngine = (() => {
         '<div class="c-hero">' + SESTA.icon('keys') + '</div>' +
         '<h2>Připraveno 15 znaků</h2>' +
         '<p class="sub">Napiš každý znak na klávesnici. Po správném znaku hned naskočí další. Čas se spustí až prvním správným znakem, takže se můžeš v klidu připravit.</p>' +
-        '<div class="c-pills"><span>15 různých znaků</span><span>bez Enteru</span><span>chyby se počítají</span><span>Esc = restart kola</span></div>' +
+        '<div class="c-pills"><span>15 různých znaků z 19</span><span>bez Enteru</span><span>chyby se počítají</span><span>Esc = restart kola</span></div>' +
         '<div class="c-btns"><button class="s-btn pri lg" type="button" id="spStart">Nové kolo</button></div>' +
         '<p class="c-hint">nebo stiskni <kbd class="c-k">Enter</kbd> · ruce můžeš nechat na klávesnici</p></div>';
       $('spStart').onclick = e => { e.currentTarget.blur(); newRound(); };
@@ -253,7 +279,7 @@ const SymbolSprintEngine = (() => {
     const showHint = hintMode() === 'always' || (hintMode() === 'auto' && S.curErr >= 2);
     let fb = '';
     if(S.lastWrong !== null) fb += '<span class="wrong">Stiskl jsi <span class="mono">' + esc(S.lastWrong === ' ' ? 'mezerník' : S.lastWrong) + '</span>, zkus to znovu.</span>';
-    if(showHint) fb += '<span class="keyhint"><b>Kde ho najdeš:</b> ' + HINTS[ch] + '</span>';
+    if(showHint) fb += '<span class="keyhint"><b>Kde ho najdeš (' + OS_NAMES[osMode()] + '):</b> ' + HINTS[osMode()][ch] + '</span>';
     body.innerHTML = '<div class="sp-play">' +
       '<div class="sp-count">ZNAK <b>' + (S.pos + 1) + '</b> / ' + ROUND + '</div>' +
       '<div class="glyph' + (flash === 'bad' ? ' flash-bad shake' : flash === 'ok' ? ' flash-ok' : '') + '" id="spGlyph" aria-live="polite" aria-label="Znak ' + esc(NAMES[ch]) + '">' + esc(ch) + '</div>' +
@@ -283,7 +309,7 @@ const SymbolSprintEngine = (() => {
 SESTA.init({
   app: 'symbol-sprint',
   panel: '#side',
-  subtitle: () => 'česká klávesnice',
+  subtitle: () => 'česká klávesnice · ' + (SESTA.isMac ? 'Mac' : 'Windows'),
   helpKey: () => !SymbolSprintEngine.playing(),       // během hry je „?“ obyčejná (chybná) klávesa
   shortcuts: [ { label:'Nové kolo', keys:'Enter' }, { label:'Restartovat kolo během hry', keys:'Esc' } ]
 });

@@ -1,5 +1,5 @@
 /* =====================================================================
-   SestaCode – sdílená kostra v1.0 (vychází z CabiNet 1.2)
+   SestaCode – sdílená kostra v1.1 (vychází z CabiNet 1.2)
    Hlavička (logo, nabídka aplikací, ikony), patička, Nastavení,
    klávesové zkratky, soubory (obálka .json), oznámení se „Vrátit“,
    karty v levém panelu, tažení levého sloupce, hodiny na rozcestníku.
@@ -19,7 +19,7 @@ const ss = (() => { try { sessionStorage.setItem('_t','1'); sessionStorage.remov
 const ls = (() => { try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return localStorage; } catch(e){ return ss; } })();
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PREFIX = 'scode:';                 // klíče v prohlížeči (odlišné od CabiNetu na stejné doméně)
-const THEME_KEY = 'sestacode-theme';
+const THEME_KEY = 'sestacode-rezim';   // od verze 1.1 (všechny aplikace začínají v tmavém režimu)
 
 /* ---------- ikony (styl Lucide) ---------- */
 const P = {
@@ -62,9 +62,13 @@ const P = {
 };
 const icon = (n, cls='s-i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
 S.icon = icon;
-const isMac = /Mac|iPhone|iPad/.test(navigator.platform||'');
+/* ---------- systém: Windows / Mac (zkratky a nápovědy kláves se přizpůsobí) ---------- */
+const isMac = /Mac|iPhone|iPad/i.test((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '');
 const MOD = isMac ? '⌘' : 'Ctrl';
-S.MOD = MOD;
+S.isMac = isMac; S.platform = isMac ? 'mac' : 'win'; S.MOD = MOD; S.ALT = isMac ? 'Option' : 'Alt';
+/* zápis zkratky pro aktuální systém: „Ctrl+Z“ → „⌘+Z“, „Alt+N“ → „Option+N“, „Ctrl+Y“ → „⌘+Shift+Z“ */
+const keyLabel = s => !isMac ? String(s) : String(s).replace(/Ctrl\+Y/g, '⌘+Shift+Z').replace(/Ctrl/g, '⌘').replace(/\bAlt\b/g, 'Option').replace(/\bDelete\b/g, 'Delete ⌫');
+S.keyLabel = keyLabel;
 
 /* ---------- stav kostry ---------- */
 let C = null;               // konfigurace aplikace
@@ -151,7 +155,7 @@ let tipEl, tipT, tipFor;
 function tipShow(t){
   if (!tipEl){ tipEl = el('<div class="s-tip" role="tooltip"></div>'); doc.body.appendChild(tipEl); }
   const k = t.dataset.key;
-  tipEl.innerHTML = esc(t.dataset.tip) + (k ? `<kbd>${esc(k)}</kbd>` : '');
+  tipEl.innerHTML = esc(t.dataset.tip) + (k ? `<kbd>${esc(keyLabel(k))}</kbd>` : '');
   const r = t.getBoundingClientRect(); tipEl.style.left = '0px'; tipEl.style.top = '0px'; tipEl.classList.add('show');
   const w = tipEl.offsetWidth;
   tipEl.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width/2 - w/2)) + 'px';
@@ -287,11 +291,11 @@ addEventListener('beforeunload', e => { if (!leaving && C && C.serialize && st.d
 /* ---------- přehled zkratek ---------- */
 function shortcuts(){
   const common = [];
-  if (C.actions.new) common.push(['Nový', 'Alt+N']);
+  if (C.actions.new) common.push(['Nový', S.ALT + '+N']);
   if (C.load) common.push(['Otevřít', MOD + '+O']);
   if (C.serialize) common.push(['Uložit', MOD + '+S']);
   common.push(['Zavřít nabídku nebo okno', 'Esc'], ['Přehled zkratek', '?']);
-  const row = ([l,k]) => `<span>${esc(l)}</span><span>${k.split(' / ').map(x=>`<kbd>${esc(x)}</kbd>`).join(' ')}</span>`;
+  const row = ([l,k]) => `<span>${esc(l)}</span><span>${keyLabel(k).split(' / ').map(x=>`<kbd>${esc(x)}</kbd>`).join(' ')}</span>`;
   let h = '<div class="s-keys"><h4>Společné</h4>' + common.map(row).join('');
   if (C.shortcuts && C.shortcuts.length) h += `<h4>V této aplikaci</h4>` + C.shortcuts.map(s => row([s.label, s.keys])).join('');
   modal({ title:'Klávesové zkratky', body:h + '</div>' });
@@ -318,7 +322,7 @@ function header(){
   const act = h.querySelector('.s-actions');
   let html = '';
   if (files){
-    html += `<button type="button" class="s-ib" id="sNew" data-tip="Nový" data-key="Alt+N" aria-label="Nový" ${AC.new?'':'disabled'}>${icon('new')}</button>
+    html += `<button type="button" class="s-ib" id="sNew" data-tip="Nový" data-key="${S.ALT}+N" aria-label="Nový" ${AC.new?'':'disabled'}>${icon('new')}</button>
       <button type="button" class="s-ib" id="sOpen" data-tip="Otevřít" data-key="${MOD}+O" aria-label="Otevřít" ${C.load?'':'disabled'}>${icon('open')}</button>
       <button type="button" class="s-ib" id="sSave" data-tip="Uložit" data-key="${MOD}+S" aria-label="Uložit" ${C.serialize?'':'disabled'}>${icon('save')}<span class="s-dot" id="sSaveDot" hidden></span></button>
       <span class="s-sep"></span>`;
@@ -470,7 +474,10 @@ S.init = function(cfg){
   A = C.app === 'hub' ? { id:'hub', name:S.brand.name, icon:'code', version:S.brand.version, year:S.brand.year, desc:S.brand.tagline } : S.apps.find(a => a.id === C.app);
   if (!A) throw new Error('Aplikace ' + C.app + ' není v shared/apps.js');
   doc.body.classList.add('sesta');
+  doc.body.classList.add(isMac ? 'is-mac' : 'is-win');
   S.icons(doc);
+  /* klávesy napsané přímo v HTML (<kbd>Ctrl</kbd>) se na Macu přepíšou */
+  if (isMac) doc.querySelectorAll('kbd').forEach(k => { if (k.textContent === 'Ctrl') k.textContent = '⌘'; else if (k.textContent === 'Alt') k.textContent = 'Option'; });
   header(); footer(); pcBar(); dropZone(); resizer();
   if (C.app === 'hub' && C.clock) clock();
   addEventListener('keydown', keys, true);
