@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowchart Puzzle – SestaCode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<style>
+/* ===== Flowchart Puzzle ===== */
+:root{--fc-seq:#2563EB;--fc-seq-f:#EAF2FF;--fc-if:#7C3AED;--fc-if-f:#F3EBFF;--fc-loop:#EA580C;--fc-loop-f:#FFF1E5;--fc-line:#57606A}
+[data-theme="dark"]{--fc-seq:#79C0FF;--fc-seq-f:rgba(121,192,255,.12);--fc-if:#D2A8FF;--fc-if-f:rgba(210,168,255,.14);--fc-loop:#FFA657;--fc-loop-f:rgba(255,166,87,.14);--fc-line:rgba(230,237,243,.55)}
+.libcard{display:flex;align-items:center;gap:14px;width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg-app);cursor:grab;text-align:left;transition:background .15s,border-color .15s;touch-action:none;box-shadow:var(--sh-1)}
+.libcard:hover{background:var(--bg-subtle)}
+.libcard[data-type="seq"]:hover{border-color:var(--fc-seq)}
+.libcard[data-type="if"]:hover{border-color:var(--fc-if)}
+.libcard[data-type="loop"]:hover{border-color:var(--fc-loop)}
+.libcard svg{flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.libcard .t{font-size:15px;font-weight:700;color:var(--text)}
+.libcard .d{font-size:12.5px;color:var(--muted);margin-top:1px;line-height:1.35}
+.pv-line{stroke:var(--fc-line)} .pv-seq{stroke:var(--fc-seq);fill:var(--fc-seq-f)} .pv-seq-o{stroke:var(--fc-seq)}
+.pv-if{stroke:var(--fc-if);fill:var(--fc-if-f)} .pv-loop{stroke:var(--fc-loop);fill:var(--fc-loop-f)} .pv-ret{stroke:var(--fc-loop)}
+.fc-tips{margin:0;padding-left:18px;color:var(--text-2);line-height:1.55;font-size:13.5px}
+.fc-tips li{margin-bottom:4px}
+.fc-canvas{background-color:var(--bg-canvas);background-image:radial-gradient(circle, var(--grid-dot) 1.1px, transparent 1.5px);background-size:20px 20px}
+#fcSvg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;user-select:none}
+#fcSvg.panning{cursor:grabbing}
+.blk{cursor:grab}
+.blk .shape{transition:stroke-width .12s}
+.blk:hover .shape{stroke-width:2.3px}
+.blk .shape.sel{stroke-width:2.6px}
+.fc-hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);pointer-events:none;background:var(--bg-app);border:1px solid var(--border);padding:3px 10px;border-radius:999px;opacity:.92}
+#fcSel{overflow:hidden;text-overflow:ellipsis;min-width:0}
+#fcSel b{color:var(--text)}
+.fc-ghost{position:fixed;left:0;top:0;z-index:80;pointer-events:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:12px;background:var(--bg-app);color:var(--text);border:1px solid var(--border);box-shadow:var(--sh-3);font-size:14px;font-weight:500}
+.fc-ghost[hidden]{display:none}
+body.dragging, body.dragging *{cursor:grabbing !important;user-select:none}
+</style>
+</head>
+<body>
+<main class="s-main"><div class="c-app">
+  <aside class="c-side" id="side">
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Knihovna struktur</span><span class="c-meta">3 struktury</span></button>
+      <div class="c-card-b">
+        <button class="libcard" type="button" data-type="seq" aria-label="Přidat sekvenci">
+          <svg width="56" height="44" viewBox="0 0 56 44"><path class="pv-line" d="M28 2v7" stroke-width="1.4"/><rect class="pv-seq" x="6" y="11" width="44" height="22" rx="5" stroke-width="1.5"/><path class="pv-line" d="M28 33v8" stroke-width="1.4"/></svg>
+          <span><span class="t">Sekvence</span><span class="d" style="display:block">Jeden krok algoritmu</span></span>
+        </button>
+        <button class="libcard" type="button" data-type="if" aria-label="Přidat selekci IF">
+          <svg width="56" height="44" viewBox="0 0 56 44"><path class="pv-if" d="M28 3l12 8-12 8-12-8z" stroke-width="1.5"/><path class="pv-line" d="M16 11H7v9M40 11h9v9" stroke-width="1.4"/><rect class="pv-seq-o" x="2" y="20" width="10" height="8" rx="2" stroke-width="1.3"/><rect class="pv-seq-o" x="44" y="20" width="10" height="8" rx="2" stroke-width="1.3"/><path class="pv-line" d="M7 28v8h42v-8M28 36v6" stroke-width="1.4"/></svg>
+          <span><span class="t">Selekce</span><span class="d" style="display:block">Rozhodování IF, větve ANO a NE</span></span>
+        </button>
+        <button class="libcard" type="button" data-type="loop" aria-label="Přidat cyklus">
+          <svg width="56" height="44" viewBox="0 0 56 44"><path class="pv-line" d="M18 2v5" stroke-width="1.4"/><path class="pv-loop" d="M18 7l11 7-11 7-11-7z" stroke-width="1.5"/><path class="pv-line" d="M29 14h13v4" stroke-width="1.4"/><rect class="pv-seq-o" x="35" y="18" width="14" height="9" rx="2" stroke-width="1.3"/><path class="pv-ret" d="M42 27v6H22v-13" stroke-width="1.4"/><path class="pv-ret" d="M19.5 22.5L22 19l2.5 3.5" stroke-width="1.4"/><path class="pv-line" d="M18 21v21" stroke-width="1.4"/></svg>
+          <span><span class="t">Cyklus</span><span class="d" style="display:block">Opakování s návratem na začátek</span></span>
+        </button>
+        <p class="c-hint">Kartu přetáhni na plátno přesně tam, kam blok patří. Kliknutím přidáš blok za vybraný blok, nebo na konec diagramu.</p>
+      </div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">2</span><span class="c-ttl">Diagram</span><span class="c-meta" id="fcMeta"></span></button>
+      <div class="c-card-b">
+        <div class="c-tiles" id="fcTiles"></div>
+        <div class="c-info"><i data-i="info"></i><span>Rozpracovaný diagram se drží do zavření prohlížeče. Natrvalo ho ulož tlačítkem Uložit v hlavičce.</span></div>
+      </div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">3</span><span class="c-ttl">Jak na to</span><span class="c-meta">nápověda</span></button>
+      <div class="c-card-b">
+        <ul class="fc-tips">
+          <li>Blok přesuneš tažením. S IF a cyklem se přesouvá i všechno, co je v nich vnořené – chyť je za kosočtverec.</li>
+          <li>Při tažení se zvýrazní místo, kam blok vložíš. Prázdná větev má pole se znaménkem +.</li>
+          <li>Kolečko myši plátno přibližuje, tažením prázdné plochy plátno posuneš.</li>
+          <li>Smazání vrátíš tlačítkem Vrátit v oznámení nebo klávesami <kbd class="c-k">Ctrl</kbd> + <kbd class="c-k">Z</kbd>.</li>
+        </ul>
+      </div>
+    </section>
+  </aside>
+  <section class="c-work">
+    <div class="c-tb">
+      <span class="c-prog" id="fcSel"></span>
+      <span class="c-grow"></span>
+      <button class="c-tool" type="button" id="tDup" data-tip="Duplikovat vybraný blok" data-key="Ctrl+D" aria-label="Duplikovat vybraný blok"><i data-i="copy"></i>Duplikovat</button>
+      <span class="c-tsep"></span>
+      <button class="c-tool ghost" type="button" id="tUndo" data-tip="Zpět" data-key="Ctrl+Z" aria-label="Zpět"><i data-i="undo"></i></button>
+      <button class="c-tool ghost" type="button" id="tRedo" data-tip="Znovu" data-key="Ctrl+Y" aria-label="Znovu"><i data-i="redo"></i></button>
+      <button class="c-tool ghost danger" type="button" id="tDel" data-tip="Smazat vybraný blok" data-key="Delete" aria-label="Smazat vybraný blok"><i data-i="trash"></i></button>
+    </div>
+    <div class="c-area">
+      <div class="c-sheet fc-canvas" id="fcCanvas">
+        <svg id="fcSvg" xmlns="http://www.w3.org/2000/svg" aria-label="Plátno vývojového diagramu"><g id="fcVp"><g id="fcContent"></g><g id="fcOverlay"></g></g></svg>
+        <div class="fc-hint">Kolečko myši = přiblížení · tažení plochy = posun</div>
+      </div>
+    </div>
+    <div class="c-zoom" aria-label="Přiblížení">
+      <button type="button" id="tZoomOut" data-tip="Oddálit" aria-label="Oddálit"><i data-i="minus"></i></button>
+      <span id="fcZoom">100 %</span>
+      <button type="button" id="tZoomIn" data-tip="Přiblížit" aria-label="Přiblížit"><i data-i="plus"></i></button>
+      <button type="button" id="tFit" data-tip="Vycentrovat diagram" aria-label="Vycentrovat diagram"><i data-i="focus"></i></button>
+    </div>
+  </section>
+</div></main>
+<div class="fc-ghost" id="dragGhost" hidden></div>
+<script src="../shared/apps.js?v=1.0.0"></script>
+<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script>
+'use strict';
+/* Flowchart Puzzle – vývojové diagramy (sekvence, selekce, cyklus, vnořování)
+   Moduly: DiagramHistory (undo/redo), FlowchartEngine (model, rozložení, SVG), DragDropController (tažení) */
+const $ = id => document.getElementById(id);
+const esc = SESTA.esc;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* Malé náhledy tvarů pro ghost při tažení */
+const Shapes = {
+  miniShape(type){
+    if(type === 'seq') return '<svg width="30" height="22" viewBox="0 0 30 22"><rect x="2" y="4" width="26" height="14" rx="3.5" style="fill:var(--fc-seq-f);stroke:var(--fc-seq)" stroke-width="1.5"/></svg>';
+    const c = type === 'if' ? 'if' : 'loop';
+    return '<svg width="30" height="22" viewBox="0 0 30 22"><path d="M15 2l12 9-12 9-12-9z" style="fill:var(--fc-' + c + '-f);stroke:var(--fc-' + c + ')" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  }
+};
+
+/* =====================================================================
+   DiagramHistory – undo / redo pomocí snímků modelu
+   ===================================================================== */
+const DiagramHistory = (() => {
+  const LIMIT = 150;
+  let undo = [], redo = [];
+  return {
+    push(snap){ undo.push(snap); if(undo.length > LIMIT) undo.shift(); redo = []; },
+    undo(current){ if(!undo.length) return null; redo.push(current); return undo.pop(); },
+    redo(current){ if(!redo.length) return null; undo.push(current); return redo.pop(); },
+    canUndo: () => undo.length > 0,
+    canRedo: () => redo.length > 0
+  };
+})();
+
+/* =====================================================================
+   FlowchartEngine – datový model, operace, rozložení a SVG renderování
+   ===================================================================== */
+const FlowchartEngine = (() => {
+  /* ---------- Konfigurace ---------- */
+  // Typy struktur a jejich vkládací oblasti (větve)
+  const TYPES = {
+    seq:  { name:'Sekvence',     slots:[] },
+    if:   { name:'Selekce (IF)', slots:['yes','no'] },
+    loop: { name:'Cyklus',       slots:['body'] }
+  };
+  const SLOT_NAME = { yes:'větev ANO', no:'větev NE', body:'tělo cyklu', root:'hlavní diagram' };
+  // Podle referenčního obrázku: NE vlevo, ANO vpravo. Změnou na 'left' se větve prohodí.
+  const YES_SIDE = 'right';
+  // Rozměry (v jednotkách diagramu)
+  const D = { seqW:128, seqH:42, dW:104, dH:58, gap:34, slotW:76, slotH:30, rootSlotW:230, rootSlotH:46,
+              drop:26, colGap:36, merge:24, loopPad:30, ret:20, tail:16 };
+  // Barevná témata: obrazovka (tmavé) a export PNG (světlé, pro tisk)
+  const THEMES = {
+    dark:  { line:'rgba(230,237,243,.55)', seqFill:'rgba(121,192,255,.10)', seqStroke:'#79c0ff',
+             ifFill:'rgba(210,168,255,.12)', ifStroke:'#d2a8ff', loopFill:'rgba(255,166,87,.12)', loopStroke:'#ffa657',
+             ret:'#ffa657', yes:'#56d364', no:'#ff7b72', pillBg:'#12171E', text:'rgba(230,237,243,.75)', term:'#e6edf3',
+             slot:'rgba(121,192,255,.42)', slotText:'rgba(230,237,243,.45)', sel:'#3FB950', drop:'#3FB950', dropFg:'#0D1117' },
+    light: { line:'#57606A', seqFill:'#EAF2FF', seqStroke:'#2563EB',
+             ifFill:'#F3EBFF', ifStroke:'#7C3AED', loopFill:'#FFF1E5', loopStroke:'#EA580C',
+             ret:'#EA580C', yes:'#1A7F37', no:'#CF222E', pillBg:'#FFFFFF', text:'#424A53', term:'#1F2328',
+             slot:'#8C959F', slotText:'#8C959F', sel:'#1A7F37', drop:'#1A7F37', dropFg:'#FFFFFF' }
+  };
+
+  /* ---------- Stav ---------- */
+  let m = emptyModel();        // datový model
+  let sel = null;              // ID vybraného bloku
+  let dragIds = null;          // Set ID právě přesouvaného podstromu
+  let last = null;             // výsledek posledního renderu (vkládací body, oblasti, rozměry)
+  const view = { tx:0, ty:0, k:1 };
+  let fitted = false;
+
+  /* ---------- Datový model (stromová struktura) ----------
+     model = { nodes: { id: Node }, root: [id, ...], seq: počítadlo ID }
+     Node  = { id, type, parent (ID rodiče | null), slot ('root' | 'yes' | 'no' | 'body'),
+               slots: { yes:[], no:[] } | { body:[] } | {}, layout: {} }               */
+  function emptyModel(){ return { nodes:{}, root:[], seq:1 }; }
+  function newId(){ let id; do { id = 'b' + (m.seq++); } while(m.nodes[id]); return id; }
+  function makeNode(type){
+    const id = newId(), slots = {};
+    TYPES[type].slots.forEach(s => slots[s] = []);
+    return (m.nodes[id] = { id, type, parent:null, slot:'root', slots, layout:{} });
+  }
+  const listOf = ref => ref.parent === null ? m.root : m.nodes[ref.parent].slots[ref.slot];
+  const refOf = id => ({ parent: m.nodes[id].parent, slot: m.nodes[id].slot });
+  const childrenOf = n => TYPES[n.type].slots.flatMap(s => n.slots[s]);
+  const refKey = ref => (ref.parent === null ? 'root' : ref.parent + '/' + ref.slot);
+  // Je „anc“ předkem uzlu „id“ (nebo jím samým)?
+  function isAncestor(anc, id){
+    let cur = id, guard = 0;
+    while(cur !== null && cur !== undefined && guard++ < 10000){
+      if(cur === anc) return true;
+      cur = m.nodes[cur] ? m.nodes[cur].parent : null;
+    }
+    return false;
+  }
+  // Zákaz vložení struktury do sebe sama nebo do vlastního potomka
+  function canDrop(id, ref){ if(!id || ref.parent === null) return true; return !isAncestor(id, ref.parent); }
+  function subtree(id){ const out = [id]; childrenOf(m.nodes[id]).forEach(c => out.push(...subtree(c))); return out; }
+  function levelOf(id){ let d = 1, cur = m.nodes[id].parent; while(cur !== null){ d++; cur = m.nodes[cur].parent; } return d; }
+  function maxLevel(){ let mx = 0; Object.keys(m.nodes).forEach(id => { mx = Math.max(mx, levelOf(id)); }); return mx; }
+
+  /* ---------- Operace nad modelem (každá je jeden krok historie) ---------- */
+  const snapshot = () => JSON.stringify(m);
+  function commit(fn){
+    const before = snapshot();
+    if(fn() === false) return false;
+    DiagramHistory.push(before);
+    afterChange();
+    return true;
+  }
+  function insertAt(id, ref, index){
+    const list = listOf(ref);
+    list.splice(clamp(index, 0, list.length), 0, id);
+    const n = m.nodes[id]; n.parent = ref.parent; n.slot = ref.parent === null ? 'root' : ref.slot;
+  }
+  function detach(id){ const list = listOf(refOf(id)), i = list.indexOf(id); if(i >= 0) list.splice(i, 1); }
+  function addBlock(type, ref, index){
+    if(!TYPES[type]) return null;
+    let nid = null;
+    commit(() => { const n = makeNode(type); insertAt(n.id, ref, index); nid = n.id; });
+    select(nid, true);
+    return nid;
+  }
+  // Kliknutí na kartu v knihovně: za vybraný blok, jinak na konec diagramu
+  function addByClick(type){
+    if(sel && m.nodes[sel]){ const ref = refOf(sel); return addBlock(type, ref, listOf(ref).indexOf(sel) + 1); }
+    return addBlock(type, { parent:null, slot:'root' }, m.root.length);
+  }
+  function moveBlock(id, ref, index){
+    if(!m.nodes[id] || !canDrop(id, ref)) return false;
+    const cur = refOf(id), ci = listOf(cur).indexOf(id);
+    const same = refKey(cur) === refKey(ref);
+    if(same && (index === ci || index === ci + 1)) return false;   // pozice se nemění
+    const ok = commit(() => { detach(id); insertAt(id, ref, same && ci < index ? index - 1 : index); });
+    if(ok) select(id, true);
+    return ok;
+  }
+  // Hluboká kopie podstromu s novými ID (žádné duplicitní identifikátory)
+  function cloneSub(id){
+    const src = m.nodes[id], n = makeNode(src.type);
+    n.layout = Object.assign({}, src.layout);
+    TYPES[src.type].slots.forEach(s => {
+      n.slots[s] = src.slots[s].map(cid => { const c = cloneSub(cid); m.nodes[c].parent = n.id; m.nodes[c].slot = s; return c; });
+    });
+    return n.id;
+  }
+  function duplicate(id = sel){
+    if(!id || !m.nodes[id]) return null;
+    let nid = null;
+    commit(() => { const ref = refOf(id), i = listOf(ref).indexOf(id); nid = cloneSub(id); insertAt(nid, ref, i + 1); });
+    select(nid, true);
+    return nid;
+  }
+  function remove(id = sel){
+    if(!id || !m.nodes[id]) return false;
+    const all = subtree(id);
+    const name = TYPES[m.nodes[id].type].name, n = all.length;
+    commit(() => { detach(id); all.forEach(x => delete m.nodes[x]); });
+    if(!m.nodes[sel]) sel = null;
+    render(); updateTools();
+    SESTA.toast('Smazáno: ' + name + (n > 1 ? ' a ' + (n - 1) + ' vnořených' : ''), { action:{ label:'Vrátit', run:undo } });
+    return true;
+  }
+  // Nový diagram (tlačítko Nový v hlavičce; při neuložené práci se kostra nejdřív zeptá)
+  function clearAll(){
+    commit(() => { if(!m.root.length) return false; const seq = m.seq; m = emptyModel(); m.seq = seq; });
+    sel = null; render(); updateTools(); fit();
+  }
+  function undo(){ const s = DiagramHistory.undo(snapshot()); if(s){ m = JSON.parse(s); if(sel && !m.nodes[sel]) sel = null; afterChange(); } }
+  function redo(){ const s = DiagramHistory.redo(snapshot()); if(s){ m = JSON.parse(s); if(sel && !m.nodes[sel]) sel = null; afterChange(); } }
+  function afterChange(){ persist(); SESTA.changed(); render(); updateTools(); }
+  function select(id, reveal){
+    sel = id && m.nodes[id] ? id : null;
+    render(); updateTools();
+    if(reveal && sel) ensureVisible(sel);
+  }
+
+  /* ---------- Serializace, validace, ukládání ---------- */
+  const LEGACY_FORMAT = 'sestacode-junior-flowchart';   // soubory ze SESTA.CODE Junior
+  function toData(){
+    const ser = id => { const n = m.nodes[id], o = { id:n.id, type:n.type };
+      TYPES[n.type].slots.forEach(s => o[s] = n.slots[s].map(ser)); return o; };
+    return { blocks:m.root.map(ser) };
+  }
+  function validate(data){
+    if(!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('soubor neobsahuje diagram.');
+    if(!Array.isArray(data.blocks)) throw new Error('v souboru chybí seznam bloků.');
+    let count = 0; const ids = new Set();
+    const check = (b, depth) => {
+      if(depth > 40) throw new Error('diagram je vnořený příliš hluboko.');
+      if(++count > 1000) throw new Error('diagram obsahuje příliš mnoho bloků.');
+      if(!b || typeof b !== 'object' || Array.isArray(b)) throw new Error('soubor obsahuje neplatný blok.');
+      if(!Object.prototype.hasOwnProperty.call(TYPES, b.type)) throw new Error('neznámý typ bloku: ' + String(b.type).slice(0,20));
+      if(b.id !== undefined){
+        if(typeof b.id !== 'string' || !b.id) throw new Error('blok má neplatné ID.');
+        if(ids.has(b.id)) throw new Error('diagram obsahuje duplicitní ID bloku: ' + b.id.slice(0,20));
+        ids.add(b.id);
+      }
+      TYPES[b.type].slots.forEach(s => {
+        if(!Array.isArray(b[s])) throw new Error('blok „' + TYPES[b.type].name + '“ nemá platnou část: ' + SLOT_NAME[s] + '.');
+        b[s].forEach(c => check(c, depth + 1));
+      });
+    };
+    data.blocks.forEach(b => check(b, 1));
+    return true;
+  }
+  // Ze stromu vytvoří nový model; ID se přidělí znovu, takže nemůže dojít ke kolizi
+  function fromTree(data){
+    validate(data);
+    const prev = m; m = emptyModel();
+    const build = (b, ref) => { const n = makeNode(b.type); insertAt(n.id, ref, listOf(ref).length);
+      TYPES[b.type].slots.forEach(s => b[s].forEach(c => build(c, { parent:n.id, slot:s }))); };
+    try { data.blocks.forEach(b => build(b, { parent:null, slot:'root' })); }
+    catch(e){ m = prev; throw e; }
+    const res = m; m = prev; return res;
+  }
+  // Rozpracovaný diagram se drží jen v paměti panelu prohlížeče (do zavření); trvale jen do souboru
+  function persist(){ SESTA.store.set('diagram', toData()); }
+  function legacy(o){ return (o && o.format === LEGACY_FORMAT && Array.isArray(o.blocks)) ? { blocks:o.blocks } : null; }
+  // Otevření souboru (volá kostra); vadný soubor vyhodí chybu a nic se nepřepíše
+  function load(data){
+    const nm = fromTree(data);
+    commit(() => { m = nm; });
+    sel = null; render(); updateTools(); fit();
+  }
+  function loadSaved(){
+    const d = SESTA.store.get('diagram', null);
+    if(!d) return;
+    try { m = fromTree(d); } catch(e){ m = emptyModel(); }
+  }
+
+  /* ---------- Rozložení (shora dolů) ----------
+     Každá struktura se měří relativně ke své svislé ose:
+     left / right = rozsah vlevo a vpravo od osy, h = výška; vstup nahoře na ose, výstup dole na ose. */
+  function mList(ids, cache, root){
+    if(!ids.length){
+      const w = root ? D.rootSlotW : D.slotW, h = root ? D.rootSlotH : D.slotH;
+      return { left:-w/2, right:w/2, h, ys:[], empty:true, sw:w };
+    }
+    let y = 0, left = -D.seqW/2, right = D.seqW/2; const ys = [];
+    ids.forEach((id, i) => {
+      const s = mNode(id, cache); ys.push(y);
+      left = Math.min(left, s.left); right = Math.max(right, s.right);
+      y += s.h + (i < ids.length - 1 ? D.gap : 0);
+    });
+    return { left, right, h:y, ys, empty:false };
+  }
+  function mNode(id, cache){
+    if(cache.has(id)) return cache.get(id);
+    const n = m.nodes[id]; let r;
+    if(n.type === 'seq'){
+      r = { left:-D.seqW/2, right:D.seqW/2, h:D.seqH };
+    } else if(n.type === 'if'){
+      const yes = mList(n.slots.yes, cache), no = mList(n.slots.no, cache);
+      const L = YES_SIDE === 'right' ? no : yes, R = YES_SIDE === 'right' ? yes : no;
+      const off = D.dW/2 + 26;
+      const lx = Math.min(-off, -D.colGap/2 - L.right);
+      const rx = Math.max(off, D.colGap/2 - R.left);
+      const bt = D.dH/2 + D.drop;
+      const my = bt + Math.max(L.h, R.h) + D.merge;
+      r = { left:Math.min(lx + L.left, -D.dW/2 - 40), right:Math.max(rx + R.right, D.dW/2 + 40), h:my,
+            lx, rx, bt, my, L, R, Lslot: YES_SIDE === 'right' ? 'no' : 'yes', Rslot: YES_SIDE === 'right' ? 'yes' : 'no' };
+    } else {
+      const B = mList(n.slots.body, cache);
+      const bx = D.dW/2 + D.loopPad - B.left;
+      const bt = D.dH/2 + D.drop, bb = bt + B.h, ry = bb + D.ret;
+      r = { left:-D.dW/2 - 8, right:bx + B.right, h:Math.max(ry + D.tail, D.dH + 34), bx, bt, bb, ry, B };
+    }
+    cache.set(id, r);
+    return r;
+  }
+
+  /* ---------- Renderování do SVG ----------
+     mode 'edit' = plátno (prázdné větve mají vkládací pole), 'export' = PNG (prázdná větev je jen čára) */
+  const f1 = v => (Math.round(v*10)/10);
+  const pt = p => f1(p[0]) + ' ' + f1(p[1]);
+  // Lomená čára se zaoblenými rohy
+  function rpath(pts, r = 8){
+    let d = 'M' + pt(pts[0]);
+    for(let i = 1; i < pts.length - 1; i++){
+      const [x0,y0] = pts[i-1], [x1,y1] = pts[i], [x2,y2] = pts[i+1];
+      const l1 = Math.hypot(x1-x0, y1-y0), l2 = Math.hypot(x2-x1, y2-y1);
+      const rr = Math.min(r, l1/2, l2/2);
+      if(rr < 0.5){ d += ' L' + pt(pts[i]); continue; }
+      d += ' L' + pt([x1-(x1-x0)/l1*rr, y1-(y1-y0)/l1*rr]) + ' Q' + pt(pts[i]) + ' ' + pt([x1+(x2-x1)/l2*rr, y1+(y2-y1)/l2*rr]);
+    }
+    return d + ' L' + pt(pts[pts.length-1]);
+  }
+  function build(mode, themeName, dimSet){
+    const T = THEMES[themeName], edit = mode === 'edit', cache = new Map();
+    const Bk = [], Ln = [], Sh = [], Lb = [];           // vrstvy: pozadí, čáry, tvary, štítky
+    const ins = [], regions = {}, ext = {};
+    const op = d => d ? ' opacity=".25"' : '';
+    const line = (pts, d, color) => Ln.push('<path d="' + rpath(pts) + '" fill="none" stroke="' + (color || T.line) + '" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"' + op(d) + '/>');
+    // Čára zakončená šipkou (hrot přesně v posledním bodě)
+    function arrow(pts, d, color){
+      const c = color || T.line, p2 = pts[pts.length-1], p1 = pts[pts.length-2];
+      const L = Math.hypot(p2[0]-p1[0], p2[1]-p1[1]) || 1, ux = (p2[0]-p1[0])/L, uy = (p2[1]-p1[1])/L;
+      const hl = 9, hw = 4.6;
+      if(L > hl) line(pts.slice(0,-1).concat([[p2[0]-ux*(hl-1.5), p2[1]-uy*(hl-1.5)]]), d, c);
+      const bx = p2[0]-ux*hl, by = p2[1]-uy*hl;
+      Ln.push('<path d="M' + pt(p2) + ' L' + pt([bx-uy*hw, by+ux*hw]) + ' L' + pt([bx+uy*hw, by-ux*hw]) + 'Z" fill="' + c + '" stroke="' + c + '" stroke-width="1" stroke-linejoin="round"' + op(d) + '/>');
+    }
+    function pill(cx, cy, text, color, d){
+      const w = text.length*7.4 + 14, h = 18;
+      Lb.push('<g' + op(d) + '><rect x="' + f1(cx-w/2) + '" y="' + f1(cy-h/2) + '" width="' + f1(w) + '" height="' + h + '" rx="9" fill="' + T.pillBg + '" stroke="' + color + '" stroke-width="1"/>' +
+        '<text x="' + f1(cx) + '" y="' + f1(cy+3.9) + '" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="10.5" font-weight="700" letter-spacing=".8" fill="' + color + '">' + text + '</text></g>');
+    }
+    const selCls = id => (edit && id === sel) ? ' sel' : '';
+    function diamond(x, y, id, type, d){
+      const fill = type === 'if' ? T.ifFill : T.loopFill, st = type === 'if' ? T.ifStroke : T.loopStroke;
+      const p = [[x, y], [x + D.dW/2, y + D.dH/2], [x, y + D.dH], [x - D.dW/2, y + D.dH/2]];
+      Sh.push('<g class="blk" data-id="' + id + '"' + op(d) + '><polygon class="shape' + selCls(id) + '" points="' + p.map(pt).join(' ') + '" fill="' + fill + '" stroke="' + st + '" stroke-width="1.6" stroke-linejoin="round"/></g>');
+    }
+    function slotBox(x, y, w, h, root, d){
+      Sh.push('<rect x="' + f1(x-w/2) + '" y="' + f1(y) + '" width="' + w + '" height="' + h + '" rx="8" fill="none" stroke="' + T.slot + '" stroke-width="1.2" stroke-dasharray="4 4"' + op(d) + '/>');
+      Lb.push('<text x="' + f1(x) + '" y="' + f1(y + h/2 + 4.5) + '" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="' + (root ? 13 : 15) + '" fill="' + T.slotText + '"' + op(d) + '>' + (root ? 'Sem přetáhni první strukturu' : '+') + '</text>');
+    }
+    // Seznam struktur pod sebou; parent kreslí přívodní čáru až k horní hraně seznamu
+    function emitList(ids, ax, ay, ref, M, d){
+      const w = clamp(M.right - M.left, 70, 170);
+      regions[refKey(ref)] = { x1: ax + M.left - 12, x2: ax + M.right + 12, y1: ay - 14, y2: ay + M.h + 14 };
+      if(M.empty){
+        ins.push({ ref, index:0, x:ax, y:ay + M.h/2, w:M.sw, slot:{ x:ax - M.sw/2, y:ay, w:M.sw, h:M.h } });
+        if(edit) slotBox(ax, ay, M.sw, M.h, ref.parent === null, d);
+        else line([[ax, ay], [ax, ay + M.h]], d);
+        return;
+      }
+      ids.forEach((id, i) => {
+        const y = ay + M.ys[i], s = mNode(id, cache), dd = d || (dimSet && dimSet.has(id));
+        ins.push({ ref, index:i, x:ax, y: i === 0 ? ay - 8 : y - D.gap/2, w });
+        emitNode(id, ax, y, dd);
+        if(i < ids.length - 1) arrow([[ax, y + s.h], [ax, ay + M.ys[i+1]]], d);
+      });
+      ins.push({ ref, index:ids.length, x:ax, y: ay + M.h + 10, w });
+    }
+    function emitNode(id, ax, ay, d){
+      const n = m.nodes[id], s = mNode(id, cache);
+      ext[id] = { x: ax + s.left, y: ay, w: s.right - s.left, h: s.h };
+      if(edit && id === sel && n.type !== 'seq'){
+        Bk.push('<rect x="' + f1(ax + s.left - 10) + '" y="' + f1(ay - 8) + '" width="' + f1(s.right - s.left + 20) + '" height="' + f1(s.h + 16) + '" rx="14" fill="rgba(121,192,255,.05)" stroke="' + T.sel + '" stroke-opacity=".75" stroke-width="1.2" stroke-dasharray="6 5"/>');
+      }
+      if(n.type === 'seq'){
+        if(edit && id === sel) Bk.push('<rect x="' + f1(ax - D.seqW/2 - 5) + '" y="' + f1(ay - 5) + '" width="' + (D.seqW + 10) + '" height="' + (D.seqH + 10) + '" rx="13" fill="none" stroke="' + T.sel + '" stroke-opacity=".35" stroke-width="4"/>');
+        Sh.push('<g class="blk" data-id="' + id + '"' + op(d) + '><rect class="shape' + selCls(id) + '" x="' + f1(ax - D.seqW/2) + '" y="' + f1(ay) + '" width="' + D.seqW + '" height="' + D.seqH + '" rx="9" fill="' + T.seqFill + '" stroke="' + T.seqStroke + '" stroke-width="1.6"/></g>');
+        return;
+      }
+      const cy = ay + D.dH/2;
+      diamond(ax, ay, id, n.type, d);
+      if(n.type === 'if'){
+        const lX = ax + s.lx, rX = ax + s.rx, bt = ay + s.bt, my = ay + s.my;
+        const side = (X, vx, M, slot) => {
+          const pts = [[vx, cy], [X, cy], [X, bt]];
+          if(M.empty && !edit) line(pts, d); else arrow(pts, d);
+          emitList(n.slots[slot], X, bt, { parent:id, slot }, M, d);
+          arrow([[X, bt + M.h], [X, my], [ax + (X < ax ? -3.5 : 3.5), my]], d);
+        };
+        side(lX, ax - D.dW/2, s.L, s.Lslot);
+        side(rX, ax + D.dW/2, s.R, s.Rslot);
+        Ln.push('<circle cx="' + f1(ax) + '" cy="' + f1(my) + '" r="3.4" fill="' + T.line + '"' + op(d) + '/>');
+        const lab = slot => slot === 'yes' ? ['ANO', T.yes] : ['NE', T.no];
+        const a = lab(s.Lslot), b = lab(s.Rslot);
+        pill(ax - D.dW/2 - 21, cy - 13, a[0], a[1], d);
+        pill(ax + D.dW/2 + 21, cy - 13, b[0], b[1], d);
+      } else {
+        const bX = ax + s.bx, bt = ay + s.bt, bb = ay + s.bb, ry = ay + s.ry, rx = ax + D.dW/4;
+        const pts = [[ax + D.dW/2, cy], [bX, cy], [bX, bt]];
+        if(s.B.empty && !edit) line(pts, d); else arrow(pts, d);
+        emitList(n.slots.body, bX, bt, { parent:id, slot:'body' }, s.B, d);
+        // návratová šipka zpět na začátek cyklu
+        arrow([[bX, bb], [bX, ry], [rx, ry], [rx, ay + D.dH*0.75 + 1]], d, T.ret);
+        line([[ax, ay + D.dH], [ax, ay + s.h]], d);
+        pill(ax + D.dW/2 + 21, cy - 13, 'ANO', T.yes, d);
+        pill(ax - 21, ay + D.dH + 15, 'NE', T.no, d);
+      }
+    }
+    // Kořen: Start → hlavní seznam → Konec
+    const RM = mList(m.root, cache, true);
+    const top = 9 + D.gap, endY = top + RM.h + D.gap + 9;
+    const term = (y, label) => {
+      Sh.push('<circle cx="0" cy="' + f1(y) + '" r="9" fill="none" stroke="' + T.term + '" stroke-width="1.6"/><circle cx="0" cy="' + f1(y) + '" r="4" fill="' + T.term + '"/>');
+      Lb.push('<text x="-17" y="' + f1(y + 4.5) + '" text-anchor="end" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="600" fill="' + T.text + '">' + label + '</text>');
+    };
+    term(0, 'Start');
+    if(RM.empty && !edit) line([[0, 9], [0, top]]); else arrow([[0, 9], [0, top]]);
+    emitList(m.root, 0, top, { parent:null, slot:'root' }, RM, false);
+    arrow([[0, top + RM.h], [0, endY - 9]]);
+    term(endY, 'Konec');
+    regions.root = { x1: RM.left - 30, x2: RM.right + 30, y1: -20, y2: endY + 20 };
+    const bounds = { minX: Math.min(RM.left, -70), maxX: Math.max(RM.right, 50), minY: -16, maxY: endY + 16 };
+    return { svg: Bk.join('') + Ln.join('') + Sh.join('') + Lb.join(''), ins, regions, ext, bounds };
+  }
+  function render(){
+    if(sel && !m.nodes[sel]) sel = null;
+    last = build('edit', SESTA.theme(), dragIds);
+    $('fcContent').innerHTML = last.svg;
+    renderStats();
+  }
+
+  // Karta „Diagram“: počty bloků a hloubka vnoření
+  function stats(){
+    const c = { seq:0, if:0, loop:0 }; Object.values(m.nodes).forEach(n => c[n.type]++);
+    return { total:Object.keys(m.nodes).length, seq:c.seq, if:c.if, loop:c.loop, depth:maxLevel() };
+  }
+  const plural = (n, a, b, c) => n === 1 ? a : (n >= 2 && n <= 4 ? b : c);
+  function renderStats(){
+    const s = stats();
+    $('fcMeta').textContent = s.total ? s.total + ' ' + plural(s.total, 'blok', 'bloky', 'bloků') + ' · vnoření ' + s.depth : 'prázdné plátno';
+    $('fcTiles').innerHTML = [[s.seq,'sekvence'],[s.if,'IF'],[s.loop,'cykly'],[s.depth,'vnoření']].map(x => '<div class="c-tile"><b>' + x[0] + '</b><span>' + x[1] + '</span></div>').join('');
+    SESTA.refresh();
+  }
+
+  /* ---------- Zobrazení: posun a zoom ---------- */
+  function applyView(){
+    $('fcVp').setAttribute('transform', 'translate(' + f1(view.tx) + ',' + f1(view.ty) + ') scale(' + view.k.toFixed(4) + ')');
+    const c = $('fcCanvas'), g = 20*view.k;
+    c.style.backgroundSize = g + 'px ' + g + 'px';
+    c.style.backgroundPosition = view.tx + 'px ' + view.ty + 'px';
+    $('fcZoom').textContent = Math.round(view.k*100) + ' %';
+  }
+  const svgRect = () => $('fcSvg').getBoundingClientRect();
+  function zoomAt(f, sx, sy){
+    const k = clamp(view.k*f, 0.25, 2.5), r = k/view.k;
+    view.tx = sx - (sx - view.tx)*r; view.ty = sy - (sy - view.ty)*r; view.k = k; applyView();
+  }
+  function zoomBy(f){ const r = svgRect(); zoomAt(f, r.width/2, r.height/2); }
+  function fit(){
+    const r = svgRect(); if(!r.width || !last) return;
+    const b = last.bounds, bw = b.maxX - b.minX, bh = b.maxY - b.minY, pad = 44;
+    const k = clamp(Math.min((r.width - pad*2)/bw, (r.height - pad*2)/bh, 1.1), 0.25, 2.5);
+    view.k = k;
+    view.tx = r.width/2 - k*(b.minX + bw/2);
+    view.ty = bh*k < r.height - pad*2 ? r.height/2 - k*(b.minY + bh/2) : pad - k*b.minY;
+    applyView();
+  }
+  function ensureVisible(id){
+    const e = last && last.ext[id]; if(!e) return;
+    const r = svgRect(); if(!r.width) return;
+    const x1 = view.tx + e.x*view.k, y1 = view.ty + e.y*view.k, x2 = x1 + e.w*view.k, y2 = y1 + Math.min(e.h, 160)*view.k;
+    if(x1 < 20 || y1 < 20 || x2 > r.width - 20 || y2 > r.height - 20){
+      view.tx = r.width/2 - view.k*(e.x + e.w/2);
+      view.ty = r.height/2 - view.k*(e.y + Math.min(e.h, 160)/2);
+      applyView();
+    }
+  }
+  function toDiagram(cx, cy){ const r = svgRect(); return { x:(cx - r.left - view.tx)/view.k, y:(cy - r.top - view.ty)/view.k }; }
+  function overCanvas(cx, cy){ const r = svgRect(); return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom; }
+
+  /* ---------- Cíl vložení při tažení ---------- */
+  function findTarget(cx, cy, movingId){
+    if(!last) return null;
+    const p = toDiagram(cx, cy), thr = 52/view.k;
+    let best = null, bd = Infinity;
+    last.ins.forEach(t => {
+      if(movingId && !canDrop(movingId, t.ref)) return;
+      let dd;
+      if(t.slot && p.x >= t.slot.x - 6 && p.x <= t.slot.x + t.slot.w + 6 && p.y >= t.slot.y - 6 && p.y <= t.slot.y + t.slot.h + 6) dd = 0;
+      else dd = Math.hypot(Math.max(0, Math.abs(p.x - t.x) - t.w/2), p.y - t.y);
+      if(dd < bd){ bd = dd; best = t; }
+    });
+    return bd <= thr ? best : null;
+  }
+  function showDrop(t){
+    const o = $('fcOverlay');
+    if(!t){ o.innerHTML = ''; return; }
+    const T = THEMES[SESTA.theme()];
+    const rg = last.regions[refKey(t.ref)];
+    let h = '';
+    if(rg && t.ref.parent !== null) h += '<rect x="' + f1(rg.x1) + '" y="' + f1(rg.y1) + '" width="' + f1(rg.x2 - rg.x1) + '" height="' + f1(rg.y2 - rg.y1) + '" rx="12" fill="' + T.drop + '" fill-opacity=".06" stroke="' + T.drop + '" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="5 4"/>';
+    if(t.slot){
+      h += '<rect x="' + f1(t.slot.x) + '" y="' + f1(t.slot.y) + '" width="' + t.slot.w + '" height="' + t.slot.h + '" rx="8" fill="' + T.drop + '" fill-opacity=".2" stroke="' + T.drop + '" stroke-width="1.8"/>';
+    } else {
+      h += '<line x1="' + f1(t.x - t.w/2) + '" y1="' + f1(t.y) + '" x2="' + f1(t.x + t.w/2) + '" y2="' + f1(t.y) + '" stroke="' + T.drop + '" stroke-width="3.2" stroke-linecap="round"/>' +
+           '<circle cx="' + f1(t.x) + '" cy="' + f1(t.y) + '" r="9.5" fill="' + T.drop + '"/><path d="M' + f1(t.x-4.5) + ' ' + f1(t.y) + 'h9M' + f1(t.x) + ' ' + f1(t.y-4.5) + 'v9" stroke="' + T.dropFg + '" stroke-width="2" stroke-linecap="round"/>';
+    }
+    o.innerHTML = h;
+  }
+  function setDragging(id){ dragIds = id ? new Set(subtree(id)) : null; render(); }
+
+  /* ---------- Export PNG (bílé neprůhledné pozadí, hlavička s logem školy) ---------- */
+  const loadImg = src => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+  async function exportPNG(){
+    const r = build('export', 'light', null), b = r.bounds, pad = 40, headH = 76;
+    const w = Math.max(Math.ceil(b.maxX - b.minX + pad*2), 560), dh = Math.ceil(b.maxY - b.minY + pad*2);
+    const vx = (b.minX + b.maxX)/2 - w/2;
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + dh + '" viewBox="' + vx + ' ' + (b.minY - pad) + ' ' + w + ' ' + dh + '">' +
+      '<rect x="' + vx + '" y="' + (b.minY - pad) + '" width="' + w + '" height="' + dh + '" fill="#ffffff"/>' + r.svg + '</svg>';
+    const h = dh + headH;
+    const scale = clamp(Math.min(2, 8000/Math.max(w, h)), 0.5, 2);
+    const [img, logo] = await Promise.all([loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)), loadImg('../shared/logo-skoly.png')]);
+    if(!img){ SESTA.toast('Export PNG se nepodařil.', { kind:'err' }); return; }
+    const c = document.createElement('canvas');
+    c.width = Math.round(w*scale); c.height = Math.round(h*scale);
+    const ctx = c.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    // hlavička: logo školy, název školy, název dokumentu, datum
+    let x = 24;
+    if(logo){ const lh = 44, lw = logo.width / logo.height * lh; ctx.drawImage(logo, x, 16, lw, lh); x += lw + 14; }
+    ctx.fillStyle = '#1F2328'; ctx.font = '600 15px Inter, "Segoe UI", sans-serif'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('Základní škola Šestajovice', x, 34);
+    ctx.fillStyle = '#59636E'; ctx.font = '400 12.5px Inter, "Segoe UI", sans-serif';
+    ctx.fillText('Vývojový diagram · Flowchart Puzzle · SestaCode', x, 53);
+    ctx.textAlign = 'right'; ctx.fillText(new Date().toLocaleDateString('cs-CZ'), w - 24, 34); ctx.textAlign = 'left';
+    ctx.fillStyle = '#D8DEE4'; ctx.fillRect(24, headH - 6, w - 48, 1);
+    ctx.drawImage(img, 0, headH, w, dh);
+    c.toBlob(bl => {
+      if(!bl){ SESTA.toast('Export PNG se nepodařil.', { kind:'err' }); return; }
+      const name = SESTA.fileName(['diagram', SESTA.today()], 'png');
+      SESTA.download(bl, name);
+      SESTA.toast('Exportováno: ' + name, { kind:'ok' });
+    }, 'image/png');
+  }
+
+  /* ---------- Panel nástrojů ---------- */
+  function updateTools(){
+    if(sel && !m.nodes[sel]) sel = null;
+    $('tDup').disabled = !sel; $('tDel').disabled = !sel;
+    $('tUndo').disabled = !DiagramHistory.canUndo(); $('tRedo').disabled = !DiagramHistory.canRedo();
+    let h;
+    if(sel){
+      const n = m.nodes[sel];
+      h = 'Vybráno: <b>' + TYPES[n.type].name + '</b> · úroveň ' + levelOf(sel) + ' · ' + SLOT_NAME[n.slot];
+      if(n.type !== 'seq') h += ' · uvnitř ' + (subtree(sel).length - 1);
+    } else h = 'Klikni na blok, aby se vybral.';
+    $('fcSel').innerHTML = h;
+  }
+
+  /* ---------- Události plátna ---------- */
+  function bindCanvas(){
+    const svg = $('fcSvg');
+    svg.addEventListener('pointerdown', e => {
+      if(e.button !== 0) return;
+      const g = e.target.closest('[data-id]');
+      if(g){
+        const id = g.dataset.id;
+        select(id);
+        DragDropController.press('move', id, e, null);
+        return;
+      }
+      // posun plátna
+      const sx = e.clientX, sy = e.clientY, tx = view.tx, ty = view.ty; let moved = false;
+      svg.setPointerCapture(e.pointerId); svg.classList.add('panning');
+      const mv = ev => { const dx = ev.clientX - sx, dy = ev.clientY - sy; if(Math.abs(dx) + Math.abs(dy) > 3) moved = true; view.tx = tx + dx; view.ty = ty + dy; applyView(); };
+      const up = () => { svg.removeEventListener('pointermove', mv); svg.removeEventListener('pointerup', up); svg.removeEventListener('pointercancel', up); svg.classList.remove('panning'); if(!moved) select(null); };
+      svg.addEventListener('pointermove', mv); svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+    });
+    svg.addEventListener('wheel', e => {
+      e.preventDefault();
+      const r = svgRect(), f = Math.exp(-clamp(e.deltaY, -120, 120)*0.0018);
+      zoomAt(f, e.clientX - r.left, e.clientY - r.top);
+    }, { passive:false });
+    // Knihovna struktur: tažení nebo kliknutí
+    document.querySelectorAll('.libcard').forEach(c => {
+      c.addEventListener('pointerdown', e => {
+        if(e.button !== 0) return;
+        DragDropController.press('new', c.dataset.type, e, () => addByClick(c.dataset.type));
+      });
+      c.addEventListener('click', e => { if(e.detail === 0) addByClick(c.dataset.type); }); // ovládání klávesnicí
+    });
+    $('tDup').onclick = () => duplicate();
+    $('tDel').onclick = () => remove();
+    $('tUndo').onclick = undo; $('tRedo').onclick = redo;
+    $('tZoomIn').onclick = () => zoomBy(1.2); $('tZoomOut').onclick = () => zoomBy(1/1.2);
+    $('tFit').onclick = fit;
+  }
+
+  /* ---------- Rozhraní modulu (volá ho napojení na kostru dole) ---------- */
+  function onKey(e){
+    if(DragDropController.active()){ if(e.key === 'Escape'){ e.preventDefault(); DragDropController.cancel(); } return; }
+    const mod = e.ctrlKey || e.metaKey, k = (e.key || '').toLowerCase();
+    if(mod && !e.altKey){
+      if(k === 'z' && !e.shiftKey){ e.preventDefault(); undo(); }
+      else if(k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); redo(); }
+      else if(k === 'd'){ e.preventDefault(); duplicate(); }
+      return;
+    }
+    if(e.key === 'Delete' || e.key === 'Backspace'){ if(sel){ e.preventDefault(); remove(); } }
+    else if(e.key === 'Escape') select(null);
+  }
+  function activate(){
+    render(); updateTools();
+    if(!fitted){ requestAnimationFrame(() => { fit(); fitted = true; }); }
+    else applyView();
+  }
+  function deactivate(){ DragDropController.cancel(); showDrop(null); }
+  function init(){ loadSaved(); bindCanvas(); render(); updateTools(); applyView(); addEventListener('resize', () => { if(fitted) applyView(); }); }
+
+  return {
+    init, activate, deactivate, onKey,
+    // operace (používá je i DragDropController a testy)
+    addBlock, addByClick, moveBlock, duplicate, remove, undo, redo, select, fit,
+    findTarget, showDrop, setDragging, overCanvas, exportPNG, toData, fromTree, validate, load, legacy, clearAll, render,
+    stats,
+    typeOf: id => m.nodes[id] ? m.nodes[id].type : null,
+    typeName: t => TYPES[t].name,
+    blockCount: () => Object.keys(m.nodes).length,
+    _model: () => m, _last: () => last
+  };
+})();
+
+/* =====================================================================
+   DragDropController – tažení bloků (z knihovny i po plátně)
+   ===================================================================== */
+const DragDropController = (() => {
+  let st = null;
+  const ghost = $('dragGhost');
+  function press(kind, payload, e, onClick){
+    cancel();
+    st = { kind, type: kind === 'new' ? payload : FlowchartEngine.typeOf(payload), id: kind === 'move' ? payload : null,
+           sx:e.clientX, sy:e.clientY, started:false, target:null, onClick };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', cancel);
+    e.preventDefault();
+  }
+  function begin(){
+    st.started = true;
+    document.body.classList.add('dragging');
+    ghost.innerHTML = Shapes.miniShape(st.type) + '<span>' + esc(FlowchartEngine.typeName(st.type)) + (st.kind === 'move' ? ' – přesun' : '') + '</span>';
+    ghost.hidden = false;
+    if(st.kind === 'move') FlowchartEngine.setDragging(st.id);
+  }
+  function move(e){
+    if(!st) return;
+    if(!st.started){ if(Math.hypot(e.clientX - st.sx, e.clientY - st.sy) < 5) return; begin(); }
+    ghost.style.transform = 'translate(' + (e.clientX + 14) + 'px,' + (e.clientY + 14) + 'px)';
+    st.target = FlowchartEngine.overCanvas(e.clientX, e.clientY) ? FlowchartEngine.findTarget(e.clientX, e.clientY, st.id) : null;
+    FlowchartEngine.showDrop(st.target);
+  }
+  function up(){
+    if(!st) return;
+    const s = st; cleanup(s);
+    if(!s.started){ if(s.onClick) s.onClick(); return; }
+    if(!s.target) return;
+    if(s.kind === 'new') FlowchartEngine.addBlock(s.type, s.target.ref, s.target.index);
+    else FlowchartEngine.moveBlock(s.id, s.target.ref, s.target.index);
+  }
+  function cleanup(s){
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', cancel);
+    st = null; ghost.hidden = true;
+    document.body.classList.remove('dragging');
+    FlowchartEngine.showDrop(null);
+    if(s && s.started && s.kind === 'move') FlowchartEngine.setDragging(null);
+  }
+  function cancel(){ if(st) cleanup(st); }
+  return { press, cancel, active: () => !!(st && st.started) };
+})();
+
+
+
+/* ---------- napojení na kostru SestaCode ---------- */
+SESTA.init({
+  app: 'flowchart',
+  panel: '#side',
+  subtitle: () => { const s = FlowchartEngine.stats(); return s.total ? s.total + ' bloků' : 'prázdné plátno'; },
+  title: () => 'Vývojový diagram',
+  fileParts: () => ['diagram', SESTA.today()],
+  serialize: () => FlowchartEngine.toData(),
+  load: data => FlowchartEngine.load(data),
+  legacy: o => FlowchartEngine.legacy(o),
+  actions: {
+    new: () => FlowchartEngine.clearAll(),
+    export: [{ label:'Export PNG', icon:'image', run: () => FlowchartEngine.exportPNG() }]
+  },
+  shortcuts: [
+    { label:'Duplikovat vybraný blok', keys:'Ctrl+D' }, { label:'Zpět / Znovu', keys:'Ctrl+Z / Ctrl+Y' },
+    { label:'Smazat vybraný blok', keys:'Delete' }, { label:'Zrušit výběr nebo tažení', keys:'Esc' }
+  ],
+  onTheme: () => { if(typeof FlowchartEngine !== 'undefined') FlowchartEngine.render(); }
+});
+SESTA.cards('#side');
+document.addEventListener('keydown', e => { if(!SESTA.modalOpen()) FlowchartEngine.onKey(e); });
+FlowchartEngine.init();
+FlowchartEngine.activate();
+
+</script>
+</body>
+</html>

@@ -1,52 +1,91 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESTA.CODE Junior</title>
-<link rel="stylesheet" href="shared/sesta.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SestaCode – procvičování programování</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="shared/sesta.css?v=1.0.0">
+<style>
+.hub{overflow:auto;padding:32px 24px 48px}
+.hub-in{max-width:1100px;margin:0 auto}
+.hero{margin:8px 0 36px}
+.hero-top{display:flex;align-items:center;gap:24px}
+.word{margin:0;display:flex;align-items:center;gap:12px;font-size:48px;line-height:1;font-weight:800;letter-spacing:.04em;color:var(--text)}
+.word .app{background:var(--accent);color:var(--accent-fg);border-radius:12px;padding:6px 14px 7px;letter-spacing:.06em;font-family:var(--mono)}
+.word .pre{font-family:var(--mono)}
+.tag{margin:12px 0 0;font-size:17px;color:var(--text-2)}
+.school{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12.5px;text-align:right;line-height:1.4}
+.school img{height:64px;width:auto;background:#FFFFFF;border-radius:12px;padding:6px 8px;border:1px solid var(--border)}
+/* časová osa vyučovacích hodin */
+.tl-wrap{margin-top:26px;overflow-x:auto;padding-bottom:4px}
+.tl{position:relative;min-width:720px;height:64px}
+.tl-line{position:absolute;left:0;right:0;top:15px;height:2px;border-radius:2px;background:var(--accent);opacity:.75}
+.tl-b{position:absolute;top:22px;height:38px;border:1px solid var(--border);border-radius:9px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;transition:background .2s,border-color .2s}
+.tl-b b{font-size:13px;font-weight:700;color:var(--text)}
+.tl-b span{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.tl-b.now{background:var(--accent-soft);border-color:var(--accent)}
+.tl-now{position:absolute;top:2px;width:0;height:0;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid var(--accent);transition:left .4s}
+.sec-t{display:flex;align-items:baseline;gap:10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.sec-t small{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:36px}
+.tile{display:flex;flex-direction:column;gap:12px;padding:20px;background:var(--bg-app);border:1px solid var(--border);border-radius:16px;box-shadow:var(--sh-1);color:var(--text);text-decoration:none;transition:box-shadow .15s,transform .15s,border-color .15s}
+.tile:hover{box-shadow:var(--sh-2);transform:translateY(-2px);border-color:var(--accent)}
+.tile .top{display:flex;align-items:center;gap:14px}
+.tile .ic{width:52px;height:52px;border-radius:14px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;flex:none}
+.tile .ic .s-i{width:28px;height:28px;stroke-width:1.9}
+.tile b{font-size:18px}
+.tile .d{display:block;font-size:13px;color:var(--muted)}
+.tile p{margin:0;color:var(--text-2);font-size:14px;line-height:1.5;flex:1}
+.tile .meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.tile .meta .go{margin-left:auto;font-weight:600;color:var(--text)}
+</style>
 </head>
-<body data-root="" data-app="home">
-<!-- Rozcestník SESTA.CODE Junior. Karty i horní lišta se sestaví automaticky z apps.js. -->
-<div id="app">
-  <header id="sestaHeader"></header>
-  <main>
-    <section class="screen on" id="scr-home">
-      <div class="homehead">
-        <h1>Vyber si trénink</h1>
-        <p>Krátká cvičení, která tě připraví na programování ve Scratchi a Pythonu.</p>
+<body>
+<main class="s-main"><div class="hub"><div class="hub-in">
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <h1 class="word" aria-label="SestaCode"><span class="pre">SESTA</span><span class="app">CODE</span></h1>
+        <p class="tag">Procvičování programování</p>
       </div>
-      <div class="cards" id="cards"></div>
-    </section>
-  </main>
-</div>
-<script src="apps.js"></script>
-<script src="shared/sesta-core.js"></script>
+      <div class="school"><span>Základní škola<br>Šestajovice</span><img src="shared/logo-skoly.png" alt="Logo ZŠ Šestajovice"></div>
+    </div>
+    <div class="tl-wrap"><div class="tl" id="tl" aria-label="Rozvrh vyučovacích hodin"></div></div>
+  </section>
+  <div id="groups"></div>
+</div></div></main>
+<script src="shared/apps.js?v=1.0.0"></script>
+<script src="shared/sesta-shell.js?v=1.0.0"></script>
 <script>
-'use strict';
-const { $, esc, apps, appUrl, getMeta } = SestaCore;
-
-// Ikona pro miniaplikace, které v apps.js žádnou nemají
-const DEFAULT_ICON = '<svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="28" height="28" rx="6" stroke="#79c0ff"/><path d="M15 16l-4 4 4 4M25 16l4 4-4 4" stroke="#7ee787"/></svg>';
-
-// Karta miniaplikace na domovské stránce
-function card(a, i){
-  return '<article class="panel mcard">' +
-    '<div class="ico">' + (a.icon || DEFAULT_ICON) + '</div>' +
-    '<div><div class="num">MODUL ' + (i + 1) + '</div><h2>' + esc(a.name) + '</h2></div>' +
-    '<p>' + esc(a.desc || '') + '</p>' +
-    '<div class="chips">' + (a.chips || []).map(c => '<span' + (a.mono ? ' class="m"' : '') + '>' + esc(c) + '</span>').join('') + '</div>' +
-    '<div class="foot"><span class="meta">' + esc(getMeta(a.id) || 'Zatím bez výsledku') + '</span>' +
-    '<a class="btn pri" href="' + esc(appUrl(a)) + '" style="text-decoration:none">Spustit</a></div></article>';
-}
-
-SestaCore.start({
-  init(){
-    const list = apps();
-    $('cards').innerHTML = list.length ? list.map(card).join('')
-      : '<div class="panel">V souboru apps.js zatím není zapsaná žádná miniaplikace.</div>';
-  }
-});
+const S = SESTA;
+/* aplikace po skupinách (skupiny a aplikace jsou v shared/apps.js) */
+const apps = S.apps.filter(a => !a.hidden);
+document.getElementById('groups').innerHTML = S.groups.map(g => {
+  const list = apps.filter(a => a.group === g.id); if (!list.length) return '';
+  return `<h2 class="sec-t">${S.esc(g.name)} <small>${S.esc(g.note || '')}</small></h2><div class="tiles">` + list.map(a => `
+    <a class="tile" href="${a.path}" data-nav>
+      <div class="top"><span class="ic">${S.icon(a.icon)}</span><span><b>${S.esc(a.name)}</b><span class="d">${S.esc(a.desc)}</span></span></div>
+      <p>${S.esc(a.long)}</p>
+      <div class="meta">verze ${S.esc(a.version)}<span class="go">Otevřít →</span></div>
+    </a>`).join('') + '</div>';
+}).join('');
+document.querySelectorAll('[data-nav]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); S.go(a.getAttribute('href')); }));
+/* časová osa – rozvrh je v shared/apps.js (SESTA.bells) */
+const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const B = S.bells.map(([a, b], i) => ({ n:i + 1, a, b, s:mins(a), e:mins(b) }));
+const T0 = B[0].s, T1 = B[B.length - 1].e, pct = m => (m - T0) / (T1 - T0) * 100;
+const tl = document.getElementById('tl');
+tl.innerHTML = '<div class="tl-line"></div>' + B.map(x => `<div class="tl-b" data-n="${x.n}" style="left:${pct(x.s)}%;width:${pct(x.e) - pct(x.s)}%"><b>${x.n}</b><span>${x.a} – ${x.b}</span></div>`).join('') + '<div class="tl-now" id="tlNow" hidden></div>';
+S.onMinute = d => {
+  const m = d.getHours() * 60 + d.getMinutes(), wd = d.getDay(), mk = document.getElementById('tlNow');
+  const on = wd >= 1 && wd <= 5 && m >= T0 && m <= T1;          // jen ve všední dny v rozsahu osy
+  mk.hidden = !on; if (on) mk.style.left = pct(m) + '%';
+  tl.querySelectorAll('.tl-b').forEach(b => { const x = B[b.dataset.n - 1]; b.classList.toggle('now', on && m >= x.s && m < x.e); });
+};
+S.init({ app:'hub', root:'', clock:true });
+document.getElementById('sSub').textContent = S.brand.tagline + ' · ' + S.brand.school;
 </script>
 </body>
 </html>

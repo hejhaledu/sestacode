@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type Detective – SestaCode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<style>
+/* ===== Type Detective ===== */
+.ti{border-left:3px solid var(--border-strong);padding:2px 0 2px 12px}
+.ti b{font:700 14px var(--mono);letter-spacing:.03em;color:var(--text)}
+.ti p{margin:3px 0 6px;font-size:13.5px;line-height:1.5;color:var(--text-2)}
+.ti code{font:500 13px var(--mono);color:var(--text);background:var(--bg-subtle);border-radius:6px;padding:1px 7px;margin-right:4px;display:inline-block}
+.ti.int{border-color:var(--c-num)} .ti.str{border-color:var(--c-str)} .ti.bool{border-color:var(--c-kw)} .ti.list{border-color:var(--c-fn)}
+.hist{display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.hist div{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.hist b{color:var(--text);font-family:var(--mono)}
+.td-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;min-height:100%;justify-content:center}
+.td-q{font-size:19px;font-weight:500;margin:0;color:var(--text)}
+.dock{width:100%;max-width:760px;min-height:150px;border:1.5px dashed var(--border);border-radius:18px;display:flex;align-items:center;justify-content:center;padding:18px;background:var(--bg-work)}
+.vcard{position:relative;min-width:240px;max-width:100%;padding:24px 40px 22px;border-radius:16px;background:var(--bg-app);border:1.5px solid var(--border-strong);box-shadow:var(--sh-2);font:700 42px/1.2 var(--mono);color:var(--text);text-align:center;cursor:grab;user-select:none;touch-action:none;transition:box-shadow .15s,border-color .15s;white-space:pre}
+.vcard:hover{border-color:var(--accent)}
+.vcard .cap{position:absolute;left:14px;top:8px;font:700 10.5px var(--font);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.vcard.picked{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-ring),var(--sh-2)}
+.vcard.lift{cursor:grabbing;z-index:20;box-shadow:var(--sh-3);transition:none}
+.vcard.res-ok{border-color:var(--ok);background:var(--ok-soft);cursor:default}
+.vcard.res-bad{border-color:var(--danger);background:var(--danger-soft);cursor:default}
+.targets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:100%;max-width:960px}
+.tcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:16px 10px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-app);cursor:pointer;transition:all .15s;min-height:100px;justify-content:center;box-shadow:var(--sh-1)}
+.tcard:hover{background:var(--bg-subtle)}
+.tcard .tn{font:700 19px var(--mono);letter-spacing:.06em;color:var(--text)}
+.tcard .tc{font-size:13px;color:var(--muted)}
+.tcard .key{position:absolute;left:10px;top:8px;font:600 11px var(--mono);color:var(--muted)}
+.tcard .res{font-size:12.5px;font-weight:700;min-height:17px}
+.tcard.hov{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-2px)}
+.picking .tcard{border-style:dashed;border-color:var(--accent)}
+.tcard.ok{border-style:solid;border-color:var(--ok);background:var(--ok-soft)} .tcard.ok .res{color:var(--ok)}
+.tcard.bad{border-style:solid;border-color:var(--danger);background:var(--danger-soft)} .tcard.bad .res{color:var(--danger)}
+.locked .tcard{cursor:default}
+.locked .tcard:not(.ok):not(.bad){opacity:.45}
+.fb{flex:1;font-size:15px;line-height:1.5;color:var(--text-2)}
+.fb .ok{color:var(--ok);font-weight:700} .fb .bad{color:var(--danger);font-weight:700}
+.fb .mono{color:var(--text);background:var(--bg-subtle);border-radius:5px;padding:0 5px}
+.fb b{color:var(--text)}
+.bytype{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:720px}
+.bytype div{border:1px solid var(--border);border-radius:12px;padding:10px 8px;background:var(--bg-app)}
+.bytype b{display:block;font:700 14px var(--mono)}
+.bytype span{font-size:12.5px;color:var(--muted)}
+.bytype .e{color:var(--danger)}
+.wronglist{display:flex;flex-direction:column;gap:6px;width:100%;max-width:560px;font-size:13.5px}
+.wronglist div{display:flex;justify-content:space-between;gap:12px;padding:6px 12px;border-radius:10px;background:var(--danger-soft);color:var(--text-2)}
+.wronglist .mono{color:var(--text);font-weight:700}
+@media (max-height:760px){ .vcard{font-size:36px;padding:20px 34px 18px} .dock{min-height:124px;padding:14px} .tcard{min-height:88px} .td-wrap{gap:14px} }
+</style>
+</head>
+<body>
+<main class="s-main"><div class="c-app">
+  <aside class="c-side" id="side">
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Jak poznat datový typ</span><span class="c-meta">4 typy</span></button>
+      <div class="c-card-b">
+        <div class="ti int"><b>Integer</b><p>Celé číslo bez uvozovek. Může mít znaménko minus.</p><code>15</code><code>-8</code><code>0</code></div>
+        <div class="ti str"><b>String</b><p>Text v uvozovkách. Rozhodují uvozovky, ne to, co je uvnitř.</p><code>"Ahoj"</code><code>"15"</code><code>""</code></div>
+        <div class="ti bool"><b>Boolean</b><p>Jen dvě hodnoty: True a False. Bez uvozovek a s velkým písmenem.</p><code>True</code><code>False</code></div>
+        <div class="ti list"><b>List</b><p>Seznam v hranatých závorkách. Nezáleží na tom, co je uvnitř.</p><code>[1, 2]</code><code>["pes"]</code><code>[]</code></div>
+      </div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">2</span><span class="c-ttl">Poslední výsledky</span><span class="c-meta" id="tdHistMeta"></span></button>
+      <div class="c-card-b">
+        <div class="hist" id="tdHist"></div>
+        <div class="c-info"><i data-i="info"></i><span>Výsledky platí do zavření prohlížeče, pak se smažou.</span></div>
+      </div>
+    </section>
+  </aside>
+  <section class="c-work">
+    <div class="c-tb" id="tdTb"></div>
+    <div class="c-area">
+      <div class="c-sheet">
+        <div class="c-sheet-b" id="tdBody"></div>
+        <div class="c-sheet-f" id="tdFoot"></div>
+      </div>
+    </div>
+  </section>
+</div></main>
+<script src="../shared/apps.js?v=1.0.0"></script>
+<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script>
+'use strict';
+/* Type Detective – rozpoznávání datových typů Integer, String, Boolean a List podle zápisu hodnoty */
+const $ = id => document.getElementById(id);
+const esc = SESTA.esc;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const TypeDetectiveEngine = (() => {
+  const TYPES = [
+    { k:'int',  name:'INTEGER', py:'Integer', cz:'celé číslo' },
+    { k:'str',  name:'STRING',  py:'String',  cz:'text' },
+    { k:'bool', name:'BOOLEAN', py:'Boolean', cz:'pravda / nepravda' },
+    { k:'list', name:'LIST',    py:'List',    cz:'seznam' }
+  ];
+  const TN = Object.fromEntries(TYPES.map(t => [t.k, t]));
+  // Databáze hodnot podle typu a obtížnosti (1 základní, 2 střední, 3 náročná)
+  const DB = {
+    int:  { 1:['12','15','7','42','100','999'], 2:['-15','-8','2026','0'], 3:['-100','0','1','-1'] },
+    str:  { 1:['"pes"','"Ahoj"','"Python"','"kočka"','"Ahoj světe"'], 2:['"123"','"15"','"2026"','"0"'], 3:['"True"','"False"','""','"-8"','"2026"'] },
+    bool: { 1:['True','False'], 2:['True','False'], 3:['True','False'] },
+    list: { 1:['[1, 2]','[1, 2, 3]','["pes", "kočka"]'], 2:['[]','[10]','["Ahoj"]','[True, False]'], 3:['["15"]','[True, 5]','[1, "Ahoj", True]','["True"]','[True, False]'] }
+  };
+  // Plán kola: 12 úloh, rostoucí obtížnost, Boolean jen 2× (existují jen dvě hodnoty)
+  const PLAN = [ [1, ['int','str','bool','list']], [2, ['int','str','bool','list']], [3, ['str','str','list','int']] ];
+  const TIER = { 1:['Základní',''], 2:['Střední','warn'], 3:['Náročná','bad'] };
+
+  // Kontrola typu podle zápisu hodnoty v Pythonu (jen pro povolené jednoduché zápisy)
+  function classify(v){
+    if(/^-?\d+$/.test(v)) return 'int';
+    if(/^"[^"]*"$/.test(v)) return 'str';
+    if(v === 'True' || v === 'False') return 'bool';
+    if(/^\[.*\]$/.test(v)) return 'list';
+    return null;
+  }
+  // Ověření databáze při startu – každá hodnota musí mít jednoznačný typ
+  Object.keys(DB).forEach(t => Object.values(DB[t]).flat().forEach(v => { if(classify(v) !== t) console.warn('Type Detective: hodnota ' + v + ' nemá typ ' + t); }));
+
+  function explain(v, t){
+    if(t === 'int'){
+      if(v.startsWith('-')) return 'Celé číslo bez uvozovek je Integer. Znaménko minus patří k číslu, i záporné celé číslo je Integer.';
+      if(v === '0') return 'Nula bez uvozovek je celé číslo, tedy Integer.';
+      return 'Celé číslo bez uvozovek je Integer.';
+    }
+    if(t === 'str'){
+      const inner = v.slice(1, -1);
+      if(inner === '') return 'Dvě uvozovky bez ničeho mezi nimi jsou prázdný text. I prázdný text je String.';
+      if(inner === 'True' || inner === 'False') return 'Slovo je v uvozovkách, proto je to text (String). Boolean ' + inner + ' se píše bez uvozovek.';
+      if(/^-?\d+$/.test(inner)) return 'Číslice jsou v uvozovkách, proto je to text (String), ne číslo. ' + v + ' a ' + inner + ' jsou různé hodnoty.';
+      return 'Text v uvozovkách je String.';
+    }
+    if(t === 'bool') return v + ' bez uvozovek je logická hodnota Boolean. Píše se s velkým počátečním písmenem, jako "' + v + '" by to byl text.';
+    if(v === '[]') return 'Prázdné hranaté závorky jsou prázdný seznam. I seznam bez prvků je List.';
+    if(/["]|True|False/.test(v)) return 'Hranaté závorky znamenají seznam (List). Na typech hodnot uvnitř nezáleží, ptáme se na typ celého seznamu.';
+    return 'Hodnoty v hranatých závorkách tvoří seznam (List).';
+  }
+
+  const S = { phase:'intro', tasks:[], pos:0, res:[], answered:false, picked:false, acc:0, t0:0, running:false, tick:null, summary:null };
+  let prevValues = new Set(SESTA.store.get('prev', []));
+  function buildRound(){
+    const used = new Set(), out = [];
+    PLAN.forEach(([tier, types]) => {
+      const group = [];
+      types.forEach(t => {
+        let pool = DB[t][tier].filter(v => !used.has(v));
+        if(!pool.length) pool = [1,2,3].flatMap(x => DB[t][x]).filter(v => !used.has(v));
+        const fresh = pool.filter(v => !prevValues.has(v));
+        const from = fresh.length ? fresh : pool;
+        const v = from[Math.floor(Math.random() * from.length)];
+        used.add(v); group.push({ v, t, tier });
+      });
+      out.push(...shuffle(group));
+    });
+    prevValues = used; SESTA.store.set('prev', [...used]);
+    return out;
+  }
+
+  /* ---------- Čas ---------- */
+  const elapsed = () => S.acc + (S.running ? performance.now() - S.t0 : 0);
+  function startClock(){ if(S.running) return; S.t0 = performance.now(); S.running = true; stopTick(); S.tick = setInterval(() => { const el = $('tdTimer'); if(el) el.textContent = SESTA.fmtTime(elapsed()); }, 250); }
+  function stopClock(){ if(S.running){ S.acc += performance.now() - S.t0; S.running = false; } stopTick(); }
+  function stopTick(){ if(S.tick){ clearInterval(S.tick); S.tick = null; } }
+
+  function start(){ stopClock(); Object.assign(S, { phase:'task', tasks:buildRound(), pos:0, res:[], answered:false, picked:false, acc:0, summary:null }); startClock(); render(); }
+  function answer(k){
+    if(S.phase !== 'task' || S.answered) return;
+    const task = S.tasks[S.pos], ok = k === task.t;
+    S.answered = true; S.picked = false;
+    S.res.push({ v:task.v, t:task.t, a:k, ok });                         // počítá se jen první odpověď
+    const card = $('tdCard'); card.classList.remove('picked'); card.classList.add(ok ? 'res-ok' : 'res-bad');
+    $('tdTargets').classList.remove('picking'); $('tdTargets').classList.add('locked');
+    document.querySelectorAll('.tcard').forEach(c => {
+      const ck = c.dataset.k;
+      if(ck === task.t){ c.classList.add('ok'); c.querySelector('.res').textContent = ok ? '✓ Správně' : '✓ Správný typ'; }
+      else if(ck === k){ c.classList.add('bad'); c.querySelector('.res').textContent = '✗ Tvoje odpověď'; }
+    });
+    $('tdFb').innerHTML = (ok ? '<span class="ok">✓ Správně.</span> ' : '<span class="bad">✗ Chyba.</span> Hodnota <span class="mono">' + esc(task.v) + '</span> je typu <b>' + TN[task.t].py + '</b>. ') + esc(explain(task.v, task.t));
+    const n = $('tdNext'); n.style.display = 'inline-flex'; n.focus();
+  }
+  function next(){
+    if(!S.answered) return;
+    S.pos++;
+    if(S.pos >= S.tasks.length) return finish();
+    S.answered = false; render();
+  }
+  function finish(){
+    stopClock();
+    const good = S.res.filter(r => r.ok).length, pct = Math.round(good / S.res.length * 100);
+    const byType = {}; TYPES.forEach(t => { const rs = S.res.filter(r => r.t === t.k); byType[t.k] = { total:rs.length, good:rs.filter(r => r.ok).length }; });
+    const hist = SESTA.store.get('history', []) || [];
+    hist.unshift({ date:new Date().toISOString(), pct, good, total:S.res.length, time:Math.round(S.acc) });
+    SESTA.store.set('history', hist.slice(0, 5));
+    S.phase = 'done'; S.summary = { good, pct, byType };
+    render(); renderHist();
+  }
+
+  /* ---------- Levý panel ---------- */
+  function renderHist(){
+    const hist = SESTA.store.get('history', []) || [];
+    const t = iso => { const d = new Date(iso); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
+    $('tdHist').innerHTML = hist.length ? hist.map(h => '<div><span>' + t(h.date) + ' · ' + SESTA.fmtTime(h.time) + '</span><b>' + h.pct + ' % (' + h.good + '/' + h.total + ')</b></div>').join('')
+      : '<div><span>Zatím žádné procvičování.</span></div>';
+    $('tdHistMeta').textContent = hist.length ? 'naposledy ' + hist[0].pct + ' %' : 'zatím žádné';
+  }
+
+  /* ---------- Lišta a plocha ---------- */
+  function toolbar(){
+    const inTask = S.phase === 'task', done = S.phase === 'done';
+    const pos = done ? 12 : inTask ? S.pos : 0, tier = inTask ? TIER[S.tasks[S.pos].tier] : null;
+    $('tdTb').innerHTML =
+      '<span class="c-prog">Úloha <b>' + (inTask ? S.pos + 1 : pos) + '</b> / 12</span>' +
+      '<span class="c-pbar"><i style="width:' + Math.round(pos / 12 * 100) + '%"></i></span>' +
+      (tier ? '<span class="c-badge ' + tier[1] + '">' + tier[0] + '</span>' : '') +
+      '<span class="c-grow"></span>' +
+      '<span class="c-timer" id="tdTimer">' + SESTA.fmtTime(S.phase === 'intro' ? 0 : elapsed()) + '</span>' +
+      '<span class="c-tsep"></span>' +
+      '<button class="c-tool" type="button" id="tdNew" data-tip="Začít nové procvičování">' + SESTA.icon(inTask ? 'refresh' : 'play') + (inTask ? 'Začít znovu' : 'Nové procvičování') + '</button>';
+    $('tdNew').onclick = async e => {
+      e.currentTarget.blur();
+      if(inTask && S.pos > 0){
+        const ok = await SESTA.confirm({ title:'Začít znovu?', text:'Rozpracované procvičování se zahodí a úlohy se vylosují znovu.', ok:'Začít znovu' });
+        if(!ok) return;
+      }
+      start();
+    };
+  }
+  function render(){
+    toolbar();
+    const body = $('tdBody'), foot = $('tdFoot');
+    if(S.phase === 'intro'){
+      foot.innerHTML = '';
+      body.innerHTML = '<div class="c-center c-fade">' +
+        '<div class="c-hero">' + SESTA.icon('types') + '</div>' +
+        '<h2>Připraveno 12 úloh</h2>' +
+        '<p class="sub">U každé hodnoty urči její datový typ. Rozhoduje to, jak je hodnota zapsaná: uvozovky, hranaté závorky, velké písmeno u True a False.</p>' +
+        '<div class="c-pills"><span>1–4 základní</span><span>5–8 střední</span><span>9–12 náročné</span></div>' +
+        '<div class="c-btns"><button class="s-btn pri lg" type="button" id="tdStart">Začít</button></div>' +
+        '<p class="c-hint">Kartu s hodnotou přetáhni na správný typ, nebo na ni klikni a potom klikni na typ. Klávesy <kbd class="c-k">1</kbd>–<kbd class="c-k">4</kbd> vyberou typ, <kbd class="c-k">Enter</kbd> pokračuje.</p></div>';
+      $('tdStart').onclick = e => { e.currentTarget.blur(); start(); };
+      return;
+    }
+    if(S.phase === 'done'){
+      const sm = S.summary, R = sm.pct >= 90 ? ['Výborně','var(--ok)'] : sm.pct >= 70 ? ['Dobře','var(--info)'] : sm.pct >= 50 ? ['Ještě procvičuj','var(--warn)'] : ['Vrať se k vysvětlení vlevo','var(--danger)'];
+      const wrong = S.res.filter(r => !r.ok);
+      body.innerHTML = '<div class="c-center c-fade">' +
+        '<h2>Procvičování dokončeno</h2>' +
+        '<div class="c-stats">' +
+          '<div class="c-stat"><span class="k">Úspěšnost</span>' + SESTA.ring(sm.pct, R[1]) + '</div>' +
+          '<div class="c-stat"><span class="k">Správně</span><span class="v">' + sm.good + '/12</span></div>' +
+          '<div class="c-stat"><span class="k">Čas</span><span class="v">' + SESTA.fmtTime(S.acc) + '</span></div>' +
+        '</div>' +
+        '<div style="color:' + R[1] + ';font-size:20px;font-weight:700">' + R[0] + '</div>' +
+        '<div class="bytype">' + TYPES.map(t => { const b = sm.byType[t.k], e = b.total - b.good;
+          return '<div><b>' + t.py + '</b><span>' + b.good + '/' + b.total + ' správně</span><br><span class="' + (e ? 'e' : '') + '">' + (e ? 'chyby: ' + e : 'bez chyby') + '</span></div>'; }).join('') + '</div>' +
+        (wrong.length ? '<div class="wronglist">' + wrong.map(r => '<div><span class="mono">' + esc(r.v) + '</span><span>správně ' + TN[r.t].py + ' · tvoje odpověď ' + TN[r.a].py + '</span></div>').join('') + '</div>' : '') +
+        '</div>';
+      foot.innerHTML = '<span class="c-hint">Nové kolo použije jiné hodnoty. Spustíš ho i klávesou <kbd class="c-k">Enter</kbd>.</span><span class="c-grow"></span><button class="s-btn pri" type="button" id="tdAgain">Nové procvičování</button>';
+      SESTA.animateRings(body);
+      $('tdAgain').onclick = e => { e.currentTarget.blur(); start(); };
+      return;
+    }
+    const task = S.tasks[S.pos];
+    body.innerHTML = '<div class="td-wrap c-fade">' +
+      '<p class="td-q">Jakého datového typu je tato hodnota?</p>' +
+      '<div class="dock"><div class="vcard" id="tdCard" tabindex="0" role="button" aria-label="Hodnota ' + esc(task.v) + ', přetáhni ji na typ"><span class="cap">Hodnota</span>' + esc(task.v) + '</div></div>' +
+      '<div class="targets" id="tdTargets">' + TYPES.map((t, i) =>
+        '<button class="tcard" type="button" data-k="' + t.k + '" aria-label="Typ ' + t.py + '"><span class="key">' + (i + 1) + '</span><span class="tn">' + t.name + '</span><span class="tc">' + t.cz + '</span><span class="res"></span></button>').join('') + '</div>' +
+      '<p class="c-hint">Přetáhni kartu na správný typ, nebo klikni na kartu a potom na typ.</p></div>';
+    foot.innerHTML = '<div class="fb" id="tdFb"></div><button class="s-btn pri" type="button" id="tdNext" style="display:none">Další</button>';
+    $('tdNext').onclick = next;
+    document.querySelectorAll('.tcard').forEach(c => c.onclick = () => { if(!S.answered) answer(c.dataset.k); });
+    bindCard();
+  }
+  // Tažení karty s hodnotou (pointer events) a výběr kliknutím
+  function targetAt(x, y){
+    let hit = null;
+    document.querySelectorAll('.tcard').forEach(c => { const r = c.getBoundingClientRect(); if(x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = c; });
+    return hit;
+  }
+  function bindCard(){
+    const card = $('tdCard');
+    card.addEventListener('keydown', e => { if(e.key === ' ' && !S.answered){ e.preventDefault(); togglePick(); } });
+    card.addEventListener('pointerdown', e => {
+      if(S.answered || e.button !== 0) return;
+      e.preventDefault();
+      const sx = e.clientX, sy = e.clientY; let drag = false, hov = null;
+      card.setPointerCapture(e.pointerId);
+      const mv = ev => {
+        const dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if(!drag && Math.hypot(dx, dy) > 5){ drag = true; card.classList.add('lift'); card.classList.remove('picked'); $('tdTargets').classList.add('picking'); }
+        if(!drag) return;
+        card.style.transform = 'translate(' + dx + 'px,' + dy + 'px) rotate(' + clamp(dx / 40, -4, 4) + 'deg)';
+        const t = targetAt(ev.clientX, ev.clientY);
+        if(t !== hov){ if(hov) hov.classList.remove('hov'); hov = t; if(hov) hov.classList.add('hov'); }
+      };
+      const up = ev => {
+        card.removeEventListener('pointermove', mv); card.removeEventListener('pointerup', up); card.removeEventListener('pointercancel', up);
+        if(hov) hov.classList.remove('hov');
+        if(!drag){ togglePick(); return; }
+        card.classList.remove('lift'); card.style.transform = '';
+        const t = ev.type === 'pointerup' ? targetAt(ev.clientX, ev.clientY) : null;
+        if(t) answer(t.dataset.k); else if(!S.picked) $('tdTargets').classList.remove('picking');
+      };
+      card.addEventListener('pointermove', mv); card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
+    });
+  }
+  function togglePick(){
+    S.picked = !S.picked;
+    $('tdCard').classList.toggle('picked', S.picked);
+    $('tdTargets').classList.toggle('picking', S.picked);
+  }
+  function onKey(e){
+    if(SESTA.modalOpen()) return;
+    const k = e.key;
+    if(S.phase !== 'task'){ if(k === 'Enter' && !e.ctrlKey && !e.altKey){ e.preventDefault(); start(); } return; }
+    if(k === 'Enter'){ if(S.answered){ e.preventDefault(); next(); } return; }
+    if(/^[1-4]$/.test(k) && !S.answered && !e.ctrlKey && !e.altKey){ e.preventDefault(); answer(TYPES[+k - 1].k); }
+    if(k === 'Escape' && S.picked) togglePick();
+  }
+  return {
+    init(){ renderHist(); render(); },
+    pause: stopClock,
+    resume(){ if(S.phase === 'task') startClock(); },
+    onKey, classify, _state: () => S, _build: buildRound, DB
+  };
+})();
+
+/* ---------- napojení na kostru SestaCode ---------- */
+SESTA.init({
+  app: 'type-detective',
+  panel: '#side',
+  subtitle: () => 'Integer · String · Boolean · List',
+  shortcuts: [ { label:'Vybrat typ', keys:'1 / 2 / 3 / 4' }, { label:'Další úloha / začít', keys:'Enter' }, { label:'Vybrat kartu s hodnotou', keys:'Mezerník' } ]
+});
+SESTA.cards('#side');
+document.addEventListener('keydown', e => TypeDetectiveEngine.onKey(e));
+document.addEventListener('visibilitychange', () => { if(document.hidden) TypeDetectiveEngine.pause(); else TypeDetectiveEngine.resume(); });
+TypeDetectiveEngine.init();
+</script>
+</body>
+</html>

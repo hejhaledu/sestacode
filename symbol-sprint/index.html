@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symbol Sprint – SestaCode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<style>
+/* ===== Symbol Sprint ===== */
+.sp-steps{margin:0;padding-left:20px;color:var(--text-2);line-height:1.6;font-size:14px}
+.sp-steps li{margin-bottom:4px}
+.sp-best{display:grid;grid-template-columns:1fr auto;gap:10px 14px;align-items:center}
+.sp-best .n{font-size:14px;font-weight:600;color:var(--text)}
+.sp-best .n small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.sp-best .v{font:700 17px var(--mono);color:var(--text)}
+.sp-set{display:flex;flex-wrap:wrap;gap:6px}
+.sp-set span{font:700 16px var(--mono);width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:var(--bg-subtle);color:var(--text)}
+.sp-play{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.sp-count{font-size:13px;letter-spacing:.14em;color:var(--muted);font-weight:700}
+.sp-count b{color:var(--text)}
+.glyph{width:240px;height:210px;border-radius:24px;display:grid;place-items:center;font:700 150px/1 var(--mono);color:var(--text);background:var(--code-bg);border:1.5px solid var(--border);transition:border-color .15s,background .15s;user-select:none}
+.glyph.flash-ok{border-color:var(--ok);background:var(--ok-soft)}
+.glyph.flash-bad{border-color:var(--danger);background:var(--danger-soft)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .32s ease-out}
+.sp-name{font-size:14px;color:var(--muted)}
+.sp-instr{font-size:19px;font-weight:500;color:var(--text)}
+.sp-fb{min-height:56px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:14px}
+.sp-fb .wrong{color:var(--danger);font-weight:500}
+.sp-fb .wrong .mono{color:var(--text);background:var(--danger-soft);border-radius:6px;padding:0 7px;font-weight:700}
+.sp-fb .keyhint{color:var(--text-2);background:var(--warn-soft);border-radius:10px;padding:6px 12px}
+.sp-fb .keyhint b{color:var(--warn)}
+.slots{display:flex;gap:6px;flex-wrap:nowrap}
+.slot{width:36px;height:40px;border-radius:9px;border:1px solid var(--border);background:var(--bg-subtle);display:grid;place-items:center;font:700 17px var(--mono);color:var(--muted)}
+.slot.done{border-color:var(--ok);background:var(--ok-soft);color:var(--text)}
+.slot.cur{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-text);box-shadow:0 0 0 2px var(--accent-ring)}
+.pause{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:color-mix(in srgb,var(--bg-canvas) 88%,transparent);backdrop-filter:blur(4px);text-align:center}
+.pause h2{margin:0;font-size:26px}
+.pause p{margin:0;color:var(--text-2)}
+.record{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--accent-text);background:var(--accent-soft);border-radius:999px;padding:4px 12px}
+.record .s-i{width:16px;height:16px}
+.errchars{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.errchars span{font:700 15px var(--mono);padding:3px 10px;border-radius:8px;background:var(--danger-soft);color:var(--text)}
+@media (max-height:760px){ .glyph{width:200px;height:170px;font-size:120px} .sp-instr{font-size:17px} .slot{width:32px;height:36px;font-size:15px} }
+</style>
+</head>
+<body>
+<main class="s-main"><div class="c-app">
+  <aside class="c-side" id="side">
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Jak hrát</span><span class="c-meta">15 znaků</span></button>
+      <div class="c-card-b">
+        <ol class="sp-steps">
+          <li>Na obrazovce je vždy jeden znak. Napiš ho na klávesnici.</li>
+          <li>Enter nemačkej, po správném znaku hned naskočí další.</li>
+          <li>Čas se spustí až prvním správně napsaným znakem.</li>
+          <li>Špatný znak tě neposune a počítá se jako chyba.</li>
+          <li>Klávesou <kbd class="c-k">Esc</kbd> začneš kolo znovu.</li>
+        </ol>
+      </div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">2</span><span class="c-ttl">Nejlepší časy</span><span class="c-meta" id="spBestMeta"></span></button>
+      <div class="c-card-b">
+        <div class="sp-best" id="spBest"></div>
+        <div class="c-info"><i data-i="info"></i><span>Rekordy platí do zavření prohlížeče, pak se smažou.</span></div>
+      </div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">3</span><span class="c-ttl">Nápověda kláves</span><span class="c-meta" id="spHintMeta"></span></button>
+      <div class="c-card-b">
+        <span class="c-lbl">Kdy ukázat, kde znak na klávesnici najdeš</span>
+        <div class="c-opt" id="spHintOpt"><button type="button" data-h="auto">Po 2 chybách</button><button type="button" data-h="always">Vždy</button><button type="button" data-h="off">Nikdy</button></div>
+        <span class="c-lbl">Procvičované znaky</span>
+        <div class="sp-set" id="spSet"></div>
+      </div>
+    </section>
+  </aside>
+  <section class="c-work">
+    <div class="c-tb" id="spTb"></div>
+    <div class="c-area">
+      <div class="c-sheet" id="spSheet">
+        <div class="c-sheet-b" id="spBody"></div>
+        <div class="c-sheet-f" id="spFoot"></div>
+      </div>
+    </div>
+  </section>
+</div></main>
+<script src="../shared/apps.js?v=1.0.0"></script>
+<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script>
+'use strict';
+/* Symbol Sprint – rychlostní trénink programátorských znaků na české klávesnici.
+   Kontroluje se skutečně vložený znak (e.key), ne poloha klávesy, takže funguje i se Shift a AltGr. */
+const $ = id => document.getElementById(id);
+const esc = SESTA.esc;
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const SymbolSprintEngine = (() => {
+  // Základní sada znaků podle zadání (sada se dá rozšířit přidáním znaku sem)
+  const CHARS = ['.', ':', '(', ')', '[', ']', '$', ';', '/', '*', '-', '<', '>', '"', '!', '='];
+  const ROUND = 15;
+  const NAMES = { '.':'tečka', ':':'dvojtečka', '(':'levá kulatá závorka', ')':'pravá kulatá závorka', '[':'levá hranatá závorka',
+    ']':'pravá hranatá závorka', '$':'dolar', ';':'středník', '/':'lomítko', '*':'hvězdička', '-':'minus (pomlčka)',
+    '<':'menší než', '>':'větší než', '"':'uvozovky', '!':'vykřičník', '=':'rovnítko' };
+  // Umístění na české klávesnici ve Windows (rozložení „Čeština“, QWERTZ). AltGr = pravý Alt.
+  const K = s => '<kbd class="c-k">' + s + '</kbd>';
+  const HINTS = { '.':'klávesa ' + K('.') + ' vpravo vedle čárky', ':':K('Shift') + ' + ' + K('.'),
+    '(':K('Shift') + ' + ' + K(')') + ' (klávesa vpravo od ú)', ')':'klávesa ' + K(')') + ' vpravo od ú',
+    '[':K('AltGr') + ' + ' + K('F'), ']':K('AltGr') + ' + ' + K('G'), '$':K('AltGr') + ' + ' + K('ů'),
+    ';':'klávesa ' + K(';') + ' vlevo nahoře pod Esc', '/':K('Shift') + ' + ' + K('ú') + ' nebo ' + K('/') + ' na numerické klávesnici',
+    '*':K('*') + ' na numerické klávesnici nebo ' + K('AltGr') + ' + ' + K('-'), '-':'klávesa ' + K('-') + ' vpravo dole nebo na numerické klávesnici',
+    '<':K('AltGr') + ' + ' + K(','), '>':K('AltGr') + ' + ' + K('.'), '"':K('Shift') + ' + ' + K('ů'),
+    '!':K('Shift') + ' + ' + K('§') + ' (vpravo od ů)', '=':'klávesa ' + K('=') + ' vpravo od é' };
+  const HINT_NAMES = { auto:'po 2 chybách', always:'vždy', off:'nikdy' };
+  const S = { phase:'intro', seq:[], pos:0, errors:0, errBy:{}, curErr:0, lastWrong:null, acc:0, t0:0, running:false, tick:null, result:null };
+  const hintMode = () => { const h = SESTA.store.get('hint', 'auto'); return HINT_NAMES[h] ? h : 'auto'; };
+  const best = () => SESTA.store.get('best', {}) || {};
+  const fmt = ms => SESTA.fmtTime(ms, true);
+
+  /* ---------- Měření času ---------- */
+  const elapsed = () => S.acc + (S.running ? performance.now() - S.t0 : 0);
+  function startClock(){ S.t0 = performance.now(); S.running = true; startTick(); }
+  function stopClock(){ if(S.running){ S.acc += performance.now() - S.t0; S.running = false; } stopTick(); }
+  function startTick(){ stopTick(); S.tick = setInterval(() => { const el = $('spTimer'); if(el) el.textContent = fmt(elapsed()); }, 100); }
+  function stopTick(){ if(S.tick){ clearInterval(S.tick); S.tick = null; } }
+
+  /* ---------- Kolo ---------- */
+  function newRound(){
+    stopClock();
+    Object.assign(S, { phase:'play', seq:shuffle(CHARS).slice(0, ROUND), pos:0, errors:0, errBy:{}, curErr:0, lastWrong:null, acc:0, running:false, result:null });
+    render();
+  }
+  function correct(){
+    if(!S.running && S.pos === 0 && S.acc === 0) startClock();   // čas startuje prvním správným znakem
+    S.pos++; S.curErr = 0; S.lastWrong = null;
+    if(S.pos >= ROUND) return finish();
+    render('ok');
+  }
+  function wrong(ch){
+    S.errors++; S.curErr++; S.lastWrong = ch;
+    const target = S.seq[S.pos]; S.errBy[target] = (S.errBy[target] || 0) + 1;
+    render('bad');
+  }
+  function finish(){
+    stopClock();
+    const time = S.acc, acc = Math.round(ROUND / (ROUND + S.errors) * 1000) / 10;
+    const b = best(); let recClean = false, recAny = false;
+    if(typeof b.any !== 'number' || time < b.any){ b.any = time; b.anyErr = S.errors; recAny = true; }
+    if(S.errors === 0 && (typeof b.clean !== 'number' || time < b.clean)){ b.clean = time; recClean = true; }
+    SESTA.store.set('best', b);
+    S.result = { time, acc, errors:S.errors, recAny, recClean };
+    S.phase = 'done';
+    render(); renderSide();
+  }
+  function pause(){ if(S.phase === 'play' && S.running){ stopClock(); S.phase = 'paused'; render(); } }
+  function resume(){ if(S.phase !== 'paused') return; S.phase = 'play'; startClock(); render(); }
+
+  /* ---------- Klávesnice ---------- */
+  const NAV = ['Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End','Backspace'];
+  function onKey(e){
+    if(SESTA.modalOpen()) return;
+    if(e.repeat){ e.preventDefault(); return; }                          // potlačení opakování při držení klávesy
+    const k = e.key || '';
+    if(S.phase === 'intro' || S.phase === 'done'){
+      if(k === 'Enter' && !e.ctrlKey && !e.altKey){ e.preventDefault(); newRound(); }
+      return;
+    }
+    if(S.phase === 'paused'){
+      if(k.length === 1 || k === 'Enter'){ e.preventDefault(); resume(); }
+      return;
+    }
+    if(k === 'Escape'){ e.preventDefault(); newRound(); return; }        // ruční restart
+    if(NAV.includes(k) || k === 'Enter'){ e.preventDefault(); return; }
+    if(k.length !== 1) return;                                             // Shift, Ctrl, Alt, AltGr, mrtvé klávesy…
+    if((e.ctrlKey || e.metaKey) && !e.altKey) return;                      // zkratky prohlížeče (AltGr = Ctrl+Alt projde)
+    if(e.altKey && !e.ctrlKey && !(e.getModifierState && e.getModifierState('AltGraph'))) return;
+    e.preventDefault();
+    if(k === S.seq[S.pos]) correct(); else wrong(k);
+  }
+
+  /* ---------- Levý panel ---------- */
+  function renderSide(){
+    const b = best();
+    const row = (name, v, sub) => '<span class="n">' + name + '<small>' + sub + '</small></span><span class="v">' + (typeof v === 'number' ? fmt(v) : '–') + '</span>';
+    $('spBest').innerHTML = row('Bez chyby', b.clean, 'kolo bez jediného chybného stisku') +
+      row('Nejrychlejší kolo', b.any, typeof b.anyErr === 'number' ? 'chyb v tomto kole: ' + b.anyErr : 'i s chybami');
+    $('spBestMeta').textContent = typeof b.clean === 'number' ? 'bez chyby ' + fmt(b.clean) : typeof b.any === 'number' ? fmt(b.any) : 'zatím žádné';
+    $('spHintMeta').textContent = HINT_NAMES[hintMode()];
+    $('spSet').innerHTML = CHARS.map(c => '<span title="' + esc(NAMES[c]) + '">' + esc(c) + '</span>').join('');
+    document.querySelectorAll('#spHintOpt button').forEach(b => {
+      b.classList.toggle('on', b.dataset.h === hintMode());
+      b.onclick = () => { SESTA.store.set('hint', b.dataset.h); b.blur(); renderSide(); if(S.phase === 'play') render(); };
+    });
+  }
+
+  /* ---------- Lišta a plocha ---------- */
+  function toolbar(){
+    const playing = S.phase === 'play' || S.phase === 'paused';
+    const pos = S.phase === 'done' ? ROUND : S.pos;
+    $('spTb').innerHTML =
+      '<span class="c-prog">Znak <b>' + (playing ? S.pos + 1 : pos) + '</b> / ' + ROUND + '</span>' +
+      '<span class="c-pbar"><i style="width:' + Math.round(pos / ROUND * 100) + '%"></i></span>' +
+      '<span class="c-grow"></span>' +
+      '<span class="c-badge ' + (S.errors ? 'bad' : '') + '">Chyby: ' + S.errors + '</span>' +
+      '<span class="c-timer" id="spTimer">' + fmt(S.phase === 'intro' ? 0 : elapsed()) + '</span>' +
+      '<span class="c-tsep"></span>' +
+      (playing ? '<button class="c-tool" type="button" id="spRestart" data-tip="Začít kolo znovu" data-key="Esc">' + SESTA.icon('refresh') + 'Restartovat kolo</button>'
+               : '<button class="c-tool" type="button" id="spNew" data-tip="Nové kolo" data-key="Enter">' + SESTA.icon('play') + 'Nové kolo</button>');
+    const b = $('spRestart') || $('spNew'); b.onclick = e => { e.currentTarget.blur(); newRound(); };
+  }
+  function render(flash){
+    toolbar();
+    const body = $('spBody'), foot = $('spFoot');
+    const old = $('spSheet').querySelector('.pause'); if(old) old.remove();
+    if(S.phase === 'intro'){
+      foot.innerHTML = '';
+      body.innerHTML = '<div class="c-center c-fade">' +
+        '<div class="c-hero">' + SESTA.icon('keys') + '</div>' +
+        '<h2>Připraveno 15 znaků</h2>' +
+        '<p class="sub">Napiš každý znak na klávesnici. Po správném znaku hned naskočí další. Čas se spustí až prvním správným znakem, takže se můžeš v klidu připravit.</p>' +
+        '<div class="c-pills"><span>15 různých znaků</span><span>bez Enteru</span><span>chyby se počítají</span><span>Esc = restart kola</span></div>' +
+        '<div class="c-btns"><button class="s-btn pri lg" type="button" id="spStart">Nové kolo</button></div>' +
+        '<p class="c-hint">nebo stiskni <kbd class="c-k">Enter</kbd> · ruce můžeš nechat na klávesnici</p></div>';
+      $('spStart').onclick = e => { e.currentTarget.blur(); newRound(); };
+      return;
+    }
+    if(S.phase === 'done'){
+      const r = S.result, b = best();
+      const color = r.errors === 0 ? 'var(--ok)' : r.acc >= 80 ? 'var(--info)' : r.acc >= 60 ? 'var(--warn)' : 'var(--danger)';
+      const errChars = Object.keys(S.errBy);
+      body.innerHTML = '<div class="c-center c-fade">' +
+        '<div class="c-hero ok c-pop">' + SESTA.icon('checkc') + '</div>' +
+        '<h2>Kolo dokončeno</h2>' +
+        (r.recClean ? '<span class="record">' + SESTA.icon('trophy') + 'Nový rekord bez chyby</span>' : r.recAny ? '<span class="record">' + SESTA.icon('trophy') + 'Nové nejrychlejší kolo</span>' : '') +
+        '<div class="c-stats">' +
+          '<div class="c-stat"><span class="k">Čas</span><span class="v">' + fmt(r.time) + '</span><span class="s">minuty:sekundy,desetiny</span></div>' +
+          '<div class="c-stat"><span class="k">Přesnost</span>' + SESTA.ring(Math.round(r.acc), color) + '</div>' +
+          '<div class="c-stat"><span class="k">Správně</span><span class="v">15/15</span><span class="s">chybné stisky: ' + r.errors + '</span></div>' +
+        '</div>' +
+        '<div class="c-pills"><span>Přesnost ' + String(r.acc).replace('.', ',') + ' %</span><span>Nejlepší bez chyby: ' + (typeof b.clean === 'number' ? fmt(b.clean) : '–') + '</span><span>Nejrychlejší kolo: ' + (typeof b.any === 'number' ? fmt(b.any) : '–') + '</span></div>' +
+        (errChars.length ? '<p class="c-hint">Znaky, ve kterých byla chyba:</p><div class="errchars">' + errChars.map(c => '<span title="' + esc(NAMES[c]) + '">' + esc(c) + ' ×' + S.errBy[c] + '</span>').join('') + '</div>' : '') +
+        '</div>';
+      foot.innerHTML = '<span class="c-hint">Novou hru spustíš i klávesou <kbd class="c-k">Enter</kbd>.</span><span class="c-grow"></span><button class="s-btn pri" type="button" id="spAgain">Hrát znovu</button>';
+      SESTA.animateRings(body);
+      $('spAgain').onclick = e => { e.currentTarget.blur(); newRound(); };
+      return;
+    }
+    // hra (i pozastavená)
+    const ch = S.seq[S.pos];
+    const showHint = hintMode() === 'always' || (hintMode() === 'auto' && S.curErr >= 2);
+    let fb = '';
+    if(S.lastWrong !== null) fb += '<span class="wrong">Stiskl jsi <span class="mono">' + esc(S.lastWrong === ' ' ? 'mezerník' : S.lastWrong) + '</span>, zkus to znovu.</span>';
+    if(showHint) fb += '<span class="keyhint"><b>Kde ho najdeš:</b> ' + HINTS[ch] + '</span>';
+    body.innerHTML = '<div class="sp-play">' +
+      '<div class="sp-count">ZNAK <b>' + (S.pos + 1) + '</b> / ' + ROUND + '</div>' +
+      '<div class="glyph' + (flash === 'bad' ? ' flash-bad shake' : flash === 'ok' ? ' flash-ok' : '') + '" id="spGlyph" aria-live="polite" aria-label="Znak ' + esc(NAMES[ch]) + '">' + esc(ch) + '</div>' +
+      '<div class="sp-name">' + esc(NAMES[ch]) + '</div>' +
+      '<div class="sp-instr">Napiš tento znak na klávesnici.</div>' +
+      '<div class="sp-fb">' + fb + '</div></div>';
+    if(flash === 'ok') setTimeout(() => { const g = $('spGlyph'); if(g) g.classList.remove('flash-ok'); }, 160);
+    if(flash === 'bad') setTimeout(() => { const g = $('spGlyph'); if(g) g.classList.remove('flash-bad'); }, 360);
+    foot.innerHTML = '<div class="slots" aria-label="Průběh kola">' + S.seq.map((c, i) =>
+      '<span class="slot' + (i < S.pos ? ' done' : i === S.pos ? ' cur' : '') + '">' + (i < S.pos ? esc(c) : i === S.pos ? '?' : '·') + '</span>').join('') + '</div>';
+    if(S.phase === 'paused'){
+      const p = document.createElement('div'); p.className = 'pause c-fade';
+      p.innerHTML = '<div class="c-hero warn">' + SESTA.icon('pause') + '</div><h2>Pozastaveno</h2><p>Okno přestalo být aktivní, měření času se zastavilo.</p><button class="s-btn pri lg" type="button" id="spResume">Pokračovat</button><p class="c-hint">nebo stiskni libovolnou klávesu</p>';
+      $('spSheet').appendChild(p);
+      $('spResume').onclick = e => { e.currentTarget.blur(); resume(); };
+    }
+  }
+  return {
+    init(){ renderSide(); render(); },
+    onKey, pause,
+    playing: () => S.phase === 'play',
+    _state: () => S, CHARS, ROUND
+  };
+})();
+
+/* ---------- napojení na kostru SestaCode ---------- */
+SESTA.init({
+  app: 'symbol-sprint',
+  panel: '#side',
+  subtitle: () => 'česká klávesnice',
+  helpKey: () => !SymbolSprintEngine.playing(),       // během hry je „?“ obyčejná (chybná) klávesa
+  shortcuts: [ { label:'Nové kolo', keys:'Enter' }, { label:'Restartovat kolo během hry', keys:'Esc' } ]
+});
+SESTA.cards('#side');
+document.addEventListener('keydown', e => SymbolSprintEngine.onKey(e));
+addEventListener('blur', () => SymbolSprintEngine.pause());
+addEventListener('pagehide', () => SymbolSprintEngine.pause());
+document.addEventListener('visibilitychange', () => { if(document.hidden) SymbolSprintEngine.pause(); });
+SymbolSprintEngine.init();
+</script>
+</body>
+</html>

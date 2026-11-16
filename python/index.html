@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python – SestaCode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<style>
+/* ===== Python ===== */
+.code{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:10px 0;font-family:var(--mono);font-size:16px;line-height:1.8;overflow-x:auto;color:var(--c-var)}
+.code.sm{font-size:14px;line-height:1.65;padding:8px 0}
+.code .row{display:flex;padding:0 16px;white-space:pre;border-radius:6px;transition:background .15s}
+.code .ln{color:var(--c-cm);width:1.6em;flex:none;text-align:right;margin-right:18px;user-select:none;opacity:.8}
+.code.clk .row{cursor:pointer;margin:0 6px;padding:0 10px}
+.code.clk .row:hover{background:var(--bg-subtle)}
+.code .row.pick-ok{background:var(--ok-soft);box-shadow:inset 3px 0 0 var(--ok)}
+.code .row.pick-bad{background:var(--danger-soft);box-shadow:inset 3px 0 0 var(--danger)}
+.code .row.is-err{background:var(--warn-soft);box-shadow:inset 3px 0 0 var(--warn)}
+.code.nonum .ln{display:none}
+.term{font-family:var(--mono);margin:0;white-space:pre;font-size:15px;line-height:1.6;color:var(--text)}
+.special{font-style:italic;color:var(--danger)}
+.ex p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--text-2)}
+.ex .code{margin:0 0 10px}
+.optable{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin:0 0 10px;color:var(--text-2)}
+.optable span:nth-child(odd){font-family:var(--mono);color:var(--c-op);font-weight:700}
+.rem{border-top:1px solid var(--border);padding-top:10px}
+.rem:first-child{border-top:0;padding-top:0}
+.rem b{display:block;font-size:13px;margin-bottom:4px;color:var(--text)}
+.rem p{margin:0 0 6px;font-size:13.5px;color:var(--text-2);line-height:1.5}
+.fmsg{font-size:12.5px;color:var(--warn);min-height:16px}
+.q{font-size:19px;line-height:1.45;margin:0 0 14px;color:var(--text);font-weight:500}
+.inp{display:inline-flex;align-items:center;gap:8px;font-size:14px;background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:6px 12px;margin:0 0 14px;font-weight:600}
+.inp .mono{color:var(--text)}
+#fb{flex:1;font-size:15px;line-height:1.5;color:var(--text-2)}
+#fb .ok{color:var(--ok);font-weight:700} #fb .bad{color:var(--danger);font-weight:700}
+.err{color:var(--warn);font-size:13.5px;font-weight:600}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.opts.one{grid-template-columns:minmax(0,1fr)}
+.opt{display:flex;align-items:flex-start;gap:14px;text-align:left;background:var(--bg-app);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;cursor:pointer;transition:all .15s;min-height:54px;box-shadow:var(--sh-1);color:var(--text)}
+.opt:hover{background:var(--bg-subtle);border-color:var(--border-strong)}
+.opt .key{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bg-subtle);font:700 13px var(--mono);display:grid;place-items:center;color:var(--muted);margin-top:1px}
+.opt .val{flex:1;min-width:0;font-size:16px;line-height:1.5}
+.opt .code{margin:0}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.ok .key{background:var(--ok);color:var(--accent-fg)}
+.opt.bad{border-color:var(--danger);background:var(--danger-soft)} .opt.bad .key{background:var(--danger);color:#fff}
+.locked .opt{cursor:default} .locked .opt:not(.ok):not(.bad){opacity:.5}
+.tok{font:700 19px var(--mono)}
+.gap{display:inline-block;min-width:3.4em;line-height:1.35;vertical-align:middle;border:2px dashed var(--c-fn);border-radius:8px;text-align:center;padding:0 8px;margin:0 2px;cursor:pointer;color:var(--muted);transition:all .15s}
+.gap.filled{border-style:solid;background:var(--info-soft);color:var(--text)}
+.gap.over{background:var(--info-soft)}
+.gap.g-ok{border-color:var(--ok);background:var(--ok-soft)} .gap.g-bad{border-color:var(--danger);background:var(--danger-soft)}
+.bank{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:14px;border:1.5px dashed var(--border);border-radius:14px;min-height:64px;background:var(--bg-work)}
+.piece{font:600 17px var(--mono);padding:7px 16px;border-radius:10px;background:var(--bg-app);border:1px solid var(--border-strong);cursor:grab;transition:all .15s;color:var(--c-var);box-shadow:var(--sh-1)}
+.piece:hover{background:var(--bg-subtle)}
+.piece.used{opacity:.25;pointer-events:none}
+.bank-label{font-size:12.5px;color:var(--muted);margin-top:18px}
+.olist{margin-top:6px}
+.orow{display:flex;align-items:center;gap:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:7px 10px;margin-bottom:8px;transition:border-color .15s,background .15s}
+.orow.dr{cursor:grab}
+.orow.dragging{opacity:.35}
+.orow.over{border-color:var(--accent);background:var(--accent-soft)}
+.orow .grip{color:var(--muted);font-family:var(--mono);letter-spacing:-2px;user-select:none;width:16px}
+.orow .src{flex:1;font-family:var(--mono);font-size:16px;white-space:pre;min-width:0;overflow:hidden;color:var(--c-var)}
+.orow.r-ok{border-color:var(--ok);background:var(--ok-soft)} .orow.r-bad{border-color:var(--danger);background:var(--danger-soft)}
+.mini{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--bg-app);cursor:pointer;font-size:15px;display:grid;place-items:center;color:var(--text-2)}
+.mini:hover{background:var(--bg-subtle);color:var(--text)}
+.indg{color:var(--border-strong)}
+.reveal{margin-top:18px}
+.reveal .lbl{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.tnc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;align-items:center;margin-top:8px}
+.tnc .expr{font:500 17px var(--mono);background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;white-space:pre;color:var(--c-var)}
+.seg3{display:flex;gap:4px;padding:4px;background:var(--bg-subtle);border-radius:11px}
+.seg3 button{border:0;background:transparent;border-radius:8px;padding:7px 14px;font:500 14px var(--font);cursor:pointer;color:var(--text-2)}
+.seg3 button:hover{color:var(--text)}
+.seg3 button.sel{background:var(--accent);color:var(--accent-fg);font-weight:600}
+.seg3 button.s-ok{background:var(--ok);color:var(--accent-fg);font-weight:600}
+.seg3 button.s-bad{background:var(--danger);color:#fff;font-weight:600}
+.headrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ex .code.sm{font-size:12.5px}
+.ex .code .ln,.rem .code .ln{margin-right:12px}
+.rem .code.sm{font-size:12.5px}
+#pyTb .c-seg{margin-right:8px}
+</style>
+</head>
+<body>
+<main class="s-main"><div class="c-app">
+  <aside class="c-side" id="side">
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Vysvětlení</span><span class="c-meta" id="m1"></span></button>
+      <div class="c-card-b ex" id="explain"></div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">2</span><span class="c-ttl">Procvičovaná témata</span><span class="c-meta" id="m2"></span></button>
+      <div class="c-card-b">
+        <span class="c-lbl">Kolo vylosuje úlohy ze zapnutých témat</span>
+        <div class="c-opt" id="filters"></div>
+        <div class="fmsg" id="filterMsg"></div>
+      </div>
+    </section>
+    <section class="c-card" id="remCard">
+      <button class="c-card-h" type="button"><span class="c-num">3</span><span class="c-ttl">Připomenutí</span><span class="c-meta" id="m3"></span></button>
+      <div class="c-card-b" id="remind"></div>
+    </section>
+  </aside>
+  <section class="c-work">
+    <div class="c-tb" id="pyTb">
+      <div class="c-seg" id="tabs" role="tablist" aria-label="Lekce"></div>
+      <span class="c-grow"></span>
+      <span id="tbProg"></span>
+    </div>
+    <div class="c-area">
+      <div class="c-sheet">
+        <div class="c-sheet-h" id="wHead"></div>
+        <div class="c-sheet-b" id="wBody"></div>
+        <div class="c-sheet-f" id="wFoot"></div>
+      </div>
+    </div>
+  </section>
+</div></main>
+<script src="../shared/apps.js?v=1.0.0"></script>
+<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script>
+'use strict';
+/* =====================================================================
+   Python – procvičování Pythonu (dříve SestaCode(Python))
+   Struktura: 1) data lekcí  2) banka úloh  3) pomocné funkce a zvýraznění
+              4) vykreslování  5) logika kola  6) vyhodnocení a výsledky
+   ===================================================================== */
+
+/* ---------- 1) DATA LEKCÍ ---------- */
+const LESSONS = {
+  1: { name: 'Výstup',       short: 'Výstup' },
+  2: { name: 'Vstup',        short: 'Vstup' },
+  3: { name: 'Podmínka IF',  short: 'IF' },
+  4: { name: 'Cyklus FOR',   short: 'FOR' }
+};
+
+// Vysvětlení v levém dolním panelu. Bloky: p = odstavec, code = ukázka, ops = tabulka operátorů
+const EXPLAIN = {
+  1: [
+    { p: 'Proměnná si pamatuje hodnotu. Text píšeme do uvozovek, čísla bez uvozovek.' },
+    { code: ['jmeno = "Martin"', 'vek = 15'] },
+    { p: 'Funkce print() vypíše text nebo hodnotu proměnné. Více hodnot oddělíš čárkou, Python mezi ně vloží mezeru.' },
+    { code: ['print("ahoj světe!")', 'print("moje jméno je:", jmeno)', 'print("za rok mi bude:", vek + 1)'] },
+    { p: 'S proměnnými můžeš počítat. Násobení má přednost před sčítáním, závorky se počítají první.' },
+    { code: ['soucet = 15 + 7 * 3      # 36', 'cislo = cislo * cislo'] }
+  ],
+  2: [
+    { p: 'Funkce input() načte z klávesnice to, co uživatel napíše, a uloží to do proměnné.' },
+    { code: ['jmeno = input("Zadej jméno: ")'] },
+    { p: 'Výsledek input() je vždy text, i když uživatel napíše číslo. Když chceš s hodnotou počítat, převeď ji funkcí int().' },
+    { code: ['vek = int(input("Zadej věk: "))', 'print("Za rok ti bude", vek + 1)'] },
+    { p: 'input() je uvnitř a načte text, int() je venku a převede text na číslo. Bez převodu se texty jen slepí: "5" + "5" je 55.' }
+  ],
+  3: [
+    { p: 'Podmínka if rozhodne, co program udělá. Za podmínkou je dvojtečka a příkazy uvnitř jsou odsazené o 4 mezery.' },
+    { code: ['if vek >= 18:', '    print("Jsi plnoletý.")', 'else:', '    print("Nejsi plnoletý.")'] },
+    { p: 'Větev else se provede, když podmínka neplatí. Řádek bez odsazení za podmínkou se provede vždy.' },
+    { ops: [['==', 'rovná se'], ['!=', 'nerovná se'], ['>', 'větší než'], ['<', 'menší než'], ['>=', 'větší nebo rovno'], ['<=', 'menší nebo rovno']] },
+    { p: 'Pozor: jedno = ukládá hodnotu, dvě == porovnávají.' }
+  ],
+  4: [
+    { p: 'Cyklus for opakuje odsazené příkazy. Za hlavičkou cyklu je dvojtečka.' },
+    { code: ['for i in range(3):', '    print("Ahoj")'] },
+    { p: 'range(5) znamená 5 opakování. Počítací proměnná i přitom nabývá hodnot 0, 1, 2, 3, 4. Místo čísla může být i proměnná: range(pocet).' },
+    { code: ['X = 0', 'for i in range(3):', '    X = X + 10', 'print(X)      # 30'] },
+    { p: 'Příkaz bez odsazení za cyklem se provede jen jednou, až cyklus skončí.' }
+  ]
+};
+// Krátké připomenutí předchozích lekcí
+const REMIND = {
+  1: { p: 'Text v uvozovkách, čísla bez nich. Čárka v print() vloží mezeru, + texty slepí.', code: ['print("věk:", vek + 1)'] },
+  2: { p: 'input() vrací text. Pro počítání převeď na číslo pomocí int().', code: ['vek = int(input("Věk: "))'] },
+  3: { p: 'Za podmínkou dvojtečka, uvnitř odsazení. else = když podmínka neplatí.', code: ['if body >= 50:', '    print("Prospěl")'] }
+};
+
+/* ---------- 2) BANKA ÚLOH ----------
+   Společné položky: id, l (lekce), n (název), ty (typ cvičení), s (systém), q (zadání), ex (vysvětlení)
+   Systémy:
+   choice – výběr z možností: code (řádky, {?} = mezera), o (možnosti, správná je PRVNÍ), ot (out | code | tok | text), inp (vstup uživatele)
+   line   – klik na chybný řádek: code, bad (index řádku od 0), fix (opravený řádek)
+   tnc    – Text / Číslo / Chyba: rows [[zápis, 'T'|'C'|'E'], ...]
+   gap    – doplň dílek: code s {0}, {1}…, pieces (nabídka), ans (správné dílky podle pořadí mezer)
+   order  – seřaď řádky: lines ve SPRÁVNÉM pořadí (zobrazí se zamíchané)
+   indent – nastav odsazení: lines bez odsazení, lv (0 = bez, 1 = 4 mezery)
+   E = možnost „Program skončí chybou“, N = možnost „Nevypíše nic“                         */
+const E = '__ERR__', N = '__NIC__';
+const TASKS = [
+  /* ===== LEKCE 1 – VÝSTUP ===== */
+  { id:'1.01', l:1, n:'Vizitka', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['jmeno = "Eva"','print("Jméno:", jmeno)'],
+    o:['Jméno: Eva','Jméno:Eva','Jméno: jmeno','Jméno:, Eva'],
+    ex:'Čárka v print() oddělí dvě hodnoty a Python mezi ně vloží mezeru. Místo proměnné jmeno se vypíše její obsah.' },
+  { id:'1.02', l:1, n:'Za rok', ty:'Výsledek výrazu', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['vek = 13','print("za rok:", vek + 1)'],
+    o:['za rok: 14','za rok: vek + 1','za rok: 131','za rok: 13 1'],
+    ex:'Python nejdřív spočítá vek + 1 = 14 a teprve potom výsledek vypíše.' },
+  { id:'1.03', l:1, n:'Přednost násobení', ty:'Výsledek výrazu', s:'choice', ot:'tok', q:'Jakou hodnotu bude mít proměnná soucet?',
+    code:['soucet = 15 + 7 * 3'], o:['36','66','25'],
+    ex:'Násobení má přednost před sčítáním: 7 * 3 = 21 a 15 + 21 = 36.' },
+  { id:'1.04', l:1, n:'Síla závorek', ty:'Výsledek výrazu', s:'choice', ot:'tok', q:'Jakou hodnotu bude mít proměnná soucet?',
+    code:['soucet = (15 + 7) * 3'], o:['66','36','45'],
+    ex:'Závorky se počítají jako první: 15 + 7 = 22 a 22 * 3 = 66.' },
+  { id:'1.05', l:1, n:'Ztracená uvozovka', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['jmeno = "Tom"','print("Ahoj)','print(jmeno)'], bad:1, fix:'print("Ahoj")',
+    ex:'Text musí mít uvozovky na začátku i na konci.' },
+  { id:'1.06', l:1, n:'Text bez uvozovek', ty:'Najdi chybu', s:'line', q:'Program má vypsat slovo Ahoj a název školy. Klikni na řádek, ve kterém je chyba.',
+    code:['skola = "ZŠ Šestajovice"','print(Ahoj)','print(skola)'], bad:1, fix:'print("Ahoj")',
+    ex:'Bez uvozovek Python hledá proměnnou Ahoj. Ta neexistuje, takže program skončí chybou.' },
+  { id:'1.07', l:1, n:'Slepené texty', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['print("Ahoj" + "světe")'], o:['Ahojsvěte','Ahoj světe','Ahoj + světe',E],
+    ex:'Znaménko + slepí texty přesně tak, jak jsou. Mezeru mezi ně nevloží.' },
+  { id:'1.08', l:1, n:'Čárka, nebo plus?', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['print("a", "b")','print("a" + "b")'], o:['a b\nab','ab\nab','a b\na b','ab\na b'],
+    ex:'Čárka vloží mezi hodnoty mezeru, plus texty slepí bez mezery. Každý print() vypisuje na nový řádek.' },
+  { id:'1.09', l:1, n:'Jméno v uvozovkách', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['jmeno = "Adam"','print("jmeno")'], o:['jmeno','Adam','"Adam"',E],
+    ex:'Slovo v uvozovkách je obyčejný text, ne proměnná. Vypíše se tedy jmeno.' },
+  { id:'1.10', l:1, n:'Číslo na druhou', ty:'Výsledek výrazu', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['cislo = 7','cislo = cislo * cislo','print(cislo)'], o:['49','7','14','cislo * cislo'],
+    ex:'Druhý řádek vezme starou hodnotu 7, vynásobí ji 7 a výsledek 49 uloží zpět do proměnné cislo.' },
+  { id:'1.11', l:1, n:'Nové = staré + změna', ty:'Výsledek výrazu', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['stare = 20','zmena = 5','nove = stare + zmena','stare = nove + zmena','print(stare)'], o:['30','25','20','35'],
+    ex:'nove = 20 + 5 = 25, potom stare = 25 + 5 = 30.' },
+  { id:'1.12', l:1, n:'Obsah obdélníku', ty:'Doplň dílek', s:'gap', q:'Doplň znaménko tak, aby program spočítal obsah obdélníku.',
+    code:['delka = 8','sirka = 5','obsah = delka {0} sirka','print("Obsah je:", obsah)'], pieces:['*','+','-','='], ans:['*'],
+    ex:'Obsah obdélníku je délka krát šířka, proto *.' },
+  { id:'1.13', l:1, n:'Text, nebo číslo?', ty:'Text, nebo číslo?', s:'tnc', q:'Rozhodni u každého zápisu, jestli je výsledkem text, číslo, nebo chyba.',
+    rows:[['"15"','T'],['15','C'],['"7" + "3"','T'],['7 + 3','C'],['"15" + 1','E']],
+    ex:'Co je v uvozovkách, je text. Texty jde spojit pomocí +, ale text a číslo sečíst nejde.' },
+  { id:'1.14', l:1, n:'Nejdřív proměnná', ty:'Seřaď řádky', s:'order', q:'Seřaď řádky tak, aby program vypsal: Cena: 300',
+    lines:['cena = 120','cena = cena + 30','cena = cena * 2','print("Cena:", cena)'],
+    ex:'Proměnná musí nejdřív vzniknout. Potom (120 + 30) * 2 = 300 a výpis je až na konci.' },
+  { id:'1.15', l:1, n:'Žáci ve třídě', ty:'Zadání → program', s:'choice', ot:'code', q:'Ve třídě je 14 dívek a 11 chlapců. Který program vypíše celkový počet žáků?',
+    o:['divky = 14\nchlapci = 11\nprint("Žáků je:", divky + chlapci)',
+       'divky = 14\nchlapci = 11\nprint("Žáků je:", "divky + chlapci")',
+       'divky = 14\nchlapci = 11\nprint("Žáků je:", divky, chlapci)'],
+    ex:'Součet se spočítá jen bez uvozovek. Čárka mezi proměnnými by vypsala 14 11, ne 25.' },
+
+  /* ===== LEKCE 2 – VSTUP ===== */
+  { id:'2.01', l:2, n:'Co vrací input?', ty:'Text, nebo číslo?', s:'tnc', q:'Uživatel vždy napíše číslo 12. Rozhodni, jestli je výsledkem každého zápisu text, nebo číslo.',
+    rows:[['input()','T'],['input("Zadej věk: ")','T'],['"12"','T'],['12','C']],
+    ex:'input() vrací vždy text, i když uživatel napíše číslo.' },
+  { id:'2.02', l:2, n:'Převod na číslo', ty:'Text, nebo číslo?', s:'tnc', q:'Uživatel vždy napíše číslo 12. Rozhodni, co je výsledkem každého zápisu.',
+    rows:[['int(input())','C'],['int("12")','C'],['int(input()) + 1','C'],['input() + 1','E']],
+    ex:'int() převede text na číslo. Bez převodu nejde k textu přičíst číslo.' },
+  { id:'2.03', l:2, n:'Věk za rok', ty:'Potřebuje int()?', s:'choice', ot:'code', q:'Program načte věk a vypíše, kolik bude uživateli za rok. Který řádek pro načtení věku je správný?',
+    o:['vek = int(input("Zadej věk: "))','vek = input("Zadej věk: ")','vek = int("Zadej věk: ")','vek = input(int("Zadej věk: "))'],
+    ex:'S věkem se bude počítat, proto se text z input() musí převést funkcí int(). input() je uvnitř, int() venku.' },
+  { id:'2.04', l:2, n:'Jméno žáka', ty:'Potřebuje int()?', s:'choice', ot:'code', q:'Program načte jméno uživatele a pozdraví ho. Který řádek pro načtení jména je správný?',
+    o:['jmeno = input("Zadej jméno: ")','jmeno = int(input("Zadej jméno: "))','jmeno = print("Zadej jméno: ")','jmeno = int("Zadej jméno: ")'],
+    ex:'Jméno je text a nic se s ním nepočítá. int() by u jména jako Eva skončil chybou.' },
+  { id:'2.05', l:2, n:'Pět a pět', ty:'Výsledek výrazu', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['print("5" + "5")'], o:['55','10','5 5',E],
+    ex:'"5" a "5" jsou texty, takže je + slepí dohromady.' },
+  { id:'2.06', l:2, n:'Dvojnásobek', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'6', q:'Co vypíše print?',
+    code:['cislo = input("Zadej číslo: ")','print(cislo + cislo)'], o:['66','12','6 6',E],
+    ex:'Bez int() je cislo text "6". Texty se slepí a výsledek je 66.' },
+  { id:'2.07', l:2, n:'Text plus číslo', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'15', q:'Co vypíše print?',
+    code:['vek = input("Zadej věk: ")','print(vek + 1)'], o:[E,'16','151','15 1'],
+    ex:'vek je text "15". Text a číslo sečíst nejde, program skončí chybou. Pomohlo by int().' },
+  { id:'2.08', l:2, n:'Body ze dvou kol', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'12, potom 8', q:'Co vypíše print?',
+    code:['kolo1 = int(input("Body 1. kola: "))','kolo2 = int(input("Body 2. kola: "))','print("Celkem:", kolo1 + kolo2)'],
+    o:['Celkem: 20','Celkem: 128','Celkem: 12 8',E],
+    ex:'Obě hodnoty jsou díky int() čísla, proto se sečtou: 12 + 8 = 20.' },
+  { id:'2.09', l:2, n:'Pozdrav', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'Jana', q:'Co vypíše print?',
+    code:['jmeno = input("Jméno: ")','print("Ahoj " + jmeno + "!")'], o:['Ahoj Jana!','AhojJana!','Ahoj jmeno!','Ahoj Jana !'],
+    ex:'Mezera je uvnitř textu "Ahoj ", proto se vypíše. Před vykřičníkem mezera není.' },
+  { id:'2.10', l:2, n:'Informatika je…', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'super', q:'Co vypíše print?',
+    code:['text = "Informatika je " + input("Jaká je? ")','print(text)'],
+    o:['Informatika je super','Informatika jesuper','Informatika je input()','super'],
+    ex:'K textu "Informatika je " se připojí to, co uživatel napsal.' },
+  { id:'2.11', l:2, n:'Chybějící závorka', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['jmeno = input("Jméno: ")','vek = int(input("Věk: ")','print(jmeno, vek)'], bad:1, fix:'vek = int(input("Věk: "))',
+    ex:'Každá funkce potřebuje svou zavírací závorku. int( i input( se musí zavřít, na konci jsou tedy dvě.' },
+  { id:'2.12', l:2, n:'Neuložený vstup', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['input("Zadej jméno: ")','mesto = input("Zadej město: ")','print("Ahoj", jmeno, "z", mesto)'], bad:0, fix:'jmeno = input("Zadej jméno: ")',
+    ex:'Jméno se načte, ale neuloží se do proměnné. Proměnná jmeno pak neexistuje.' },
+  { id:'2.13', l:2, n:'Poskládej vstup', ty:'Doplň dílek', s:'gap', q:'Doplň dílky tak, aby program správně spočítal věk za rok.',
+    code:['vek = {0}({1}("Zadej věk: "))','print("Za rok ti bude", vek + 1)'], pieces:['int','input','print'], ans:['int','input'],
+    ex:'Uvnitř je input(), který načte text. Venku je int(), který text převede na číslo.' },
+  { id:'2.14', l:2, n:'Oblíbený film', ty:'Seřaď řádky', s:'order', q:'Program se nejdřív zeptá na film, potom na hodnocení a nakonec vypíše film i hodnocení. Seřaď řádky.',
+    lines:['film = input("Oblíbený film: ")','hodnoceni = int(input("Hodnocení 1–10: "))','print("Film:", film)','print("Hodnocení:", hodnoceni)'],
+    ex:'Nejdřív musí program údaje načíst, teprve potom je může vypsat.' },
+  { id:'2.15', l:2, n:'Cena dvou kusů', ty:'Zadání → program', s:'choice', ot:'code', q:'Program načte název výrobku a jeho cenu. Potom vypíše název a cenu dvou kusů. Který program je správně?',
+    o:['nazev = input("Výrobek: ")\ncena = int(input("Cena: "))\nprint(nazev, cena * 2)',
+       'nazev = input("Výrobek: ")\ncena = input("Cena: ")\nprint(nazev, cena + cena)',
+       'nazev = input("Výrobek: ")\ncena = int(input("Cena: "))\nprint(nazev, "cena * 2")'],
+    ex:'Cenu je potřeba převést na číslo. Bez int() by se texty slepily (120120) a v uvozovkách by se vypsal jen text cena * 2.' },
+
+  /* ===== LEKCE 3 – PODMÍNKA IF ===== */
+  { id:'3.01', l:3, n:'Plnoletost', ty:'Projde podmínka?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['vek = 16','if vek >= 18:','    print("Jsi plnoletý.")','else:','    print("Nejsi plnoletý.")'],
+    o:['Nejsi plnoletý.','Jsi plnoletý.','Jsi plnoletý.\nNejsi plnoletý.',N],
+    ex:'16 není větší ani rovno 18. Podmínka neplatí, a proto se provede větev else.' },
+  { id:'3.02', l:3, n:'Mrzne?', ty:'Projde podmínka?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['teplota = 0','if teplota < 0:','    print("Mrzne.")','else:','    print("Nemrzne.")'],
+    o:['Nemrzne.','Mrzne.','Mrzne.\nNemrzne.'],
+    ex:'0 není menší než 0. Podmínka neplatí, provede se else.' },
+  { id:'3.03', l:3, n:'Přesně sto', ty:'Projde podmínka?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['cislo = 100','if cislo > 100:','    print("Velké číslo")','else:','    print("Malé číslo")'],
+    o:['Malé číslo','Velké číslo',N],
+    ex:'> znamená ostře větší a 100 není větší než 100. Pro „100 a víc“ by bylo potřeba >=.' },
+  { id:'3.04', l:3, n:'Zapomenutá dvojtečka', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['body = int(input("Body: "))','if body >= 50','    print("Prospěl")','else:','    print("Neprospěl")'], bad:1, fix:'if body >= 50:',
+    ex:'Za podmínkou musí být dvojtečka.' },
+  { id:'3.05', l:3, n:'Jedno, nebo dvě?', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['heslo = input("Heslo: ")','if heslo = "mama":','    print("Přístup povolen.")','else:','    print("Špatné heslo.")'], bad:1, fix:'if heslo == "mama":',
+    ex:'Jedno = ukládá hodnotu do proměnné, dvě == porovnávají. V podmínce se porovnává.' },
+  { id:'3.06', l:3, n:'Alespoň 50 bodů', ty:'Vyber operátor', s:'choice', ot:'tok', q:'Žák prospěje, když má alespoň 50 bodů. Který operátor patří do mezery?',
+    code:['body = int(input("Body: "))','if body {?} 50:','    print("Prospěl")','else:','    print("Neprospěl")'], o:['>=','>','==','<='],
+    ex:'„Alespoň 50“ znamená 50 a víc, tedy >=.' },
+  { id:'3.07', l:3, n:'Není rovno', ty:'Vyber operátor', s:'choice', ot:'tok', q:'Program má vypsat „Chybná odpověď“, když výsledek není 12. Který operátor patří do mezery?',
+    code:['vysledek = int(input("Kolik je 3 * 4? "))','if vysledek {?} 12:','    print("Chybná odpověď")','else:','    print("Správně")'], o:['!=','==','<','='],
+    ex:'!= znamená „nerovná se“.' },
+  { id:'3.08', l:3, n:'Velké M', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'Mama', q:'Co vypíše print?',
+    code:['heslo = input("Heslo: ")','if heslo == "mama":','    print("Přístup povolen.")','else:','    print("Špatné heslo.")'],
+    o:['Špatné heslo.','Přístup povolen.',E],
+    ex:'Python rozlišuje velká a malá písmena. "Mama" a "mama" nejsou stejné texty.' },
+  { id:'3.09', l:3, n:'Stejná čísla', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'7, potom 7', q:'Co vypíše print?',
+    code:['a = int(input("První číslo: "))','b = int(input("Druhé číslo: "))','if a > b:','    print("První číslo je větší")','else:','    print("Druhé číslo je větší nebo stejné")'],
+    o:['Druhé číslo je větší nebo stejné','První číslo je větší',E],
+    ex:'7 není větší než 7. Podmínka neplatí a provede se else.' },
+  { id:'3.10', l:3, n:'Porovnání bez int', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'150', q:'Co vypíše print?',
+    code:['cislo = input("Zadej číslo: ")','if cislo > 100:','    print("Velké číslo")','else:','    print("Malé číslo")'],
+    o:[E,'Velké číslo','Malé číslo'],
+    ex:'Bez int() je cislo text. Text s číslem porovnat nejde, program skončí chybou.' },
+  { id:'3.11', l:3, n:'Co patří dovnitř', ty:'Nastav odsazení', s:'indent', q:'Nastav odsazení tak, aby program vypsal „Prospěl“, nebo „Neprospěl“ a potom vždy „Konec testu“.',
+    lines:['body = int(input("Body: "))','if body >= 50:','print("Prospěl")','else:','print("Neprospěl")','print("Konec testu")'], lv:[0,0,1,0,1,0],
+    ex:'Do podmínky patří jen odsazené řádky. „Konec testu“ je bez odsazení, takže se provede vždy.' },
+  { id:'3.12', l:3, n:'Doplň podmínku', ty:'Doplň dílek', s:'gap', q:'Doplň dílky tak, aby program vypsal „Velké číslo“ pro čísla větší než 100.',
+    code:['cislo = int(input("Zadej číslo: "))','if {0} > 100{1}','    print("Velké číslo")'], pieces:['cislo','"cislo"',':',';'], ans:['cislo',':'],
+    ex:'Porovnává se proměnná cislo, tedy bez uvozovek. Za podmínkou je dvojtečka.' },
+  { id:'3.13', l:3, n:'Vždycky, nebo jen někdy?', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['body = 30','if body >= 50:','    print("Prospěl")','print("Konec")'], o:['Konec','Prospěl\nKonec','Prospěl',N],
+    ex:'Podmínka neplatí, odsazený řádek se přeskočí. print("Konec") odsazený není, a proto se provede vždy.' },
+  { id:'3.14', l:3, n:'Rok narození', ty:'Seřaď řádky', s:'order', q:'Program načte rok narození, spočítá věk a napíše, jestli je uživatel plnoletý. Seřaď řádky.',
+    lines:['rok = int(input("Rok narození: "))','vek = 2026 - rok','if vek >= 18:','    print("Jsi plnoletý.")','else:','    print("Nejsi plnoletý.")'],
+    ex:'Nejdřív vstup, potom výpočet věku a až pak podmínka. Pod if patří kladná odpověď, pod else záporná.' },
+  { id:'3.15', l:3, n:'Doprava zdarma', ty:'Zadání → program', s:'choice', ot:'code', q:'Při nákupu od 1000 Kč včetně je doprava zdarma. Který program to splní?',
+    o:['cena = int(input("Cena nákupu: "))\nif cena >= 1000:\n    print("Doprava zdarma")\nelse:\n    print("Doprava je placená")',
+       'cena = int(input("Cena nákupu: "))\nif cena > 1000:\n    print("Doprava zdarma")\nelse:\n    print("Doprava je placená")',
+       'cena = input("Cena nákupu: ")\nif cena >= 1000:\n    print("Doprava zdarma")\nelse:\n    print("Doprava je placená")'],
+    ex:'„Včetně 1000“ znamená >=. Program bez int() by skončil chybou, protože by porovnával text s číslem.' },
+
+  /* ===== LEKCE 4 – CYKLUS FOR ===== */
+  { id:'4.01', l:4, n:'Kolikrát Ahoj?', ty:'Kolikrát?', s:'choice', ot:'tok', q:'Kolikrát program vypíše Ahoj?',
+    code:['for i in range(3):','    print("Ahoj")'], o:['3','2','4'],
+    ex:'range(3) znamená 3 opakování.' },
+  { id:'4.02', l:4, n:'Poslední číslo', ty:'Kolikrát?', s:'choice', ot:'tok', q:'Jaké číslo program vypíše jako poslední?',
+    code:['for i in range(67):','    print(i)'], o:['66','67','68'],
+    ex:'range(67) počítá od 0. Proměnná i projde hodnoty 0 až 66.' },
+  { id:'4.03', l:4, n:'Konec jen jednou', ty:'Kolikrát?', s:'choice', ot:'tok', q:'Kolikrát program vypíše Konec?',
+    code:['for i in range(5):','    print("Skáču")','print("Konec")'], o:['1','5','6','0'],
+    ex:'print("Konec") není odsazený. Nepatří do cyklu, a proto se provede jen jednou.' },
+  { id:'4.04', l:4, n:'Od nuly', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['for i in range(3):','    print(i)'], o:['0\n1\n2','1\n2\n3','0\n1\n2\n3','3'],
+    ex:'Počítací proměnná začíná na 0. range(3) dá hodnoty 0, 1, 2.' },
+  { id:'4.05', l:4, n:'Past na X', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['X = 5','for i in range(3):','    print(X + 10)'], o:['15\n15\n15','15\n25\n35','35','5\n15\n25'],
+    ex:'print(X + 10) jen vypíše součet, ale hodnotu X nezmění. X zůstává 5.' },
+  { id:'4.06', l:4, n:'Dva uprostřed', ty:'Co vypíše program?', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['for i in range(4):','    if i == 2:','        print("dva")','    else:','        print(i)'], o:['0\n1\ndva\n3','1\ndva\n3\n4','0\n1\n2\n3','dva'],
+    ex:'i postupně nabývá hodnot 0, 1, 2, 3. Jen když je i rovno 2, vypíše se dva.' },
+  { id:'4.07', l:4, n:'Přičítání', ty:'Výsledek výrazu', s:'choice', ot:'out', q:'Co program vypíše?',
+    code:['X = 0','for i in range(3):','    X = X + 10','print(X)'], o:['30','10','0','40'],
+    ex:'Při každém ze 3 opakování se k X přičte 10: 0 → 10 → 20 → 30. print je za cyklem, vypíše až výsledek.' },
+  { id:'4.08', l:4, n:'Škola podle čísla', ty:'Simulace vstupu', s:'choice', ot:'tok', inp:'4', q:'Kolikrát program vypíše Škola?',
+    code:['pocet = int(input("Kolikrát? "))','for i in range(pocet):','    print("Škola")'], o:['4','5','3',E],
+    ex:'range(pocet) se provede tolikrát, kolik je v proměnné pocet, tedy 4×.' },
+  { id:'4.09', l:4, n:'Jméno podle věku', ty:'Simulace vstupu', s:'choice', ot:'out', inp:'Petr, potom 3', q:'Co program vypíše?',
+    code:['jmeno = input("Jméno: ")','vek = input("Věk: ")','for i in range(vek):','    print(jmeno)'], o:[E,'Petr\nPetr\nPetr','Petr','Petr Petr Petr'],
+    ex:'vek je text "3". range() potřebuje číslo, proto program skončí chybou. Chybí int().' },
+  { id:'4.10', l:4, n:'Zapomenutá dvojtečka', ty:'Najdi chybu', s:'line', q:'Klikni na řádek, ve kterém je chyba.',
+    code:['for i in range(5)','    print("Ahoj")','print("Hotovo")'], bad:0, fix:'for i in range(5):',
+    ex:'Za hlavičkou cyklu musí být dvojtečka.' },
+  { id:'4.11', l:4, n:'Uvnitř, nebo za?', ty:'Nastav odsazení', s:'indent', q:'Nastav odsazení tak, aby program 3× vypsal „Dřep“ a „Výskok“ a nakonec jednou „Hotovo“.',
+    lines:['for i in range(3):','print("Dřep")','print("Výskok")','print("Hotovo")'], lv:[0,1,1,0],
+    ex:'Do cyklu patří odsazené řádky. „Hotovo“ je bez odsazení, provede se jednou po skončení cyklu.' },
+  { id:'4.12', l:4, n:'Doplň cyklus', ty:'Doplň dílek', s:'gap', q:'Doplň dílky tak, aby program vypsal Ahoj 5×.',
+    code:['for i in {0}({1}):','    print("Ahoj")'], pieces:['range','5','4','6','print'], ans:['range','5'],
+    ex:'range(5) zopakuje cyklus 5×.' },
+  { id:'4.13', l:4, n:'Zdražování', ty:'Seřaď řádky', s:'order', q:'Cena se každý rok zvýší o 50 Kč. Program má vypsat cenu po každém z pěti let. Seřaď řádky.',
+    lines:['cena = int(input("Cena: "))','for i in range(5):','    cena = cena + 50','    print("Cena:", cena)'],
+    ex:'Nejdřív načíst cenu, potom cyklus. V každém roce se cena nejdřív zvýší a až potom vypíše.' },
+  { id:'4.14', l:4, n:'Desetkrát Ahoj', ty:'Zadání → program', s:'choice', ot:'code', q:'Program má načíst jméno a desetkrát vypsat „Ahoj, jméno!“. Který program je správně?',
+    o:['jmeno = input("Jméno: ")\nfor i in range(10):\n    print("Ahoj,", jmeno + "!")',
+       'jmeno = input("Jméno: ")\nfor i in range(11):\n    print("Ahoj,", jmeno + "!")',
+       'jmeno = input("Jméno: ")\nfor i in range(9):\n    print("Ahoj,", jmeno + "!")'],
+    ex:'range(10) znamená přesně 10 opakování.' },
+  { id:'4.15', l:4, n:'Počítej od jedné', ty:'Zadání → program', s:'choice', ot:'code', q:'Program má vypsat čísla 1, 2, 3, 4, 5, každé na nový řádek. Který program je správně?',
+    o:['for i in range(5):\n    print(i + 1)','for i in range(5):\n    print(i)','for i in range(6):\n    print(i)'],
+    ex:'i jde od 0 do 4. Když vypíšeš i + 1, dostaneš čísla 1 až 5.' }
+];
+
+
+/* ---------- 3) POMOCNÉ FUNKCE A ZVÝRAZNĚNÍ SYNTAXE ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function sample(a,k){ return shuffle(a).slice(0,k); }
+const fmt = ms => SESTA.fmtTime(ms);
+
+const KW = new Set(['if','else','for','in']);
+const FN = new Set(['print','input','int','range']);
+// Jednoduchý tokenizér pro povolené konstrukce Pythonu (barvy jsou ve shared/sesta.css: hl-*)
+function hl(src){
+  const re = /(#.*$)|("[^"]*"?)|(\d+)|([A-Za-z_À-ſ][A-Za-z0-9_À-ſ]*)|(==|!=|>=|<=|[=+\-*<>])|([\s\S])/g;
+  let out='', m;
+  while((m = re.exec(src)) !== null){
+    const t = m[0];
+    if(m[1]) out += '<span class="hl-c">'+esc(t)+'</span>';
+    else if(m[2]) out += '<span class="hl-s">'+esc(t)+'</span>';
+    else if(m[3]) out += '<span class="hl-n">'+esc(t)+'</span>';
+    else if(m[4]) out += '<span class="'+(KW.has(t)?'hl-k':FN.has(t)?'hl-f':'hl-v')+'">'+esc(t)+'</span>';
+    else if(m[5]) out += '<span class="hl-o">'+esc(t)+'</span>';
+    else out += esc(t);
+  }
+  return out;
+}
+// Řádek kódu s mezerami {0}, {1}, {?}
+function lineHtml(line, gapFn){
+  const parts = line.split(/\{(\d+|\?)\}/);
+  return parts.map((p,j)=> j%2 ? gapFn(p) : hl(p)).join('') || ' ';
+}
+function codeBlock(lines, opt={}){
+  const gapFn = opt.gap || (()=> '<span class="gap">?</span>');
+  return '<div class="code '+(opt.cls||'')+'">' + lines.map((ln,i)=>
+    '<div class="row" data-r="'+i+'"><span class="ln">'+(i+1)+'</span><span class="src">'+lineHtml(ln,gapFn)+'</span></div>'
+  ).join('') + '</div>';
+}
+
+/* ---------- STAV APLIKACE ---------- */
+const S = {
+  lesson: 1, filter: [1],
+  phase: 'intro',            // intro | task | between | done
+  main: [], queue: [], pos: 0, rep: false, first: {},
+  t0: 0, time: 0, timerId: null, cur: null
+};
+const allUpTo = n => Array.from({length:n},(_,i)=>i+1);
+// Vybraná lekce a témata se pamatují jen do zavření prohlížeče
+function loadSettings(){
+  const l = parseInt(SESTA.store.get('lesson', 1), 10);
+  if(l>=1 && l<=4) S.lesson = l;
+  const f = SESTA.store.get('filter', null);
+  if(Array.isArray(f)){ const ok=f.filter(x=>x>=1 && x<=S.lesson); S.filter = ok.length ? ok : allUpTo(S.lesson); }
+  else S.filter = allUpTo(S.lesson);
+}
+function saveSettings(){ SESTA.store.set('lesson', S.lesson); SESTA.store.set('filter', S.filter); }
+const inRound = () => S.phase==='task' || S.phase==='between';
+
+/* ---------- 4) VYKRESLOVÁNÍ – lišta a levý panel ---------- */
+function renderTabs(){
+  $('tabs').innerHTML = [1,2,3,4].map(n =>
+    '<button type="button" role="tab" aria-selected="'+(n===S.lesson)+'" class="'+(n===S.lesson?'on':'')+'" data-l="'+n+'"><b>'+n+'</b>'+LESSONS[n].name+'</button>').join('');
+  $('tabs').querySelectorAll('button').forEach(b => b.onclick = () => { b.blur(); setLesson(+b.dataset.l); });
+}
+function renderLeft(){
+  $('filterMsg').textContent = '';
+  $('m1').textContent = 'Lekce ' + S.lesson + ' · ' + LESSONS[S.lesson].short;
+  $('m2').textContent = S.filter.map(l => LESSONS[l].short).join(', ');
+  $('filters').innerHTML = allUpTo(S.lesson).map(n =>
+    '<button type="button" class="'+(S.filter.includes(n)?'on':'')+'" data-l="'+n+'" aria-pressed="'+S.filter.includes(n)+'">'+(S.filter.includes(n)?'✓ ':'')+LESSONS[n].name+'</button>').join('');
+  $('filters').querySelectorAll('button').forEach(b => b.onclick = () => { b.blur(); toggleFilter(+b.dataset.l); });
+  $('explain').innerHTML = EXPLAIN[S.lesson].map(blk => {
+    if(blk.p) return '<p>'+esc(blk.p)+'</p>';
+    if(blk.code) return codeBlock(blk.code,{cls:'sm'});
+    if(blk.ops) return '<div class="optable">'+blk.ops.map(o=>'<span>'+esc(o[0])+'</span><span>'+esc(o[1])+'</span>').join('')+'</div>';
+    return '';
+  }).join('');
+  // Připomenutí předchozích lekcí (v 1. lekci se karta skryje)
+  $('remCard').hidden = S.lesson === 1;
+  $('m3').textContent = S.lesson > 1 ? 'lekce ' + (S.lesson > 2 ? '1–' + (S.lesson-1) : '1') : '';
+  let h = '';
+  for(let n=S.lesson-1; n>=1; n--) h += '<div class="rem"><b>Lekce '+n+' – '+esc(LESSONS[n].name)+'</b><p>'+esc(REMIND[n].p)+'</p>'+codeBlock(REMIND[n].code,{cls:'sm'})+'</div>';
+  $('remind').innerHTML = h;
+  SESTA.refresh();
+}
+function setLesson(n){
+  if(n===S.lesson && !inRound()) return;
+  const act = () => { S.lesson=n; S.filter=allUpTo(n); saveSettings(); toIntro(); renderTabs(); renderLeft(); };
+  inRound() ? ask(act) : act();
+}
+function toggleFilter(n){
+  let f = S.filter.slice();
+  if(f.includes(n)){
+    if(f.length===1){ $('filterMsg').textContent = 'Aspoň jedno téma musí zůstat zapnuté.'; return; }
+    f = f.filter(x=>x!==n);
+  } else f.push(n);
+  f.sort();
+  const act = () => { S.filter=f; saveSettings(); toIntro(); renderLeft(); };
+  inRound() ? ask(act) : act();
+}
+// Potvrzení před zahozením rozpracovaného kola
+async function ask(action){
+  const ok = await SESTA.confirm({ title:'Začít nové kolo?', text:'Rozpracované kolo se zahodí a úlohy se vylosují znovu.', ok:'Začít nové kolo' });
+  if(ok) action();
+}
+
+/* ---------- 5) LOGIKA KOLA ---------- */
+function buildRound(){
+  const sel = S.filter.slice().sort();
+  const byL = l => TASKS.filter(t=>t.l===l);
+  let picks = [];
+  if(sel.length===1) picks = sample(byL(sel[0]),10);
+  else {
+    const top = sel[sel.length-1], others = sel.slice(0,-1);
+    picks = sample(byL(top),5);
+    const cnt = {}; others.forEach(l=>cnt[l]=0);
+    for(let i=0;i<5;i++) cnt[others[i%others.length]]++;
+    others.forEach(l => picks = picks.concat(sample(byL(l),cnt[l])));
+  }
+  return shuffle(picks);
+}
+function stopTimer(){ if(S.timerId){ clearInterval(S.timerId); S.timerId=null; } }
+function toIntro(){ stopTimer(); S.phase='intro'; renderIntro(); }
+function startRound(){
+  S.main = buildRound(); S.queue = S.main.slice(); S.pos = 0; S.rep = false; S.first = {};
+  S.t0 = Date.now(); stopTimer();
+  S.timerId = setInterval(() => { const el=$('timer'); if(el) el.textContent = fmt(Date.now()-S.t0); }, 500);
+  S.phase = 'task'; showTask();
+}
+function next(){
+  S.pos++;
+  if(S.pos < S.queue.length) return showTask();
+  if(!S.rep){
+    const wrong = S.main.filter(t=>!S.first[t.id]);
+    if(wrong.length){ S.rep=true; S.queue=shuffle(wrong); S.pos=0; S.phase='between'; return renderBetween(wrong.length); }
+  }
+  finishRound();
+}
+
+/* ---------- 4b) VYKRESLOVÁNÍ – plocha ---------- */
+function renderProg(){
+  let h = '';
+  if(S.phase === 'task'){
+    const total = S.rep ? S.queue.length : S.main.length;
+    h = '<span class="c-prog">'+(S.rep?'Opakování ':'Úloha ')+'<b>'+(S.pos+1)+'</b> / '+total+'</span>' +
+        '<span class="c-pbar'+(S.rep?' warn':'')+'"><i style="width:'+Math.round(S.pos/total*100)+'%"></i></span>' +
+        '<span class="c-timer" id="timer">'+fmt(Date.now()-S.t0)+'</span><span class="c-tsep"></span>';
+  } else if(S.phase === 'between') h = '<span class="c-timer" id="timer">'+fmt(Date.now()-S.t0)+'</span><span class="c-tsep"></span>';
+  h += '<button class="c-tool" type="button" id="bNewTb" data-tip="Vylosovat nové kolo">'+SESTA.icon(inRound()?'refresh':'play')+(inRound()?'Nové kolo':'Začít kolo')+'</button>';
+  $('tbProg').style.display = 'contents';
+  $('tbProg').innerHTML = h;
+  $('bNewTb').onclick = e => { e.currentTarget.blur(); inRound() ? ask(startRound) : startRound(); };
+}
+function clearHeadFoot(){ $('wHead').innerHTML=''; $('wHead').style.display='none'; $('wFoot').innerHTML=''; }
+function renderIntro(){
+  clearHeadFoot(); renderProg();
+  const names = S.filter.map(l=>LESSONS[l].name);
+  $('wBody').innerHTML =
+    '<div class="c-center c-fade">' +
+      '<div class="c-hero">'+SESTA.icon('python')+'</div>' +
+      '<h2>Připraveno 10 úloh</h2>' +
+      '<p class="sub">Úlohy se vylosují z vybraných témat. Chyby si na konci zopakuješ.</p>' +
+      '<div class="c-pills">'+names.map(n=>'<span>'+esc(n)+'</span>').join('')+'</div>' +
+      '<div class="c-btns"><button class="s-btn pri lg" type="button" id="bStart">Začít</button></div>' +
+      '<p class="c-hint">Ovládání: myš, klávesy <kbd class="c-k">1</kbd>–<kbd class="c-k">4</kbd> pro výběr odpovědi a <kbd class="c-k">Enter</kbd> pro pokračování.</p>' +
+    '</div>';
+  $('bStart').onclick = startRound;
+}
+function renderBetween(n){
+  clearHeadFoot(); renderProg();
+  const word = n===1 ? 'úlohu' : (n<5 ? 'úlohy' : 'úloh');
+  $('wBody').innerHTML =
+    '<div class="c-center c-fade">' +
+      '<div class="c-hero warn">'+SESTA.icon('refresh')+'</div>' +
+      '<h2>Prvních 10 úloh je hotovo</h2>' +
+      '<p class="sub">Ještě zopakujeme '+n+' '+word+', ve kterých byla chyba. Čas běží dál.</p>' +
+      '<div class="c-btns"><button class="s-btn pri lg" type="button" id="bCont">Pokračovat</button></div>' +
+    '</div>';
+  $('bCont').onclick = () => { S.phase='task'; showTask(); };
+}
+function renderHead(t){
+  $('wHead').style.display = '';
+  $('wHead').innerHTML =
+    '<div class="headrow">' +
+      '<span class="c-badge acc">'+esc(t.ty)+'</span>' +
+      '<span class="c-badge">Lekce '+t.l+' · '+esc(LESSONS[t.l].short)+'</span>' +
+      (S.rep ? '<span class="c-badge warn">Opakování</span>' : '') +
+    '</div>';
+}
+function renderFoot(needCheck){
+  $('wFoot').innerHTML =
+    '<div id="fb"><span class="err" id="err"></span></div>' +
+    (needCheck ? '<button class="s-btn pri" type="button" id="bCheck">Zkontrolovat</button>' : '') +
+    '<button class="s-btn pri" type="button" id="bNext" style="display:none">Další úloha</button>';
+  if(needCheck) $('bCheck').onclick = doCheck;
+  $('bNext').onclick = next;
+}
+function showTask(){
+  const t = S.queue[S.pos];
+  S.cur = { t, answered:false, st:{} };
+  renderProg(); renderHead(t);
+  renderFoot(['tnc','gap','order','indent'].includes(t.s));
+  let h = '<div class="c-fade"><p class="q">'+esc(t.q)+'</p>';
+  if(t.inp) h += '<div class="inp">Uživatel zadá: <span class="mono">'+esc(t.inp)+'</span></div>';
+  h += '<div id="area"></div><div class="reveal" id="reveal"></div></div>';
+  $('wBody').innerHTML = h;
+  $('wBody').scrollTop = 0;
+  RENDER[t.s](t);
+}
+
+/* ---------- Systémy cvičení: vykreslení ---------- */
+function optContent(v, ot){
+  if(v===E) return '<span class="special">Program skončí chybou</span>';
+  if(v===N) return '<span class="special">Nevypíše nic</span>';
+  if(ot==='out') return '<pre class="term">'+esc(v)+'</pre>';
+  if(ot==='code') return codeBlock(v.split('\n'),{cls:'sm nonum'});
+  if(ot==='tok') return '<span class="tok">'+hl(v)+'</span>';
+  return esc(v);
+}
+const RENDER = {
+  choice(t){
+    const st = S.cur.st;
+    st.opts = shuffle(t.o.map((v,i)=>({v, ok:i===0})));
+    let h = t.code ? codeBlock(t.code,{gap:()=>'<span class="gap" id="qgap">?</span>'}) : '';
+    const one = t.ot==='code' || t.o.some(v=>String(v).length>22);
+    h += '<div class="opts'+(one?' one':'')+'" id="opts">' + st.opts.map((o,i)=>
+      '<button type="button" class="opt" data-i="'+i+'"><span class="key">'+(i+1)+'</span><span class="val">'+optContent(o.v,t.ot)+'</span></button>').join('') + '</div>';
+    $('area').innerHTML = h;
+    $('opts').querySelectorAll('.opt').forEach(b => b.onclick = () => pickChoice(+b.dataset.i));
+  },
+  line(t){
+    $('area').innerHTML = codeBlock(t.code,{cls:'clk'});
+    $('area').querySelectorAll('.row').forEach(r => r.onclick = () => pickLine(+r.dataset.r));
+  },
+  tnc(t){
+    const st = S.cur.st; st.ch = t.rows.map(()=>null);
+    const L = {T:'Text',C:'Číslo',E:'Chyba'};
+    $('area').innerHTML = '<div class="tnc">' + t.rows.map((r,i)=>
+      '<div class="expr">'+hl(r[0])+'</div><div class="seg3" data-i="'+i+'">' +
+      ['T','C','E'].map(k=>'<button type="button" data-k="'+k+'">'+L[k]+'</button>').join('') + '</div>').join('') + '</div>';
+    $('area').querySelectorAll('.seg3').forEach(seg => seg.querySelectorAll('button').forEach(b => b.onclick = () => {
+      if(S.cur.answered) return;
+      st.ch[+seg.dataset.i] = b.dataset.k;
+      seg.querySelectorAll('button').forEach(x=>x.classList.toggle('sel', x===b));
+      $('err').textContent='';
+    }));
+  },
+  gap(t){
+    const st = S.cur.st;
+    st.fill = t.ans.map(()=>null);
+    st.pieces = shuffle(t.pieces);
+    drawGap(t);
+  },
+  order(t){
+    const st = S.cur.st;
+    const idx = t.lines.map((_,i)=>i);
+    do { st.arr = shuffle(idx); } while(st.arr.every((v,i)=>v===i));
+    drawOrder(t);
+  },
+  indent(t){
+    S.cur.st.lv = t.lines.map(()=>0);
+    drawIndent(t);
+  }
+};
+
+function drawGap(t){
+  const st = S.cur.st;
+  const gapFn = p => { const g=+p, v=st.fill[g];
+    return '<span class="gap'+(v!==null?' filled':'')+'" data-g="'+g+'">'+(v!==null?hl(st.pieces[v]):'?')+'</span>'; };
+  $('area').innerHTML = codeBlock(t.code,{gap:gapFn}) +
+    '<div class="bank-label">Dílky – přetáhni je do mezery, nebo na ně klikni</div>' +
+    '<div class="bank">'+st.pieces.map((p,i)=>
+      '<button type="button" class="piece'+(st.fill.includes(i)?' used':'')+'" draggable="true" data-p="'+i+'">'+hl(p)+'</button>').join('')+'</div>';
+  const area = $('area');
+  area.querySelectorAll('.piece').forEach(b => {
+    b.onclick = () => { if(S.cur.answered) return; const g=st.fill.indexOf(null); if(g<0) return; st.fill[g]=+b.dataset.p; $('err').textContent=''; drawGap(t); };
+    b.ondragstart = e => { e.dataTransfer.setData('text/plain', b.dataset.p); e.dataTransfer.effectAllowed='move'; };
+  });
+  area.querySelectorAll('.gap').forEach(g => {
+    g.onclick = () => { if(S.cur.answered) return; st.fill[+g.dataset.g]=null; drawGap(t); };
+    g.ondragover = e => { if(S.cur.answered) return; e.preventDefault(); g.classList.add('over'); };
+    g.ondragleave = () => g.classList.remove('over');
+    g.ondrop = e => { e.preventDefault(); if(S.cur.answered) return; const p=+e.dataTransfer.getData('text/plain');
+      const prev = st.fill.indexOf(p); if(prev>=0) st.fill[prev]=null;
+      st.fill[+g.dataset.g]=p; $('err').textContent=''; drawGap(t); };
+  });
+}
+function drawOrder(t, marks){
+  const st = S.cur.st;
+  $('area').innerHTML = '<div class="olist">' + st.arr.map((li,pos)=>
+    '<div class="orow'+(S.cur.answered?'':' dr')+(marks?(marks[pos]?' r-ok':' r-bad'):'')+'" draggable="'+(!S.cur.answered)+'" data-pos="'+pos+'">' +
+      '<span class="grip">⋮⋮</span><span class="src">'+hl(t.lines[li])+'</span>' +
+      (S.cur.answered ? '' : '<button type="button" class="mini" data-mv="-1" aria-label="Nahoru">↑</button><button type="button" class="mini" data-mv="1" aria-label="Dolů">↓</button>') +
+    '</div>').join('') + '</div>';
+  if(S.cur.answered) return;
+  let drag = null;
+  $('area').querySelectorAll('.orow').forEach(r => {
+    const pos = +r.dataset.pos;
+    r.querySelectorAll('.mini').forEach(b => b.onclick = () => {
+      const to = pos + (+b.dataset.mv); if(to<0 || to>=st.arr.length) return;
+      [st.arr[pos], st.arr[to]] = [st.arr[to], st.arr[pos]]; drawOrder(t);
+    });
+    r.ondragstart = e => { drag=pos; e.dataTransfer.setData('text/plain',String(pos)); e.dataTransfer.effectAllowed='move'; setTimeout(()=>r.classList.add('dragging'),0); };
+    r.ondragend = () => r.classList.remove('dragging');
+    r.ondragover = e => { e.preventDefault(); r.classList.add('over'); };
+    r.ondragleave = () => r.classList.remove('over');
+    r.ondrop = e => { e.preventDefault(); const from = drag!==null ? drag : +e.dataTransfer.getData('text/plain');
+      if(from===pos) return drawOrder(t);
+      const item = st.arr.splice(from,1)[0]; st.arr.splice(pos,0,item); drawOrder(t); };
+  });
+}
+function drawIndent(t, marks){
+  const st = S.cur.st;
+  $('area').innerHTML = '<div class="olist">' + t.lines.map((ln,i)=>
+    '<div class="orow'+(marks?(marks[i]?' r-ok':' r-bad'):'')+'" data-i="'+i+'">' +
+      '<span class="mono" style="color:var(--c-cm);width:1.4em;text-align:right">'+(i+1)+'</span>' +
+      (S.cur.answered ? '' : '<button type="button" class="mini" data-d="-1" aria-label="Zmenšit odsazení">←</button><button type="button" class="mini" data-d="1" aria-label="Zvětšit odsazení">→</button>') +
+      '<span class="src">'+(st.lv[i]?'<span class="indg">····</span>':'')+hl(ln)+'</span>' +
+    '</div>').join('') + '</div>';
+  if(S.cur.answered) return;
+  $('area').querySelectorAll('.orow').forEach(r => r.querySelectorAll('.mini').forEach(b => b.onclick = () => {
+    const i=+r.dataset.i; st.lv[i] = Math.max(0, Math.min(1, st.lv[i] + (+b.dataset.d))); drawIndent(t);
+  }));
+}
+
+/* ---------- 6) VYHODNOCENÍ ---------- */
+function pickChoice(i){
+  if(S.cur.answered) return;
+  const st = S.cur.st, t = S.cur.t, o = st.opts[i];
+  const btns = $('opts').querySelectorAll('.opt');
+  btns[i].classList.add(o.ok?'ok':'bad');
+  if(!o.ok) btns[st.opts.findIndex(x=>x.ok)].classList.add('ok');
+  $('opts').classList.add('locked');
+  const g = $('qgap'); if(g){ g.classList.add('filled', o.ok?'g-ok':'g-bad'); g.innerHTML = hl(t.o[0]); }
+  finish(o.ok);
+}
+function pickLine(i){
+  if(S.cur.answered) return;
+  const t = S.cur.t, rows = $('area').querySelectorAll('.row'), ok = i===t.bad;
+  rows[i].classList.add(ok?'pick-ok':'pick-bad');
+  if(!ok) rows[t.bad].classList.add('is-err');
+  $('area').querySelector('.code').classList.remove('clk');
+  showReveal('Správně má být '+(t.bad+1)+'. řádek:', [t.fix]);
+  finish(ok);
+}
+function doCheck(){
+  if(S.cur.answered) return;
+  const t = S.cur.t, st = S.cur.st;
+  if(t.s==='tnc'){
+    if(st.ch.includes(null)){ $('err').textContent='Vyber odpověď u všech řádků.'; return; }
+    let all = true;
+    $('area').querySelectorAll('.seg3').forEach(seg => { const i=+seg.dataset.i, good=t.rows[i][1];
+      seg.querySelectorAll('button').forEach(b => { b.classList.remove('sel');
+        if(b.dataset.k===good) b.classList.add('s-ok'); else if(b.dataset.k===st.ch[i]) b.classList.add('s-bad'); });
+      if(st.ch[i]!==good) all=false; });
+    return finish(all);
+  }
+  if(t.s==='gap'){
+    if(st.fill.includes(null)){ $('err').textContent='Doplň všechny mezery.'; return; }
+    const res = st.fill.map((p,g)=>st.pieces[p]===t.ans[g]);
+    S.cur.answered = true; drawGap(t); S.cur.answered = false;
+    $('area').querySelectorAll('.gap').forEach(g => g.classList.add(res[+g.dataset.g]?'g-ok':'g-bad'));
+    $('area').querySelectorAll('.piece').forEach(p => p.style.pointerEvents='none');
+    const all = res.every(Boolean);
+    if(!all){ showReveal('Správné řešení:', t.code.map(ln => ln.replace(/\{(\d+)\}/g,(m,g)=>t.ans[+g]))); }
+    return finish(all);
+  }
+  if(t.s==='order'){
+    const marks = st.arr.map((v,i)=>v===i), all = marks.every(Boolean);
+    S.cur.answered = true; drawOrder(t, marks);
+    if(!all) showReveal('Správné pořadí:', t.lines);
+    return finish(all);
+  }
+  if(t.s==='indent'){
+    const marks = st.lv.map((v,i)=>v===t.lv[i]), all = marks.every(Boolean);
+    S.cur.answered = true; drawIndent(t, marks);
+    if(!all) showReveal('Správné odsazení:', t.lines.map((ln,i)=>(t.lv[i]?'    ':'')+ln));
+    return finish(all);
+  }
+}
+function showReveal(label, lines){
+  $('reveal').innerHTML = '<div class="lbl">'+esc(label)+'</div>' + codeBlock(lines,{cls:'sm'});
+}
+function finish(ok){
+  const t = S.cur.t;
+  S.cur.answered = true;
+  if(!S.rep) S.first[t.id] = ok;
+  else if(!ok) S.queue.push(t);
+  $('fb').innerHTML = (ok ? '<span class="ok">✓ Správně.</span> ' : '<span class="bad">✗ Chyba.</span> ') + esc(t.ex);
+  const c = $('bCheck'); if(c) c.style.display='none';
+  const n = $('bNext'); n.style.display='inline-flex'; n.focus();
+}
+function finishRound(){
+  S.time = Date.now()-S.t0; stopTimer(); S.phase='done';
+  clearHeadFoot(); renderProg();
+  const total = S.main.length, good = S.main.filter(t=>S.first[t.id]).length;
+  const pct = Math.round(good/total*100);
+  const R = pct>=90 ? ['Výborně','var(--ok)'] : pct>=70 ? ['Dobře','var(--info)'] : pct>=50 ? ['Ještě procvičuj','var(--warn)'] : ['Vrať se k vysvětlení','var(--danger)'];
+  const per = S.filter.map(l => { const ts=S.main.filter(t=>t.l===l); return ts.length ? '<span>'+esc(LESSONS[l].name)+' '+ts.filter(t=>S.first[t.id]).length+'/'+ts.length+'</span>' : ''; }).join('');
+  $('wBody').innerHTML =
+    '<div class="c-center c-fade">' +
+      '<div class="c-hero ok c-pop">'+SESTA.icon('checkc')+'</div>' +
+      '<h2>Cvičení dokončeno</h2>' +
+      '<div class="c-stats">' +
+        '<div class="c-stat"><span class="k">Čas</span><span class="v">'+fmt(S.time)+'</span></div>' +
+        '<div class="c-stat"><span class="k">Úspěšnost</span>'+SESTA.ring(pct, R[1])+'</div>' +
+        '<div class="c-stat"><span class="k">Na první pokus</span><span class="v">'+good+'/'+total+'</span></div>' +
+      '</div>' +
+      '<div style="color:'+R[1]+';font-size:20px;font-weight:700">'+R[0]+'</div>' +
+      '<div class="c-pills">'+per+'</div>' +
+    '</div>';
+  $('wFoot').innerHTML = '<span class="c-hint">Výsledek platí do zavření prohlížeče.</span><span class="c-grow"></span><button class="s-btn" type="button" id="bNew">Nové kolo</button><button class="s-btn pri" type="button" id="bAgain">Zopakovat stejné nastavení</button>';
+  SESTA.animateRings($('wBody'));
+  $('bNew').onclick = toIntro;
+  $('bAgain').onclick = startRound;
+  SESTA.store.set('last', { pct, good, total, time:S.time, date:new Date().toISOString() });
+}
+
+/* ---------- Klávesnice ---------- */
+document.addEventListener('keydown', e => {
+  if(SESTA.modalOpen()) return;
+  const tag = (document.activeElement||{}).tagName || '';
+  if(e.key==='Enter'){
+    if(S.phase==='intro'){ e.preventDefault(); return startRound(); }
+    if(S.phase==='between'){ e.preventDefault(); S.phase='task'; return showTask(); }
+    if(S.phase==='task'){
+      if(tag==='BUTTON' && !S.cur.answered) return;                // Enter na tlačítku = klik na něj
+      e.preventDefault();
+      if(S.cur.answered) return next(); if($('bCheck')) return doCheck();
+    }
+    return;
+  }
+  if(S.phase==='task' && S.cur && !S.cur.answered && S.cur.t.s==='choice' && /^[1-4]$/.test(e.key) && !e.ctrlKey && !e.altKey){
+    const i = +e.key-1; if(i < S.cur.st.opts.length) pickChoice(i);
+  }
+});
+
+/* ---------- napojení na kostru SestaCode a start ---------- */
+SESTA.init({
+  app: 'python',
+  panel: '#side',
+  subtitle: () => 'Lekce ' + S.lesson + ' · ' + LESSONS[S.lesson].name,
+  shortcuts: [ { label:'Vybrat odpověď', keys:'1 / 2 / 3 / 4' }, { label:'Zkontrolovat / další úloha', keys:'Enter' } ]
+});
+loadSettings(); renderTabs(); renderLeft(); SESTA.cards('#side'); renderIntro();
+
+</script>
+</body>
+</html>

@@ -1,35 +1,42 @@
-# SESTA.CODE Junior
+# SestaCode – procvičování programování
 
-Rozcestník výukových miniaplikací pro 5.–6. ročník ZŠ Šestajovice. Funguje offline i na GitHub Pages, bez serveru a bez externích knihoven.
+Rozcestník a aplikace pro žáky ZŠ Šestajovice. Vzhled a kostra vychází z CabiNetu, barva značky je zelená. Běží jako statický web na GitHub Pages, bez serveru, bez přihlašování a bez Firebase.
 
 ## Struktura
 
 ```
-index.html                    rozcestník (domovská stránka), karty se sestaví z apps.js
-apps.js                       registr miniaplikací – jediné místo, kde se miniaplikace připojují
-shared/sesta.css              společný design (barvy, panely, tlačítka, horní lišta)
-shared/sesta-core.js          společné jádro (horní lišta, ukládání, okna, hlášky, formát času)
-apps/flowchart/index.html     Flowchart Puzzle
-apps/symbol-sprint/index.html Symbol Sprint
-apps/type-detective/index.html Type Detective
-apps/sablona/index.html      šablona pro novou miniaplikaci (není v registru)
+index.html                 rozcestník (časová osa hodin, aplikace po skupinách Junior / Python)
+shared/
+  sesta.css                jediný zdroj vzhledu (barvy, písmo, hlavička, karty, lišta, plocha)
+  sesta-shell.js           společné chování (hlavička, nabídka aplikací, Nastavení, zkratky, soubory, oznámení)
+  apps.js                  seznam aplikací a skupin, rozvrh hodin
+  fonts/                   Inter (rozhraní) a JetBrains Mono (kód), licence OFL
+  logo-skoly.png           logo školy
+flowchart/index.html       Flowchart Puzzle – vývojové diagramy
+symbol-sprint/index.html   Symbol Sprint – programátorské znaky na klávesnici
+type-detective/index.html  Type Detective – datové typy
+python/index.html          Python – procvičování Pythonu (dříve SestaCode(Python))
+sablona/index.html         šablona pro novou aplikaci (není v seznamu aplikací)
 ```
 
-Každá miniaplikace je samostatná stránka, kterou jde otevřít i přímo. Úprava jedné miniaplikace nezasahuje do ostatních.
+## Nahrání na GitHub Pages
 
-## Přidání nové miniaplikace
+1. Obsah této složky nahraj do kořene repozitáře.
+2. Settings → Pages → Deploy from a branch → `main` / `(root)`.
+3. Při každé změně ve `shared/` zvyš číslo `?v=1.0.0` u odkazů na sdílené soubory ve všech stránkách, aby prohlížeče nenačítaly starou verzi.
 
-1. Zkopíruj složku `apps/sablona` a přejmenuj ji, např. na `apps/moje-hra`.
-2. V jejím `index.html` přepiš `data-app="sablona"` na `data-app="moje-hra"`.
-3. Do `apps.js` přidej záznam s `id: 'moje-hra'` a `path: 'apps/moje-hra/'`.
+Aplikace je potřeba zkoušet přes webový server (GitHub Pages nebo `python3 -m http.server`), ne dvojklikem na soubor.
 
-Miniaplikace se pak sama objeví na domovské stránce i v horní liště. Při víc než čtyřech miniaplikacích se lišta přepne na rozbalovací nabídku „Všechny aplikace“. Rozpracovanou miniaplikaci skryješ položkou `hidden: true`.
+## Jak přidat novou aplikaci
 
-## Zveřejnění na GitHub Pages
+1. Zkopíruj složku `sablona` a přejmenuj ji (malá písmena, bez diakritiky).
+2. Přidej záznam do `shared/apps.js` (id, název, složka, ikona, skupina, popisy, verze).
+3. V nové stránce nastav `app:` v `SESTA.init` na stejné id a smaž řádek, kterým se šablona registruje sama.
 
-1. Nahraj obsah této složky do kořene repozitáře.
-2. Settings → Pages → Source: *Deploy from a branch*, větev `main`, složka `/ (root)`.
+Pro soubory `.json` předej v `SESTA.init` funkce `serialize`, `load` a `actions.new`. V hlavičce se pak objeví tlačítka Nový, Otevřít a Uložit. Pro export předej `actions.export`.
 
 ## Ukládání
 
-Data se ukládají do localStorage prohlížeče s předponou `sestajr_` (diagram, nejlepší časy, výsledky, nastavení). Všechny stránky GitHub Pages jednoho účtu sdílejí stejnou doménu, předpona proto brání kolizím s jinými projekty.
+- Výsledky, rekordy, vybraná lekce a rozpracovaný diagram se drží jen v paměti panelu prohlížeče (`sessionStorage`). Zavřením prohlížeče se smažou, takže na sdíleném počítači nic nezůstane.
+- Trvale jde uložit jen diagram, a to do souboru `.json` (obálka `{"sestacode": "flowchart", "verze", "vytvoreno", "nazev", "data"}`). Starší soubory ze SESTA.CODE Junior jdou otevřít také.
+- V `localStorage` je jen zvolený režim (světlý / tmavý) a šířka levého sloupce. Klíče mají předponu `scode:` / `sestacode-`, aby se nepletly s CabiNetem na stejné doméně github.io.

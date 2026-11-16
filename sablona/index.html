@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nová aplikace – SestaCode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('sestacode-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}</script>
+<link rel="stylesheet" href="../shared/sesta.css?v=1.0.0">
+<style>
+/* ===== Styly jen pro tuto aplikaci (barvy vždy z proměnných v shared/sesta.css) ===== */
+.demo{font:700 72px var(--mono);color:var(--text)}
+</style>
+</head>
+<!--
+  ŠABLONA NOVÉ APLIKACE SESTACODE
+  1. Zkopíruj složku „sablona“ a přejmenuj ji (malá písmena, bez diakritiky), např. „cykly“.
+  2. Do shared/apps.js přidej záznam { id:'cykly', name:'…', path:'cykly/', icon:'code', group:'junior', desc:'…', long:'…', version:'1.0', year:2026 }.
+  3. Níže v SESTA.init přepiš app:'sablona' na stejné id.
+  Aplikace se pak sama objeví na rozcestníku i v nabídce aplikací u loga.
+
+  Kostra stránky: levý panel s číslovanými kartami (.c-side > .c-card), lišta (.c-tb) a plocha (.c-area > .c-sheet).
+  Ze shared/sesta-shell.js (objekt SESTA):
+    SESTA.store.get/set/remove  – paměť aplikace do zavření prohlížeče
+    SESTA.toast(text, {kind:'ok'|'err', action:{label, run}}), await SESTA.confirm({title, text, ok})
+    SESTA.modal({...}), SESTA.icon('název'), SESTA.fmtTime(ms, desetiny), SESTA.ring(procenta, 'var(--ok)')
+    SESTA.cards('#side') – karty v levém panelu (rozbalená jen první)
+    Soubory .json: v SESTA.init předej serialize, load a actions.new – v hlavičce se objeví Nový / Otevřít / Uložit.
+-->
+<body>
+<main class="s-main"><div class="c-app">
+  <aside class="c-side" id="side">
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">1</span><span class="c-ttl">Jak na to</span><span class="c-meta">nápověda</span></button>
+      <div class="c-card-b"><p>Sem patří krátké vysvětlení nebo pravidla.</p></div>
+    </section>
+    <section class="c-card">
+      <button class="c-card-h" type="button"><span class="c-num">2</span><span class="c-ttl">Nastavení</span><span class="c-meta" id="m2"></span></button>
+      <div class="c-card-b"><div class="c-opt" id="opt"><button type="button" data-v="1">Lehká</button><button type="button" data-v="2">Těžká</button></div></div>
+    </section>
+  </aside>
+  <section class="c-work">
+    <div class="c-tb"><span class="c-prog">Ukázka</span><span class="c-grow"></span><button class="c-tool" type="button" id="bReset"><i data-i="refresh"></i>Vynulovat</button></div>
+    <div class="c-area"><div class="c-sheet">
+      <div class="c-sheet-b"><div class="c-center"><div class="demo" id="count">0</div><p class="sub">Klikni na tlačítko nebo stiskni Enter.</p></div></div>
+      <div class="c-sheet-f"><span class="c-grow"></span><button class="s-btn pri" type="button" id="bPlus">Přidat</button></div>
+    </div></div>
+  </section>
+</div></main>
+<script src="../shared/apps.js?v=1.0.0"></script>
+<script src="../shared/sesta-shell.js?v=1.0.0"></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let count = SESTA.store.get('count', 0);
+const render = () => {
+  $('count').textContent = count;
+  const lvl = SESTA.store.get('level', '1');
+  $('m2').textContent = lvl === '1' ? 'lehká' : 'těžká';
+  document.querySelectorAll('#opt button').forEach(b => { b.classList.toggle('on', b.dataset.v === lvl); b.onclick = () => { SESTA.store.set('level', b.dataset.v); render(); }; });
+};
+const add = () => { count++; SESTA.store.set('count', count); render(); };
+$('bPlus').onclick = add;
+$('bReset').onclick = () => { const old = count; count = 0; SESTA.store.set('count', 0); render(); SESTA.toast('Vynulováno', { action:{ label:'Vrátit', run:() => { count = old; SESTA.store.set('count', old); render(); } } }); };
+document.addEventListener('keydown', e => { if(!SESTA.modalOpen() && e.key === 'Enter'){ e.preventDefault(); add(); } });
+
+/* Šablona není v shared/apps.js – pro náhled se dočasně zaregistruje sama. U nové aplikace tento řádek smaž. */
+if(!SESTA.apps.find(a => a.id === 'sablona')) SESTA.apps.push({ id:'sablona', name:'Šablona', path:'sablona/', icon:'code', group:'junior', desc:'Ukázka kostry', version:'1.0', year:2026, hidden:true });
+
+SESTA.init({ app:'sablona', panel:'#side', subtitle: () => 'ukázka kostry', shortcuts:[{ label:'Přidat', keys:'Enter' }] });
+SESTA.cards('#side');
+render();
+</script>
+</body>
+</html>
