@@ -173,6 +173,7 @@ const SymbolSprintEngine = (() => {
     SESTA.store.set('best', b);
     S.result = { time, acc, errors:S.errors, recAny, recClean };
     S.phase = 'done';
+    if(document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
     render(); renderSide();
   }
   function pause(){ if(S.phase === 'play' && S.running){ stopClock(); S.phase = 'paused'; render(); } }
@@ -182,10 +183,14 @@ const SymbolSprintEngine = (() => {
   const NAV = ['Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End','Backspace'];
   function onKey(e){
     if(SESTA.modalOpen()) return;
-    if(e.repeat){ e.preventDefault(); return; }                          // potlačení opakování při držení klávesy
     const k = e.key || '';
+    // Ochrana proti nechtěnému odchodu ze hry: Tab by přesunul výběr na logo v hlavičce
+    // a mezerník by ho „klikl“ (= rozcestník); Alt+← / ⌘+[ / ⌘+← je v prohlížeči „Zpět“.
+    if(k === 'Tab' || ((e.altKey || e.metaKey) && (k === 'ArrowLeft' || k === '['))){ e.preventDefault(); return; }
+    if(e.repeat){ e.preventDefault(); return; }                          // potlačení opakování při držení klávesy
     if(S.phase === 'intro' || S.phase === 'done'){
       if(k === 'Enter' && !e.ctrlKey && !e.altKey){ e.preventDefault(); newRound(); }
+      else if(k === ' ') e.preventDefault();                              // mezerník nesmí „kliknout“ na tlačítko s fokusem
       return;
     }
     if(S.phase === 'paused'){
