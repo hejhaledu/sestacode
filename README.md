@@ -1,6 +1,6 @@
 # SestaCode 1.1 – procvičování programování
 
-Rozcestník a aplikace pro žáky ZŠ Šestajovice. Vzhled a kostra vychází z CabiNetu, barva značky je zelená. Běží jako statický web na GitHub Pages, bez serveru, bez přihlašování a bez Firebase.
+Rozcestník a aplikace pro žáky ZŠ Šestajovice. Vzhled a kostra vychází z CabiNetu, barva značky je zelená. Běží jako statický web na GitHub Pages, bez serveru. Jediná aplikace s databází je Aréna (Firebase, viz níže).
 
 ## Struktura
 
@@ -16,6 +16,7 @@ flowchart/index.html       Flowchart Puzzle – vývojové diagramy
 symbol-sprint/index.html   Symbol Sprint – programátorské znaky na klávesnici
 type-detective/index.html  Type Detective – datové typy
 python/index.html          Python – procvičování Pythonu (dříve SestaCode(Python))
+arena/index.html           Aréna – programátorská hra pro třídu (tabule + telefony, Firebase)
 sablona/index.html         šablona pro novou aplikaci (není v seznamu aplikací)
 ```
 
@@ -23,7 +24,7 @@ sablona/index.html         šablona pro novou aplikaci (není v seznamu aplikac�
 
 1. Obsah této složky nahraj do kořene repozitáře.
 2. Settings → Pages → Deploy from a branch → `main` / `(root)`.
-3. Při každé změně ve `shared/` zvyš číslo `?v=1.1.0` u odkazů na sdílené soubory ve všech stránkách, aby prohlížeče nenačítaly starou verzi.
+3. Při každé změně ve `shared/` zvyš číslo `?v=…` (aktuálně `?v=1.1.1`) u odkazů na sdílené soubory ve všech stránkách, aby prohlížeče nenačítaly starou verzi.
 
 Aplikace je potřeba zkoušet přes webový server (GitHub Pages nebo `python3 -m http.server`), ne dvojklikem na soubor.
 
@@ -44,3 +45,11 @@ Pro soubory `.json` předej v `SESTA.init` funkce `serialize`, `load` a `actions
 ## Windows a Mac
 
 Kostra pozná systém (`SESTA.isMac`, `SESTA.platform`). Zkratky v bublinách a v přehledu zkratek se na Macu ukazují s ⌘ a Option (`SESTA.keyLabel`), `<kbd>Ctrl</kbd>` v textu stránky se přepíše na ⌘. Symbol Sprint má nápovědu kláves zvlášť pro Windows a pro Mac a v kartě Nápověda kláves jde systém přepnout ručně.
+
+## Aréna
+
+Programátorská hra pro celou třídu ve složce `arena/` (verze aplikace 4.1). Na rozdíl od ostatních aplikací nepoužívá `sesta-shell.js`: má vlastní tři obrazovky (vstup žáka s trenažérem, editor programu pro mobil, Správa pro tabuli). Ze SestaCode přebírá barvy, písmo ze `shared/fonts` a klíče s předponou `scode:arena:`; logo vede na rozcestník.
+
+- Adresa: `…/arena/`, učitel přes odkaz Správa dole (heslo `informatika`). Ukázkový režim bez internetu: `…/arena/?demo=1`.
+- Data: Firebase projekt `sestacode-arena` (Firestore europe-west3, anonymní přihlášení, autorizovaná doména `hejhaledu.github.io`). Knihovny Firebase 10.12.2 (gstatic) a qrcode-generator 1.4.4 (jsdelivr) se načítají z CDN.
+- Ukládání: iniciály žáka jen v `sessionStorage` (na sdíleném PC se nemíchají), v `localStorage` jen data ukázkového režimu a zvolený režim.

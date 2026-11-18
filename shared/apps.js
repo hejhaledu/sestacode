@@ -51,5 +51,11 @@ SESTA.apps = [
     desc: 'Procvičování Pythonu',
     long: 'Čtyři lekce: výstup, vstup, podmínka IF a cyklus FOR. Kolo 10 úloh, chyby si na konci zopakuješ.',
     version: '1.1', year: 2026
+  },
+  {
+    id: 'arena', name: 'Aréna', path: 'arena/', icon: 'arena',
+    desc: 'Programátorská hra pro celou třídu',
+    long: 'Naprogramuj robota na mobilu, kolo se přehraje na tabuli. Sekvence a cyklus FOR, sbírání mincí, odtlačování soupeřů a Beast Mode.',
+    version: '4.1', year: 2026
   }
 ];

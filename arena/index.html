@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SestaCode / Aréna</title>
+<!-- Aréna v4.1 · 18. 11. 2026 · součást SestaCode (složka arena/) · Martin Hejhal -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* písmo ze SestaCode (shared/fonts) */
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(../shared/fonts/inter-400.woff) format('woff')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(../shared/fonts/inter-500.woff) format('woff')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(../shared/fonts/inter-600.woff) format('woff')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url(../shared/fonts/inter-700.woff) format('woff')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:800;font-display:swap;src:url(../shared/fonts/inter-700.woff) format('woff')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../shared/fonts/jetbrains-mono-400.woff) format('woff')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:700;font-display:swap;src:url(../shared/fonts/jetbrains-mono-700.woff) format('woff')}
+a.logo-tile{text-decoration:none}
+:root,[data-theme="dark"]{
+  --accent:#1F7A33;--accent-fg:#FFFFFF;--accent-soft:#11241A;--accent-text:#4AC26B;
+  --text:#E6EDF3;--text-2:#C9D1D9;--muted:#9198A1;
+  --bg-app:#161B22;--bg-work:#0D1117;--bg-canvas:#12171E;--bg-subtle:#21262D;--border:#30363D;
+  --danger:#F85149;--coin:#D29922;--coin-b:#9E6A03;--wall:#4A525D;--wall-b:#6E7681;--cell:#1F252E;--cell-b:#3D4550;--grid:#0D1117;
+  --seq-bg:#0C2138;--seq-b:#1F6FEB;--seq-t:#79C0FF;
+  --rep-bg:#2A1A0C;--rep-b:#9A4F12;--rep-t:#FFA657;--if-bg:#221637;--if-b:#8957E5;--if-t:#D2A8FF;
+  --p0:#4AC26B;--p1:#39C5CF;--p2:#F778BA;--p3:#FF7B72;--p4:#79C0FF;--p5:#E3B341;--p6:#D2A8FF;--p7:#FFA657;--p8:#C9D1D9;--p9:#C69C6D;--p10:#A371F7;--p11:#3FB9A0;--p12:#8B949E;--p13:#E5534B;
+  --on-p:#0D1117;
+}
+[data-theme="light"]{
+  --accent:#116329;--accent-fg:#FFFFFF;--accent-soft:#E3F2E7;--accent-text:#116329;
+  --text:#1F2328;--text-2:#424A53;--muted:#59636E;
+  --bg-app:#FFFFFF;--bg-work:#F6F8FA;--bg-canvas:#FFFFFF;--bg-subtle:#EFF2F5;--border:#D8DEE4;
+  --danger:#CF222E;--coin:#D4A72C;--coin-b:#9A6700;--wall:#AEB8C2;--wall-b:#8C959F;--cell:#EDF0F3;--cell-b:#C3CBD3;--grid:#DCE1E6;
+  --seq-bg:#DDF4FF;--seq-b:#54AEFF;--seq-t:#0550AE;
+  --rep-bg:#FFF1E5;--rep-b:#FB8F44;--rep-t:#953800;--if-bg:#FBEFFF;--if-b:#C297FF;--if-t:#6639BA;
+  --p0:#1A7F37;--p1:#1B7C83;--p2:#BF3989;--p3:#CF222E;--p4:#0969DA;--p5:#9A6700;--p6:#8250DF;--p7:#BC4C00;--p8:#424A53;--p9:#7D4E24;--p10:#6E40C9;--p11:#0A7B6A;--p12:#6E7781;--p13:#A40E26;
+  --on-p:#FFFFFF;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-feature-settings:"tnum";background:var(--bg-work);color:var(--text);font-size:14px;min-height:100vh}
+body.t-mode{height:100vh;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.view{display:none}
+.view.on{display:flex}
+.stripe{height:4px;background:var(--accent);flex:none}
+.logo-tile{background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:14px;padding:7px 9px;border-radius:8px;letter-spacing:.5px}
+.ibtn{width:38px;height:38px;border-radius:8px;border:1px solid transparent;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--text-2);flex:none}
+.ibtn:hover{background:var(--bg-subtle);border-color:var(--border)}
+.btn{height:38px;padding:0 15px;border-radius:8px;border:1px solid var(--border);background:var(--bg-subtle);display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px;font-weight:500;color:var(--text-2);white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.5;cursor:default;filter:none}
+.btn.big{height:46px;font-size:16px;font-weight:600;padding:0 22px}
+.card{background:var(--bg-app);border:1px solid var(--border);border-radius:14px}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin-top:8px}
+.demo-badge{display:none;font-size:11px;color:var(--rep-t);border:1px solid var(--rep-b);border-radius:6px;padding:2px 7px}
+body.demo .demo-badge{display:inline-block}
+
+/* ===== Žák: vstup ===== */
+#vStart,#vStudent{flex-direction:column;min-height:100vh}
+.s-wrap{width:100%;max-width:560px;margin:0 auto;padding:18px 16px 28px;display:flex;flex-direction:column;gap:14px;flex:1}
+.s-top{display:flex;align-items:center;gap:12px}
+.s-top .nm{font-size:16px}.s-top .nm span{color:var(--muted)}.s-top .nm b{font-weight:600}
+.s-top .sp{flex:1}
+.join{padding:20px}
+.join h1{margin:0 0 4px;font-size:22px}
+.join p{margin:0 0 14px;color:var(--muted)}
+.join-row{display:flex;gap:10px}
+.join input{flex:1;min-width:0;height:46px;border-radius:9px;border:1px solid var(--border);background:var(--bg-work);color:var(--text);font:inherit;font-size:22px;font-weight:800;text-align:center;text-transform:uppercase;letter-spacing:4px}
+.join input::placeholder{font-size:16px;letter-spacing:1px;font-weight:600;text-transform:none}
+.join input:focus{outline:2px solid var(--accent-text);outline-offset:0}
+.tut{padding:18px}
+.tut h2{margin:0 0 4px;font-size:17px}
+.tut>p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.5}
+.tut-done{padding:14px 16px;color:var(--accent-text);background:var(--accent-soft);border-radius:10px;font-size:14px;line-height:1.5;margin-top:10px}
+.sprava{align-self:center;background:none;border:none;color:var(--muted);font-size:12px;padding:6px 10px;text-decoration:underline;opacity:.7}
+.s-foot{text-align:center;font-size:11px;color:var(--muted);padding-bottom:6px}
+.miniwrap{display:flex;justify-content:center;margin:4px 0 14px}
+
+/* ===== Žák: editor ===== */
+.s-head{position:sticky;top:0;z-index:20;background:var(--bg-app);border-bottom:1px solid var(--border)}
+.s-head-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.me-tok{width:44px;height:44px;position:relative;flex:none}
+.s-info{flex:1;min-width:0}
+.s-info b{display:block;font-size:15px;font-weight:600}
+.s-info small{color:var(--muted);font-size:12px}
+.s-status{font-size:13px;line-height:1.5;padding:10px 14px;border-radius:10px;background:var(--bg-subtle);color:var(--text-2)}
+.s-status.ok{background:var(--accent-soft);color:var(--accent-text)}
+.s-status.run{background:var(--rep-bg);color:var(--rep-t)}
+
+/* ===== Editor (společný) ===== */
+.palette{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.palette.trash{border-radius:9px}
+.steps{font-size:12px;color:var(--muted);white-space:nowrap;text-align:right;line-height:1.2}
+.steps b{font-size:15px;font-weight:600;color:var(--muted)}
+.steps.over,.steps.over b{color:var(--danger)}
+.tools{display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap;justify-content:space-between}
+.tools .grp{display:flex;align-items:center;gap:6px}
+.tools .btn{height:34px;font-size:13px;padding:0 12px}
+.tools .stepl{font-size:13px;color:var(--muted);min-width:96px;text-align:center}
+.tools .stepl b{color:var(--text);font-weight:600}
+.sheet.full .tools{display:none}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.pal{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 13px;border-radius:8px;border:1px solid;font-size:14px;font-weight:600;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pal svg.i{width:16px;height:16px}
+.palette.trash{outline:2px dashed var(--danger);outline-offset:4px}
+.ed.locked .pal{opacity:.45;cursor:default}
+.c-seq{background:var(--seq-bg);border-color:var(--seq-b);color:var(--seq-t)}
+.c-rep{background:var(--rep-bg);border-color:var(--rep-b);color:var(--rep-t)}
+.hint{font-size:12px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+.hint b{color:var(--accent-text);font-weight:600}
+.prog{display:flex;flex-direction:column;gap:6px}
+.item{display:flex;flex-direction:column;gap:6px}
+.item.dragging{opacity:.3}
+.blk{display:flex;align-items:center;gap:7px;min-height:42px;padding:4px 6px 4px 6px;border-radius:8px;border:1px solid;font-size:14px;font-weight:600;position:relative;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.blk.held{outline:2px solid var(--accent-text);outline-offset:1px}
+.blk[data-drag]{cursor:grab}
+.blk svg.i{width:16px;height:16px}
+.hdl{width:26px;height:34px;display:flex;align-items:center;justify-content:center;touch-action:none;opacity:.6;cursor:grab;flex:none}
+.hdl svg.i{width:16px;height:16px}
+.blk .lbl{display:flex;align-items:center;gap:4px;white-space:nowrap}
+@media (max-width:520px){.blk .acts [data-a=up],.blk .acts [data-a=down]{display:none}.blk .lbl .mini{width:28px}}
+.blk .acts{margin-left:auto;display:flex;gap:2px}
+.mini{width:32px;height:32px;border:none;background:transparent;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:inherit;padding:0}
+.mini:hover{background:rgba(127,127,127,.22)}
+.mini svg.i{width:16px;height:16px}
+.val{min-width:26px;height:28px;padding:0 6px;border-radius:6px;border:1px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.blk.active{outline:2px solid var(--text);outline-offset:1px}
+.blk.drop-top::before,.blk.drop-bot::after{content:"";position:absolute;left:-4px;right:-4px;height:3px;border-radius:2px;background:var(--accent-text)}
+.blk.drop-top::before{top:-5px}.blk.drop-bot::after{bottom:-5px}
+.inner{margin-left:20px;padding:4px 0 4px 10px;border-left:2px solid var(--rep-b);display:flex;flex-direction:column;gap:6px}
+.inner.if{border-left-color:var(--if-b)}
+.c-if{background:var(--if-bg);border-color:var(--if-b);color:var(--if-t)}
+.coin.big{left:17%;top:17%;width:66%;height:66%;display:flex;align-items:center;justify-content:center;font-size:var(--sf,10px);font-weight:800;color:#fff}
+.knife{position:absolute;left:14%;top:14%;width:72%;height:72%;fill:#C9D1D9;stroke:#6E7681;stroke-width:1;stroke-linejoin:round}
+.bot svg.kb{position:absolute;right:-12%;top:-12%;width:44%;height:44%;display:none;fill:#E6EDF3;stroke:#0D1117;stroke-width:1.2;stroke-linejoin:round;transform:none;overflow:visible}
+.bot.has-knife svg.kb{display:block}
+.prow .kn{width:15px;height:15px;fill:var(--text-2);flex:none}
+.prow.out .chip{text-decoration:line-through}
+.btn.beast{border-color:#1E7D34;color:#2EA043;background:transparent;font-weight:700}
+body.beast{--text:#E6EDF3;--text-2:#C9D1D9;--muted:#9198A1;--accent-text:#2EA043;--seq-bg:#06162A;--seq-b:#1F6FEB;--seq-t:#79C0FF;--rep-bg:#1F1206;--rep-b:#BD561D;--rep-t:#FFA657;--if-bg:#170E29;--if-b:#8957E5;--if-t:#D2A8FF;--bg-app:#000;--bg-work:#000;--bg-canvas:#000;--bg-subtle:#0B0B0B;--border:#123A1C;--accent-soft:#06200D;
+  --p0:#39FF14;--p1:#00E5FF;--p2:#FF2D95;--p3:#FF3B30;--p4:#2F7BFF;--p5:#FFD60A;--p6:#BF5AF2;--p7:#FF8A00;--p8:#FFFFFF;--p9:#00FFB3;--p10:#3D5AFE;--p11:#FF00FF;--p12:#C6FF00;--p13:#E040FB;--on-p:#000}
+body.beast .card,body.beast .prow,body.beast .modal,body.beast .s-head,body.beast #vTeacher header,body.beast aside,body.beast .t-foot{background:#000}
+#vTeacher.beast .btn.beast{background:#1E7D34;border-color:#1E7D34;color:#000}
+#vTeacher.beast .sheet{background:#000;border-color:#145A26}
+#vTeacher.beast .board{background:#000;border-color:#145A26}
+#vTeacher.beast .cell{background:#000;border-color:#124F22}
+#vTeacher.beast .cell.wall{background:#05170A;border-color:#1E7D34;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(30,125,52,.38) 6px 7px)}
+#vTeacher.beast .bot .arw path{fill:#1E7D34!important;stroke-width:4}
+#vTeacher.beast .bot.bump .arw path{stroke-width:7}
+#vTeacher.beast .bot .lab{color:#000}
+#vTeacher.beast .coin{background:radial-gradient(circle at 34% 30%,#FF9AA8 0 10%,#F0102F 30%,#A3001A 68%,#50000C 100%);border-color:#2B0006}
+#vTeacher.beast .knife{left:6%;top:6%;width:88%;height:88%;fill:#E6EDF3;stroke:#8B949E}
+#vTeacher.beast .bot svg.kb{width:54%;height:54%;right:-16%;top:-16%}
+#vTeacher.beast .legend,#vTeacher.beast .tools .stepl{color:#2EA043}
+#vTeacher.beast .count{background:rgba(0,0,0,.55);color:#2EA043}
+.tag{font-size:11px;color:var(--muted)}
+.add{min-height:38px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:var(--muted);cursor:pointer;background:transparent;text-align:left;width:100%}
+.add:hover{border-color:var(--muted)}
+.add.sel{border-color:var(--accent-text);color:var(--accent-text);background:var(--accent-soft)}
+.add.drop-in{border-style:solid;border-color:var(--accent-text);background:var(--accent-soft);color:var(--accent-text)}
+.code{margin-top:12px;background:var(--bg-work);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;white-space:pre;overflow-x:auto;color:var(--text-2)}
+.code .kw{color:var(--rep-t)}.code .fn{color:var(--seq-t)}.code .cm{color:var(--muted)}
+.ghost{position:fixed;left:0;top:0;z-index:200;pointer-events:none;opacity:.92;box-shadow:0 8px 24px rgba(0,0,0,.35);border-radius:8px}
+
+/* ===== Tabule (učitel) ===== */
+#vTeacher{flex-direction:column;height:100vh}
+#vTeacher header{height:64px;flex:none;display:flex;align-items:center;gap:14px;padding:0 18px;background:var(--bg-app);border-bottom:1px solid var(--border)}
+.crumb{font-size:16px}.crumb span{color:var(--muted)}.crumb b{font-weight:600}
+.hicons{margin-left:auto;display:flex;gap:6px;align-items:center}
+.t-main{flex:1;display:flex;min-height:0}
+aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(--border);overflow-y:auto;padding:12px}
+.work{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{height:60px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--bg-app);border-bottom:1px solid var(--border)}
+.stat{display:flex;align-items:baseline;gap:6px;padding-right:14px;margin-right:4px;border-right:1px solid var(--border)}
+.stat small{color:var(--muted);font-size:12px}.stat b{font-size:16px;font-weight:600}
+.stat:last-of-type{border-right:none}
+.bar .sp{flex:1}
+.area{flex:1;min-height:0;padding:14px;display:flex}
+.sheet{flex:1;background:var(--bg-canvas);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:0;overflow:hidden}
+.sheet.full{position:fixed;inset:0;z-index:60;border-radius:0;border:none}
+.t-foot{height:28px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:11px;color:var(--muted);background:var(--bg-app);border-top:1px solid var(--border)}
+.small-bar{display:none;background:var(--accent-soft);color:var(--accent-text);font-size:13px;padding:8px 18px;border-bottom:1px solid var(--border)}
+@media (max-width:1023px){.small-bar{display:block}}
+.joinurl{font-size:13px;color:var(--muted);margin-bottom:10px;text-align:center}
+.joinurl b{color:var(--text);font-size:15px}
+.sheet.full .joinurl{display:none}
+.boardwrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.board{position:relative;background:var(--grid);border:1px solid var(--border);border-radius:12px;display:grid;padding:var(--pad);gap:var(--gap)}
+.cell{background:var(--cell);border-radius:5px;position:relative;border:1px solid var(--cell-b)}
+.cell.wall{background:var(--wall);border-color:var(--wall-b);background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(127,127,127,.18) 6px 7px)}
+.coin{position:absolute;left:32%;top:32%;width:36%;height:36%;border-radius:50%;background:var(--coin);border:2px solid var(--coin-b)}
+.tr{position:absolute;width:3px;height:3px;border-radius:50%;opacity:.75}
+.bot{position:absolute;width:var(--c);height:var(--c);transition:left .22s ease,top .22s ease;pointer-events:none;z-index:3}
+.bot svg.arw{position:absolute;left:1px;top:1px;width:calc(100% - 2px);height:calc(100% - 2px);transition:transform .22s ease;overflow:visible}
+.bot .arw path{stroke-width:6;stroke-linejoin:round}
+.bot .lab{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--on-p);transition:transform .22s ease;line-height:1}
+.bot .lab b{font-size:var(--lf,14px);font-weight:800;letter-spacing:.5px}
+.bot .lab small{font-size:var(--sf,10px);font-weight:700;margin-top:1px}
+.bot.bump .arw path{stroke:var(--danger)!important;stroke-width:8}
+.bot.pushed .arw path{stroke:var(--text)!important;stroke-dasharray:10 7;stroke-width:7}
+.bot svg.crown{position:absolute;left:50%;top:-30%;width:50%;height:auto;transform:translateX(-50%);display:none;fill:#FFD33D;stroke:#7D5A00;stroke-width:1.2;stroke-linejoin:round;overflow:visible}
+.bot.lead{z-index:5}.bot.lead svg.crown{display:block}
+.crown-i{width:14px;height:10px;fill:#FFD33D;stroke:#7D5A00;stroke-width:1.2;stroke-linejoin:round;flex:none}
+.legend{font-size:12px;color:var(--muted);margin-right:6px}
+.count{position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;z-index:70;font-size:min(34vh,260px);font-weight:800;color:var(--text);background:rgba(13,17,23,.45)}
+[data-theme="light"] .count{background:rgba(255,255,255,.55)}
+.count.on{display:flex}
+
+.plhead{display:flex;align-items:baseline;justify-content:space-between;margin:2px 2px 10px}
+.plhead b{font-size:14px;font-weight:600}.plhead span{font-size:12px;color:var(--muted)}
+.plist{display:flex;flex-direction:column;gap:5px}
+.prow{border:1px solid var(--border);border-radius:9px;padding:6px 6px 6px 10px}
+.prow-h{display:flex;align-items:center;gap:8px}
+.chip{min-width:28px;height:22px;padding:0 5px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--on-p);flex:none}
+.prow-h .st{font-size:12px;color:var(--muted);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--danger)}
+.dot.ok{background:var(--accent-text)}
+.prow.off{opacity:.45}
+.prow-h .gap{flex:1}
+.tstats{display:flex;align-items:center;margin-left:28px}
+.tstats .stat:last-child{border-right:none}
+.qrbox{background:#fff;border-radius:14px;padding:18px;width:min(72vh,80vw);margin:0 auto}
+.qrbox svg{width:100%;height:auto;display:block}
+.qrurl{text-align:center;font-size:clamp(18px,3vw,30px);font-weight:700;margin:18px 0 4px;word-break:break-all}
+#ovQr .modal{width:auto;max-width:96vw;padding:26px}
+.trainbtn{align-self:stretch}
+.prow-h .sc{font-weight:700;font-size:15px;min-width:20px;text-align:right}
+.prow .prog{margin:8px 0 4px}
+.prow .blk{min-height:30px;font-size:12px}
+.empty{font-size:13px;color:var(--muted);line-height:1.5;padding:8px 2px}
+
+.toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);background:var(--text);color:var(--bg-app);padding:10px 16px;border-radius:9px;font-size:13px;display:flex;gap:12px;align-items:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .15s;max-width:92vw}
+.toast.show{opacity:1;pointer-events:auto}
+.toast button{background:none;border:none;color:inherit;font-weight:700;text-decoration:underline;padding:0}
+.overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(1,4,9,.55);display:none;align-items:center;justify-content:center;z-index:150;padding:12px}
+.overlay.show{display:flex}
+.modal{background:var(--bg-app);border:1px solid var(--border);border-radius:16px;width:min(540px,100%);max-height:90vh;overflow-y:auto;padding:22px}
+.modal h2{margin:0 0 4px;font-size:18px}
+.modal .sub{color:var(--muted);font-size:13px;margin:0 0 16px;line-height:1.5}
+.modal h3{font-size:13px;margin:18px 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.frow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.frow label{flex:1}
+.frow small{display:block;color:var(--muted);font-size:11px}
+.frow input[type=number],.frow select,.modal input[type=password]{height:34px;border-radius:7px;border:1px solid var(--border);background:var(--bg-work);color:var(--text);padding:0 8px;font:inherit}
+.frow input[type=number]{width:80px}
+.frow input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.res{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.res div{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px}
+.res div.win{border-color:var(--accent-text);background:var(--accent-soft)}
+.res .pl{width:26px;font-weight:700;color:var(--muted)}
+.res .s{margin-left:auto;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- ===== Žák: vstup ===== -->
+<div class="view" id="vStart">
+  <div class="stripe"></div>
+  <div class="s-wrap">
+    <div class="s-top"><a class="logo-tile" href="../" title="Rozcestník SestaCode">SC</a><span class="nm"><span>SestaCode /</span> <b>Aréna</b></span><span class="sp"></span><span class="demo-badge">ukázkový režim</span><button class="ibtn themeBtn" title="Tmavý / světlý režim" aria-label="Tmavý / světlý režim"></button></div>
+    <div class="card join">
+      <h1>Připoj se do hry</h1>
+      <div class="join-row"><input id="jIn" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Iniciály"><button class="btn primary big" id="jBtn">Vstup</button></div>
+      <div class="err" id="jErr"></div>
+    </div>
+    <button class="btn big trainbtn" id="trainBtn">Natrénuj si!</button>
+    <div class="card tut" id="tut" style="display:none">
+      <h2>Trenažér</h2>
+      <div class="miniwrap"><div class="board" id="tutBoard"></div></div>
+      <div class="ed" id="edTut" data-ed="tut">
+        <div class="palette" id="tutPal"></div>
+        <div class="prog" id="tutProg"></div>
+      </div>
+      <div id="tutMsg"></div>
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn primary" id="tutRun"><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Spustit</button><button class="btn" id="tutAgain" style="display:none">Opakovat</button><span class="steps" id="tutSteps" style="margin-left:auto;align-self:center"></span></div>
+    </div>
+    <button class="sprava" id="toTeacher">Správa</button>
+    <div class="s-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal.</div>
+  </div>
+</div>
+
+<!-- ===== Žák: programování ===== -->
+<div class="view" id="vStudent">
+  <div class="stripe"></div>
+  <div class="s-head"><div class="s-head-in">
+    <div class="me-tok" id="sTok"></div>
+    <div class="s-info"><b id="sTitle">Kolo 1</b><small id="sSub">0 mincí</small></div>
+    <span class="steps" id="gSteps"></span>
+    <button class="btn primary" id="sendBtn">Odeslat</button>
+  </div></div>
+  <div class="s-wrap">
+    <div class="s-status" id="sStatus"></div>
+    <div class="card" style="padding:14px">
+      <div class="ed" id="edGame" data-ed="game">
+        <div class="palette" id="gPal"></div>
+        <div class="prog" id="gProg"></div>
+        <div id="gPy"></div>
+      </div>
+    </div>
+    <div class="s-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal. <span class="demo-badge">ukázkový režim</span></div>
+  </div>
+</div>
+
+<!-- ===== Učitel: tabule ===== -->
+<div class="view" id="vTeacher">
+  <div class="stripe"></div>
+  <header>
+    <a class="logo-tile" href="../" title="Rozcestník SestaCode">SC</a><span class="crumb"><span>SestaCode /</span> <b>Aréna</b> <span>· Správa</span></span>
+    <div class="tstats" id="tStats"></div>
+    <div class="hicons">
+      <span class="demo-badge">ukázkový režim</span>
+      <button class="btn" id="tQr" title="QR kód pro žáky">QR</button>
+      <span id="tAct"></span>
+      <button class="ibtn" id="tSettings" title="Nastavení" aria-label="Nastavení"><svg class="i" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
+      <button class="ibtn themeBtn" title="Tmavý / světlý režim" aria-label="Tmavý / světlý režim"></button>
+      <button class="ibtn" id="tLogout" title="Odejít ze Správy" aria-label="Odejít ze Správy"><svg class="i" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg></button>
+    </div>
+  </header>
+  <div class="small-bar">Správa je určená pro počítač připojený k tabuli.</div>
+  <div class="t-main">
+    <aside>
+      <div class="plhead"><b>Žáci</b><span id="tCount"></span></div>
+      <div class="plist" id="tPlayers"></div>
+    </aside>
+    <div class="work">
+      <div class="area"><div class="sheet" id="tSheet">
+        <div class="boardwrap"><div class="board" id="tBoard"></div>
+          <div class="tools">
+            <div class="grp"><button class="btn" id="rpPrev" title="Předchozí krok (←)" aria-label="Předchozí krok"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span class="stepl" id="rpLabel"></span><button class="btn" id="rpNext" title="Další krok (→)" aria-label="Další krok"><svg class="i" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div>
+            <div class="grp"><span class="legend" id="tLegend"></span><button class="btn" id="tbShuffle">Zamíchat mince</button><button class="btn" id="tbNew">Nová hra</button><button class="btn" id="tbNewKick">Nová hra a odhlásit žáky</button><button class="btn beast" id="tbBeast">Beast Mode</button><button class="btn danger" id="tbEnd">Konec</button></div>
+          </div>
+        </div>
+        <div class="count" id="tCountdown"></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="t-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="overlay" id="ovPw"><div class="modal">
+  <h2>Správa</h2><p class="sub">Zadej heslo učitele.</p>
+  <input type="password" id="pwIn" placeholder="Heslo" style="width:100%" autocomplete="off">
+  <div class="err" id="pwErr"></div>
+  <div class="mfoot"><button class="btn" data-close>Zrušit</button><button class="btn primary" id="pwOk">Vstoupit</button></div>
+</div></div>
+<div class="overlay" id="ovQr"><div class="modal"><div class="qrbox" id="qrBox"></div><div class="qrurl" id="qrUrl"></div><div class="mfoot" style="justify-content:center"><button class="btn" data-close>Zavřít</button></div></div></div>
+<div class="overlay" id="ovSet"><div class="modal" id="mSet"></div></div>
+<div class="overlay" id="ovEnd"><div class="modal" id="mEnd"></div></div>
+
+<script>
+/* ===================== Konfigurace ===================== */
+const VERSION='4.1';
+const FB_CONFIG={
+  apiKey:"AIzaSyAdlrwhz0dkTKl9pYi6VYe1fxENhNM7J0o",
+  authDomain:"sestacode-arena.firebaseapp.com",
+  projectId:"sestacode-arena",
+  storageBucket:"sestacode-arena.firebasestorage.app",
+  messagingSenderId:"784486887881",
+  appId:"1:784486887881:web:c75839a9eb79e55347f818"
+};
+const FB_VER='10.12.2';
+const HESLO='informatika';
+const DEMO=/[?&]demo=1/.test(location.search)||location.protocol==='file:';
+if(DEMO)document.body.classList.add('demo');
+const DEF_SET={map:0,bots:0,botLvl:'mix',maxBlocks:8,maxSteps:25,forMax:3,speed:600,python:false,sv:36};
+const LVL={zacatecnik:'Začátečník',stredni:'Střední',chytry:'Chytrý'};
+const ls={get(k,d){try{const v=localStorage.getItem('scode:arena:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('scode:arena:'+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem('scode:arena:'+k)}catch(e){}}};
+const ss={get(k,d){try{const v=sessionStorage.getItem('scode:arena:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{sessionStorage.setItem('scode:arena:'+k,JSON.stringify(v))}catch(e){}},del(k){try{sessionStorage.removeItem('scode:arena:'+k)}catch(e){}}};
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* barvy 14–29 pro větší třídy */
+(()=>{let d='',l='';for(let i=14;i<30;i++){const h=Math.round((i*137.5)%360);d+=`--p${i}:hsl(${h} 62% 66%);`;l+=`--p${i}:hsl(${h} 60% 36%);`}
+  let bz='';for(let i=14;i<30;i++)bz+=`--p${i}:hsl(${Math.round((i*137.5)%360)} 100% 55%);`;
+  const st=document.createElement('style');st.textContent=`:root,[data-theme="dark"]{${d}}[data-theme="light"]{${l}}body.beast{${bz}}`;document.head.appendChild(st)})();
+
+/* ===================== Ikony ===================== */
+const IC={
+  F:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+  L:'<path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 6 6v5"/>',
+  R:'<path d="M15 14l5-5-5-5M20 9H10a6 6 0 0 0-6 6v5"/>',
+  REP:'<path d="M4 12V9a3 3 0 0 1 3-3h13M17 3l3 3-3 3M20 12v3a3 3 0 0 1-3 3H4M7 21l-3-3 3-3"/>',
+  IF:'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M6 3v12.5M18 8.5a9 9 0 0 1-9 9"/>',
+  up:'<path d="M18 15l-6-6-6 6"/>',down:'<path d="M6 9l6 6 6-6"/>',x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+  play:'<path d="M7 4v16l13-8z"/>',refresh:'<path d="M20 11A8 8 0 0 0 4.6 8M4 4v4h4M4 13a8 8 0 0 0 15.4 3M20 20v-4h-4"/>',
+  grip:'<path d="M9 5h.01M9 12h.01M9 19h.01M15 5h.01M15 12h.01M15 19h.01" stroke-width="3"/>',
+  code:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/>',kick:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'
+};
+const ic=(n,cls='i')=>`<svg class="${cls}" viewBox="0 0 24 24">${IC[n]}</svg>`;
+const ARROW='M50 5 L94 44 L94 94 L6 94 L6 44 Z';
+const CROWN='<svg class="crown" viewBox="0 0 24 16"><path d="M2 14h20l-1.5-10-5 4.5L12 1 8.5 8.5l-5-4.5z"/></svg>';
+const crownI='<svg class="crown-i" viewBox="0 0 24 16"><path d="M2 14h20l-1.5-10-5 4.5L12 1 8.5 8.5l-5-4.5z"/></svg>';
+const NAME={F:'Move',L:'Turn L',R:'Turn R',REP:'For',IF:'If wall'};
+const KNIFE_P='M20.5 3c1 3.5-3 9.5-9.5 12.5l-2.5-2.5zM9 13.5l2.5 2.5-5 5a1.6 1.6 0 0 1-2.5-2.5z';
+const knifeSvg=(cls)=>`<svg class="${cls}" viewBox="0 0 24 24"><path d="${KNIFE_P}"/></svg>`;
+const CLS={F:'c-seq',L:'c-seq',R:'c-seq',REP:'c-rep',IF:'c-if'};
+const ACT=['F','L','R'];
+
+/* ===================== Mapy a svět ===================== */
+const MAPS=[
+  {name:'Náměstí',walls:[[2,2],[3,2],[5,3],[5,4],[7,1]],coins:[[1,1],[3,0],[4,2],[2,4],[6,0],[3,3],[6,4],[1,3],[7,3],[7,2],[0,1],[2,3],[4,4],[6,2]],big:[[6,4]],knife:[[4,3]]},
+  {name:'Bludiště',walls:[[2,1],[3,1],[4,1],[2,3],[3,3],[6,2],[6,3],[6,4]],coins:[[1,2],[3,2],[5,2],[4,4],[1,4],[0,2],[5,0],[2,0],[7,1],[7,4],[0,1],[2,2],[5,4],[3,4]],big:[[5,4]],knife:[[4,3]]},
+  {name:'Ostrovy',walls:[[2,1],[3,1],[2,2],[5,3],[6,3],[5,4],[7,4]],coins:[[3,2],[1,1],[5,0],[6,1],[4,4],[1,4],[6,2],[3,4],[7,2],[7,1],[0,1],[4,2],[1,3],[5,1]],big:[[4,4]],knife:[[4,3]]}
+];
+const GW=15,GH=10;
+function mirror(list,W,H){const s=new Set();for(const [x,y] of list)for(const [a,b] of [[x,y],[W-1-x,y],[x,H-1-y],[W-1-x,H-1-y]])s.add(a+','+b);return s}
+const BOTS=[['Alfa','AL'],['Beta','BE'],['Gama','GA'],['Delta','DE'],['Epsilon','EP'],['Zéta','ZE'],['Éta','ET'],['Théta','TH'],['Ióta','IO'],['Kappa','KA'],['Lambda','LA'],['Mí','MI'],['Ný','NY']];
+const DX=[0,1,0,-1],DY=[-1,0,1,0];
+function blocked(w,x,y){return x<0||y<0||x>=w.W||y>=w.H||w.walls.has(x+','+y)}
+function robotAt(w,x,y){return w.robots.find(r=>!r.out&&r.x===x&&r.y===y)}
+
+/* ===================== Program ===================== */
+let NID=1;
+const mk=(t,o={})=>Object.assign({id:NID++,t},o);
+function cost(b){if(b.t==='REP'||b.t==='IF')return 1+Math.max(1,countBlocks(b.body));return 1}
+function countBlocks(list){let n=0;for(const b of list)n+=cost(b);return n}
+function findNode(list,id){for(const b of list){if(b.id===id)return b;if(b.body){const f=findNode(b.body,id);if(f)return f}}return null}
+function findParent(list,id,key='main'){for(let i=0;i<list.length;i++){const b=list[i];if(b.id===id)return {list,i,key};if(b.body){const f=findParent(b.body,id,b.id+':body');if(f)return f}}return null}
+function path(list,id,acc=[]){for(const b of list){if(b.id===id)return [...acc,b];if(b.body){const f=path(b.body,id,[...acc,b]);if(f)return f}}return null}
+function containerIn(prog,key){if(key==='main')return prog;const n=findNode(prog,+key.split(':')[0]);return n?n.body:null}
+function forDepth(b){if(b.t==='REP')return 1+Math.max(0,...b.body.map(forDepth));return 0}
+function keyDepth(prog,key){if(key==='main')return 0;return (path(prog,+key.split(':')[0])||[]).filter(b=>b.t==='REP').length}
+function freshNode(t){return t==='REP'?mk('REP',{n:3,body:[]}):t==='IF'?mk('IF',{body:[]}):mk(t)}
+function stepsOf(list){let n=0;for(const b of list)n+=b.t==='REP'?b.n*stepsOf(b.body):b.t==='IF'?stepsOf(b.body):1;return n}
+function strip(list){return list.map(b=>b.t==='REP'?{t:'REP',n:b.n,body:strip(b.body)}:b.t==='IF'?{t:'IF',body:strip(b.body)}:{t:b.t})}
+function withIds(list){return list.map(b=>b.t==='REP'?mk('REP',{n:b.n,body:withIds(b.body||[])}):b.t==='IF'?mk('IF',{body:withIds(b.body||[])}):mk(b.t))}
+/* bezpečné převzetí programu od žáka */
+function sanitize(raw,set){
+  let list;try{list=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return []}
+  const clean=(l,depth)=>{const out=[];if(!Array.isArray(l))return out;for(const b of l.slice(0,40)){if(!b)continue;
+    if(ACT.includes(b.t))out.push(mk(b.t));
+    else if(b.t==='IF'&&set.beast){out.push(mk('IF',{body:clean(b.body,depth+1).filter(x=>ACT.includes(x.t)).slice(0,1)}))}
+    else if(b.t==='REP'&&depth<2){out.push(mk('REP',{n:Math.max(2,Math.min(9,parseInt(b.n)||2)),body:clean(b.body,depth+1).slice(0,set.forMax)}))}}return out};
+  const all=clean(list,0);const res=[];let used=0;for(const b of all){const c=cost(b);if(used+c>set.maxBlocks)break;res.push(b);used+=c}return res;
+}
+function* exec(list,w,ri){for(const n of list){if(n.t==='REP'){for(let k=0;k<n.n;k++)yield* exec(n.body,w,ri)}else if(n.t==='IF'){const r=w.robots[ri];if(blocked(w,r.x+DX[r.d],r.y+DY[r.d]))yield* exec(n.body,w,ri)}else yield n}}
+function stepWorld(w,acts,order,ev){
+  const collect=r=>{const k=r.x+','+r.y;
+    if(w.coins.has(k)){w.coins.delete(k);const v=w.big&&w.big.has(k)?4:1;if(v>1)w.big.delete(k);r.score+=v;ev&&ev.push({t:'coin',a:r.i})}
+    if(w.knives&&w.knives.has(k)){w.knives.delete(k);r.knife=true;ev&&ev.push({t:'knife',a:r.i})}};
+  for(const i of order){
+    const a=acts[i];if(!a)continue;const r=w.robots[i];if(r.out)continue;
+    if(a.t==='L'){r.d=(r.d+3)%4;r.rot-=90}
+    else if(a.t==='R'){r.d=(r.d+1)%4;r.rot+=90}
+    else{
+      const tx=r.x+DX[r.d],ty=r.y+DY[r.d];
+      if(blocked(w,tx,ty)){ev&&ev.push({t:'bump',a:i});continue}
+      const o=robotAt(w,tx,ty);
+      if(o&&(r.knife||o.knife)){
+        if(r.knife&&o.knife){r.knife=false;o.knife=false;ev&&ev.push({t:'clash',a:i,b:o.i});continue}
+        if(r.knife){o.out=true;ev&&ev.push({t:'kill',a:i,b:o.i});r.x=tx;r.y=ty;collect(r);continue}
+        r.out=true;ev&&ev.push({t:'kill',a:o.i,b:i});continue;
+      }
+      if(o){
+        if(r.score<o.score){ev&&ev.push({t:'weak',a:i,b:o.i});continue}
+        const px=tx+DX[r.d],py=ty+DY[r.d];
+        if(blocked(w,px,py)||robotAt(w,px,py)){ev&&ev.push({t:'stuck',a:i,b:o.i});continue}
+        o.x=px;o.y=py;ev&&ev.push({t:'push',a:i,b:o.i});collect(o);
+      }
+      r.x=tx;r.y=ty;collect(r);
+    }
+  }
+}
+
+/* ===================== Editor (žák i simulátor) ===================== */
+const ED={
+  tut:{steps:'tutSteps',maxSteps:12,key:'tut',prog:[],target:'main',max:6,forMax:3,locked:false,pal:'tutPal',el:'tutProg',hint:'tutHint',py:null,python:false,root:'edTut'},
+  game:{steps:'gSteps',maxSteps:25,key:'game',prog:[],target:'main',max:8,forMax:3,locked:false,pal:'gPal',el:'gProg',hint:'gHint',py:'gPy',python:false,root:'edGame',onChange:()=>studentChanged()}
+};
+function container(ctx,key){return containerIn(ctx.prog,key)}
+function canPlace(ctx,node,key,isMove){
+  const list=container(ctx,key);if(!list)return 'Sem příkaz nejde vložit.';
+  if(isMove&&key!=='main'){const kid=+key.split(':')[0];if(kid===node.id||findNode([node],kid))return 'Cyklus nejde vložit sám do sebe.'}
+  const others=list.filter(b=>b.id!==node.id).length;
+  if(!isMove&&node.t==='IF'&&!ctx.beast)return 'If wall je jen v Beast Mode.';
+  const owner=key==='main'?null:findNode(ctx.prog,+key.split(':')[0]);
+  if(owner&&owner.t==='IF'){
+    if(!ACT.includes(node.t))return 'Do If wall patří jen Move, Turn R nebo Turn L.';
+    if(others>=1)return 'Do If wall se vejde jen jeden příkaz.';
+  }else if(key!=='main'){
+    if(others>=ctx.forMax)return `Do jednoho cyklu se vejdou nejvýš ${ctx.forMax} příkazy.`;
+    if(keyDepth(ctx.prog,key)+forDepth(node)>2)return 'Cyklus jde do cyklu vnořit jen jednou.';
+  }
+  const sim=JSON.parse(JSON.stringify(ctx.prog));
+  placeOp(sim,isMove?null:JSON.parse(JSON.stringify(node)),key,0,isMove?node.id:null);
+  if(countBlocks(sim)>ctx.max)return node.t==='REP'&&!isMove?`Cyklus zabere aspoň 2 příkazy a program má nejvýš ${ctx.max}.`:`Program má nejvýš ${ctx.max} příkazů.`;
+  return '';
+}
+function placeOp(prog,node,key,idx,moveId){
+  if(moveId!=null){const p=findParent(prog,moveId);node=p.list.splice(p.i,1)[0];const tl=containerIn(prog,key);if(p.list===tl&&p.i<idx)idx--}
+  const list=containerIn(prog,key);list.splice(Math.min(idx,list.length),0,node);return node;
+}
+function limitOf(ctx,key){if(key==='main')return 1e9;const o=findNode(ctx.prog,+key.split(':')[0]);return o&&o.t==='IF'?1:ctx.forMax}
+function afterAdd(ctx,node,key){
+  if(node.t==='REP'||node.t==='IF'){ctx.target=node.id+':body';return}
+  if(key==='main'||container(ctx,key).length<limitOf(ctx,key))return;
+  const p=findParent(ctx.prog,+key.split(':')[0]);ctx.target=p?p.key:'main';
+  if(ctx.target!=='main'&&container(ctx,ctx.target).length>=limitOf(ctx,ctx.target))ctx.target='main';
+}
+function changed(ctx){renderEditor(ctx);ctx.onChange&&ctx.onChange()}
+function addBlock(ctx,t){
+  if(ctx.locked)return;
+  let key=ctx.target;if(!container(ctx,key)){key='main';ctx.target='main'}
+  const node=freshNode(t);const why=canPlace(ctx,node,key,false);if(why){toast(why);return}
+  placeOp(ctx.prog,node,key,container(ctx,key).length,null);afterAdd(ctx,node,key);changed(ctx);
+}
+function deleteNode(ctx,id){
+  const p=findParent(ctx.prog,id);if(!p)return;const b=p.list[p.i];
+  const snap={prog:JSON.stringify(ctx.prog),target:ctx.target};
+  p.list.splice(p.i,1);if(!container(ctx,ctx.target))ctx.target='main';
+  toast(`Smazáno: ${NAME[b.t]}`,()=>{ctx.prog=JSON.parse(snap.prog);ctx.target=snap.target;changed(ctx)});
+}
+function progAction(ctx,id,a){
+  if(ctx.locked)return;
+  const p=findParent(ctx.prog,id);if(!p)return;const b=p.list[p.i];
+  if(a==='del')deleteNode(ctx,id);
+  if(a==='up'&&p.i>0)[p.list[p.i-1],p.list[p.i]]=[p.list[p.i],p.list[p.i-1]];
+  if(a==='down'&&p.i<p.list.length-1)[p.list[p.i+1],p.list[p.i]]=[p.list[p.i],p.list[p.i+1]];
+  if(a==='plus')b.n=Math.min(9,b.n+1);
+  if(a==='minus')b.n=Math.max(2,b.n-1);
+  changed(ctx);
+}
+function rowActs(b,edit){if(!edit)return '';return `<span class="acts"><button class="mini" data-a="up" data-id="${b.id}" title="Posunout nahoru" aria-label="Posunout nahoru">${ic('up')}</button><button class="mini" data-a="down" data-id="${b.id}" title="Posunout dolů" aria-label="Posunout dolů">${ic('down')}</button><button class="mini" data-a="del" data-id="${b.id}" title="Smazat" aria-label="Smazat">${ic('x')}</button></span>`}
+function renderList(ctx,list,key,ro){
+  const edit=!ro;let h='';
+  list.forEach((b,i)=>{
+    const at=`data-id="${b.id}" data-k="${key}" data-idx="${i}" data-t="${b.t}"${edit?' data-drag="move"':''}`;
+    const act=ctx&&ctx.active===b.id?' active':'';
+    const hdl=edit?`<span class="hdl" aria-hidden="true">${ic('grip')}</span>`:'';
+    h+=`<div class="item">`;
+    if(b.t==='REP'){
+      const n=edit?`<button class="mini" data-a="minus" data-id="${b.id}" aria-label="Méně">${ic('minus')}</button><span class="val">${b.n}</span><button class="mini" data-a="plus" data-id="${b.id}" aria-label="Více">${ic('plus')}</button>`:`<b>${b.n}</b>`;
+      h+=`<div class="blk c-rep" ${at}>${hdl}${ic('REP')}<span class="lbl">For ${n}${edit?'':'×'}</span>${rowActs(b,edit)}</div>`;
+      h+=`<div class="inner">${renderList(ctx,b.body,b.id+':body',ro)}${edit&&b.body.length<ctx.forMax?`<button class="add${ctx.target===b.id+':body'?' sel':''}" data-k="${b.id}:body" data-idx="${b.body.length}">+ (${b.body.length}/${ctx.forMax})</button>`:''}${ro&&!b.body.length?'<div class="tag">(prázdné)</div>':''}</div>`;
+    }else if(b.t==='IF'){
+      h+=`<div class="blk c-if" ${at}>${hdl}${ic('IF')}<span class="lbl">If wall</span>${rowActs(b,edit)}</div>`;
+      h+=`<div class="inner if">${renderList(ctx,b.body,b.id+':body',ro)}${edit&&!b.body.length?`<button class="add${ctx.target===b.id+':body'?' sel':''}" data-k="${b.id}:body" data-idx="0">+ (0/1)</button>`:''}${ro&&!b.body.length?'<div class="tag">(prázdné)</div>':''}</div>`;
+    }else h+=`<div class="blk ${CLS[b.t]}${act}" ${at}>${hdl}${ic(b.t)}<span class="lbl">${NAME[b.t]}</span>${rowActs(b,edit)}</div>`;
+    h+='</div>';
+  });
+  return h;
+}
+function renderEditor(ctx){
+  $(ctx.root).classList.toggle('locked',ctx.locked);
+  $(ctx.pal).innerHTML=['F','R','L','REP'].concat(ctx.beast?['IF']:[]).map(t=>`<button class="pal ${CLS[t]}" data-add="${t}" data-drag="add">${ic(t)}${NAME[t]}</button>`).join('');
+  const used=countBlocks(ctx.prog);
+  let h=renderList(ctx,ctx.prog,'main',ctx.locked);
+  if(!ctx.locked){const free=Math.max(0,ctx.max-used);for(let k=0;k<free;k++)h+=`<button class="add${ctx.target==='main'?' sel':''}" data-k="main" data-idx="${ctx.prog.length}">${used+k+1}</button>`}
+  if(ctx.locked&&!ctx.prog.length)h='<div class="hint">Program je prázdný.</div>';
+  $(ctx.el).innerHTML=h;
+  if(ctx.steps){const k=stepsOf(ctx.prog),mx=ctx.maxSteps;const el=$(ctx.steps);el.className='steps'+(k>mx?' over':'');el.innerHTML=`<b>${k} / ${mx}</b><br>kroků`;el.title=k>mx?`Program má ${k} kroků, provede se jen prvních ${mx}.`:''}
+  if(ctx.py)$(ctx.py).innerHTML=ctx.python?`<div class="code mono">${pyHtml(ctx.prog)}</div>`:'';
+}
+function py(list,ind){if(!list.length)return ind+'<span class="kw">pass</span>\n';let s='';
+  for(const b of list){if(b.t==='F')s+=ind+'<span class="fn">forward</span>()\n';else if(b.t==='L')s+=ind+'<span class="fn">turn_left</span>()\n';else if(b.t==='R')s+=ind+'<span class="fn">turn_right</span>()\n';
+    else if(b.t==='IF')s+=`${ind}<span class="kw">if</span> <span class="fn">wall_ahead</span>():\n`+py(b.body,ind+'    ');
+    else s+=`${ind}<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(${b.n}):\n`+py(b.body,ind+'    ')}return s}
+function pyHtml(list){return list.length?py(list,'').trimEnd():'<span class="cm"># empty program</span>'}
+
+/* klikání v editoru */
+document.addEventListener('click',e=>{
+  if(suppressClick)return;
+  const root=e.target.closest('[data-ed]');if(!root)return;const ctx=ED[root.dataset.ed];
+  const pal=e.target.closest('[data-add]');if(pal){addBlock(ctx,pal.dataset.add);return}
+  const a=e.target.closest('[data-a]');if(a){progAction(ctx,+a.dataset.id,a.dataset.a);return}
+  const k=e.target.closest('.add[data-k]');if(k&&!ctx.locked){ctx.target=k.dataset.k;renderEditor(ctx)}
+});
+
+/* přetahování myší i prstem (pointer events) */
+let PD=null,suppressClick=false;
+function dropTargetAt(ctx,x,y){
+  const el=document.elementFromPoint(x,y);if(!el)return null;
+  const progEl=$(ctx.el);
+  if(PD.kind==='move'&&el.closest('#'+ctx.pal))return {trash:true,el:$(ctx.pal)};
+  const t=el.closest('.blk,.add');if(!t||!progEl.contains(t))return null;
+  if(t.classList.contains('add'))return {el:t,key:t.dataset.k,idx:+t.dataset.idx,cls:'drop-in'};
+  const r=t.getBoundingClientRect(),lower=y>r.top+r.height/2;
+  if(lower&&(t.dataset.t==='REP'||t.dataset.t==='IF'))return {el:t,key:t.dataset.id+':body',idx:0,cls:'drop-bot'};
+  return {el:t,key:t.dataset.k,idx:+t.dataset.idx+(lower?1:0),cls:lower?'drop-bot':'drop-top'};
+}
+function clearDrop(){document.querySelectorAll('.drop-top,.drop-bot,.drop-in').forEach(e=>e.classList.remove('drop-top','drop-bot','drop-in'));document.querySelectorAll('.palette.trash').forEach(e=>e.classList.remove('trash'))}
+function beginPD(src,x,y){
+  const root=src.closest('[data-ed]');if(!root)return null;const ctx=ED[root.dataset.ed];if(!ctx||ctx.locked)return null;
+  return {ctx,kind:src.dataset.drag,t:src.dataset.add,id:src.dataset.id?+src.dataset.id:null,x0:x,y0:y,started:false,src};
+}
+function moveDrag(x,y){
+  PD.ghost.style.transform=`translate(${x-PD.gx}px,${y-PD.gy}px)`;
+  clearDrop();PD.drop=null;PD.why=null;
+  const t=dropTargetAt(PD.ctx,x,y);
+  if(t){
+    if(t.trash){t.el.classList.add('trash');PD.drop=t}
+    else{const node=PD.kind==='move'?findNode(PD.ctx.prog,PD.id):{id:-1,t:PD.t,n:3,body:[]};
+      const why=canPlace(PD.ctx,node,t.key,PD.kind==='move');if(!why){t.el.classList.add(t.cls);PD.drop=t}else PD.why=why}
+  }
+  PD.sy=y<80?-12:y>innerHeight-80?12:0;
+}
+function startDrag(){
+  PD.started=true;
+  const r=PD.src.getBoundingClientRect();
+  const g=PD.src.cloneNode(true);g.classList.add('ghost');g.classList.remove('held');g.style.width=r.width+'px';g.style.height=r.height+'px';
+  g.querySelectorAll('.acts').forEach(a=>a.remove());document.body.appendChild(g);
+  PD.ghost=g;PD.gx=PD.x0-r.left;PD.gy=PD.y0-r.top;
+  if(PD.kind==='move'){const it=PD.src.closest('.item');it&&it.classList.add('dragging')}
+  PD.scrollT=setInterval(()=>{if(PD&&PD.sy){window.scrollBy(0,PD.sy)}},30);
+}
+function endDrag(){clearDrop();if(PD){if(PD.ghost)PD.ghost.remove();clearInterval(PD.scrollT);clearTimeout(PD.timer);PD.src&&PD.src.classList.remove('held')}document.querySelectorAll('.dragging').forEach(e=>e.classList.remove('dragging'))}
+function finishDrag(){
+  const pd=PD;endDrag();PD=null;suppressClick=true;setTimeout(()=>suppressClick=false,350);
+  const ctx=pd.ctx;if(ctx.locked)return;
+  if(!pd.drop){if(pd.why)toast(pd.why);return}
+  if(pd.drop.trash){deleteNode(ctx,pd.id);changed(ctx);return}
+  const isMove=pd.kind==='move';const node=isMove?findNode(ctx.prog,pd.id):freshNode(pd.t);
+  if(canPlace(ctx,node,pd.drop.key,isMove))return;
+  placeOp(ctx.prog,isMove?null:node,pd.drop.key,pd.drop.idx,isMove?node.id:null);
+  if(!isMove)afterAdd(ctx,node,pd.drop.key);
+  changed(ctx);
+}
+/* myš */
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='mouse'||e.button>0)return;
+  const src=e.target.closest('[data-drag]');if(!src||e.target.closest('button.mini'))return;
+  PD=beginPD(src,e.clientX,e.clientY);
+});
+document.addEventListener('pointermove',e=>{
+  if(!PD||PD.touch)return;
+  if(!PD.started){if(Math.hypot(e.clientX-PD.x0,e.clientY-PD.y0)<6)return;startDrag()}
+  e.preventDefault();moveDrag(e.clientX,e.clientY);
+});
+document.addEventListener('pointerup',()=>{if(!PD||PD.touch)return;if(PD.started)finishDrag();else PD=null});
+/* dotyk: podrž příkaz a táhni (za úchyt hned) */
+document.addEventListener('touchstart',e=>{
+  if(e.touches.length>1){if(PD){endDrag();PD=null}return}
+  const t=e.touches[0];const src=e.target.closest('[data-drag]');if(!src||e.target.closest('button.mini'))return;
+  PD=beginPD(src,t.clientX,t.clientY);if(!PD)return;
+  PD.touch=true;PD.lx=t.clientX;PD.ly=t.clientY;
+  const arm=()=>{if(!PD)return;PD.armed=true;src.classList.add('held');if(navigator.vibrate)try{navigator.vibrate(12)}catch(err){}};
+  if(e.target.closest('.hdl'))arm();else PD.timer=setTimeout(arm,250);
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(!PD||!PD.touch)return;const t=e.touches[0];PD.lx=t.clientX;PD.ly=t.clientY;
+  if(!PD.armed){if(Math.hypot(t.clientX-PD.x0,t.clientY-PD.y0)>8){clearTimeout(PD.timer);PD=null}return}
+  e.preventDefault();
+  if(!PD.started)startDrag();
+  moveDrag(t.clientX,t.clientY);
+},{passive:false});
+document.addEventListener('touchend',e=>{
+  if(!PD||!PD.touch)return;clearTimeout(PD.timer);
+  if(PD.armed){e.preventDefault();if(PD.started)finishDrag();else{endDrag();PD=null;suppressClick=true;setTimeout(()=>suppressClick=false,350)}}
+  else PD=null;
+},{passive:false});
+document.addEventListener('touchcancel',()=>{if(PD){endDrag();PD=null}});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-drag]'))e.preventDefault()});
+
+/* ===================== Hrací plocha ===================== */
+function colorOf(ci){return `var(--p${ci%30})`}
+function Board(el,W,H){
+  const b={el,W,H,cells:[],toks:{},cell:40,gap:3,pad:8};
+  b.build=()=>{el.innerHTML='';b.cells=[];b.toks={};el.style.gridTemplateColumns=`repeat(${W},var(--c))`;el.style.gridTemplateRows=`repeat(${H},var(--c))`;
+    for(let i=0;i<W*H;i++){const c=document.createElement('div');c.className='cell';el.appendChild(c);b.cells.push(c)}};
+  b.size=cell=>{b.cell=cell;el.style.setProperty('--c',cell+'px');el.style.setProperty('--gap',b.gap+'px');el.style.setProperty('--pad',b.pad+'px');el.style.setProperty('--lf',Math.round(cell*0.29)+'px');el.style.setProperty('--sf',Math.round(cell*0.22)+'px')};
+  b.fit=(w,h)=>{b.size(Math.max(16,Math.min(90,Math.floor(Math.min((w-2*b.pad-(W-1)*b.gap)/W,(h-2*b.pad-(H-1)*b.gap)/H)))))};
+  b.render=(w,trails,fx,lead,showScore)=>{
+    const tm={};(trails||[]).forEach((t,i)=>t.forEach(k=>{(tm[k]=tm[k]||new Set()).add(i)}));
+    const n=w.robots.length||1;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=x+','+y,c=b.cells[y*W+x];c.className='cell'+(w.walls.has(k)?' wall':'');
+      let h=w.coins.has(k)?(w.big&&w.big.has(k)?'<span class="coin big">4</span>':'<span class="coin"></span>'):'';
+      if(w.knives&&w.knives.has(k))h+=knifeSvg('knife');
+      if(tm[k])for(const i of tm[k]){const a=i/n*2*Math.PI,r=w.robots[i];if(!r)continue;h+=`<span class="tr" style="background:${colorOf(r.ci)};left:calc(50% + ${Math.round(Math.sin(a)*38)}% - 1.5px);top:calc(50% - ${Math.round(Math.cos(a)*38)}% - 1.5px)"></span>`}
+      c.innerHTML=h}
+    const ids=new Set(w.robots.filter(r=>!r.out).map(r=>r.id));
+    for(const id in b.toks)if(!ids.has(id)){b.toks[id].remove();delete b.toks[id]}
+    const k=b.cell*0.08;
+    w.robots.forEach((r,i)=>{
+      if(r.out)return;
+      let e=b.toks[r.id];
+      if(!e){e=document.createElement('div');e.className='bot';e.innerHTML=`<svg class="arw" viewBox="0 0 100 100"><path d="${ARROW}"/></svg><span class="lab"><b></b><small></small></span>${CROWN}${knifeSvg('kb')}`;el.appendChild(e);b.toks[r.id]=e}
+      e.classList.toggle('has-knife',!!r.knife);
+      const p=e.querySelector('path');p.style.fill=colorOf(r.ci);p.style.stroke=colorOf(r.ci);
+      e.querySelector('.lab b').textContent=r.label;e.querySelector('.lab small').textContent=showScore?r.score:'';
+      e.style.left=(b.pad+r.x*(b.cell+b.gap))+'px';e.style.top=(b.pad+r.y*(b.cell+b.gap))+'px';
+      e.querySelector('.arw').style.transform=`rotate(${r.rot}deg)`;
+      e.querySelector('.lab').style.transform=`translate(${-DX[r.d]*k}px,${-DY[r.d]*k}px)`;
+      e.classList.toggle('bump',!!fx&&fx[i]==='bump');e.classList.toggle('pushed',!!fx&&fx[i]==='pushed');e.classList.toggle('lead',!!lead&&lead.has(r.id));
+    });
+  };
+  return b;
+}
+function tokenHtml(label,score,ci,size,lead){return `<div class="bot${lead?' lead':''}" style="width:${size}px;height:${size}px;position:relative;--lf:${Math.round(size*0.3)}px;--sf:${Math.round(size*0.22)}px"><svg class="arw" viewBox="0 0 100 100"><path d="${ARROW}" style="fill:${colorOf(ci)};stroke:${colorOf(ci)}"/></svg><span class="lab" style="transform:translateY(${Math.round(size*0.08)}px)"><b>${label}</b>${score==null?'':`<small>${score}</small>`}</span>${CROWN}</div>`}
+
+/* ===================== Datová vrstva: Firebase / ukázkový režim ===================== */
+let B=null;
+async function backend(){
+  if(B)return B;
+  B=DEMO?demoBackend():await fbBackend();
+  return B;
+}
+async function fbBackend(){
+  const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  const [{initializeApp},au,fs]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+  const app=initializeApp(FB_CONFIG);const auth=au.getAuth(app);const db=fs.getFirestore(app);
+  let uid=null;
+  const ready=new Promise((res,rej)=>{au.onAuthStateChanged(auth,u=>{if(u){uid=u.uid;res(uid)}});au.signInAnonymously(auth).catch(rej)});
+  const mainRef=fs.doc(db,'arena','main');
+  const pl=id=>fs.doc(db,'arena','main','players',id),pr=id=>fs.doc(db,'arena','main','programs',id);
+  const coll=(name,cb)=>fs.onSnapshot(fs.collection(db,'arena','main',name),qs=>{const o={};qs.forEach(d=>o[d.id]=d.data());cb(o)},e=>console.warn(e));
+  return {demo:false,init:()=>ready,
+    join:async id=>{await ready;await fs.setDoc(pl(id),{uid,name:id,joinedAt:Date.now(),beat:Date.now()},{merge:true})},
+    beat:id=>fs.updateDoc(pl(id),{beat:Date.now()}).catch(()=>{}),
+    send:async(id,d)=>{await ready;await fs.setDoc(pr(id),Object.assign({uid},d))},
+    setMain:async d=>{await ready;await fs.setDoc(mainRef,d)},
+    kick:async id=>{await fs.deleteDoc(pr(id)).catch(()=>{});await fs.deleteDoc(pl(id))},
+    onMain:cb=>fs.onSnapshot(mainRef,s=>cb(s.exists()?s.data():null),e=>console.warn(e)),
+    onPlayers:cb=>coll('players',cb),onPrograms:cb=>coll('programs',cb),
+    onPlayer:(id,cb)=>fs.onSnapshot(pl(id),s=>cb(s.exists()?s.data():null),e=>console.warn(e))};
+}
+function demoBackend(){
+  const K='scode:arena:demo';
+  const empty=()=>({main:null,players:{},programs:{}});
+  const load=()=>{try{return JSON.parse(localStorage.getItem(K))||empty()}catch(e){return empty()}};
+  let uid=ss.get('demouid',null);if(!uid){uid='u'+Math.random().toString(36).slice(2,9);ss.set('demouid',uid)}
+  const subs=[];const emit=()=>{const db=load();subs.slice().forEach(s=>s(db))};
+  window.addEventListener('storage',e=>{if(e.key===K)emit()});
+  const save=fn=>{const db=load();fn(db);localStorage.setItem(K,JSON.stringify(db));setTimeout(emit,0)};
+  const sub=(pick,cb)=>{let last;const f=db=>{const v=pick(db);const s=JSON.stringify(v);if(s!==last){last=s;cb(v==null?null:JSON.parse(s))}};subs.push(f);setTimeout(()=>f(load()),0);return ()=>{const i=subs.indexOf(f);if(i>=0)subs.splice(i,1)}};
+  return {demo:true,init:async()=>uid,
+    join:async id=>{const p=load().players[id];if(p&&p.uid!==uid){const e=new Error('taken');e.code='permission-denied';throw e}save(db=>{db.players[id]=Object.assign({},db.players[id],{uid,name:id,joinedAt:Date.now(),beat:Date.now()})})},
+    beat:async id=>save(db=>{if(db.players[id])db.players[id].beat=Date.now()}),
+    send:async(id,d)=>save(db=>{db.programs[id]=Object.assign({uid},d)}),
+    setMain:async d=>save(db=>{db.main=d}),
+    kick:async id=>save(db=>{delete db.players[id];delete db.programs[id]}),
+    onMain:cb=>sub(db=>db.main,cb),onPlayers:cb=>sub(db=>db.players,cb),onPrograms:cb=>sub(db=>db.programs,cb),
+    onPlayer:(id,cb)=>sub(db=>db.players[id]||null,cb)};
+}
+
+/* ===================== Pohledy ===================== */
+function show(v){['vStart','vStudent','vTeacher'].forEach(x=>$(x).classList.toggle('on',x===v));document.body.classList.toggle('t-mode',v==='vTeacher')}
+let tToast=null;
+function toast(msg,undo){
+  const t=$('toast');t.innerHTML=`<span>${msg}</span>`+(undo?'<button>Vrátit</button>':'');
+  if(undo)t.querySelector('button').onclick=()=>{undo();t.classList.remove('show')};
+  t.classList.add('show');clearTimeout(tToast);tToast=setTimeout(()=>t.classList.remove('show'),undo?5000:3200);
+}
+function plural(n,a,b,c){return n===1?a:n>1&&n<5?b:c}
+
+/* ===================== Simulátor (tutoriál) ===================== */
+const TUT={W:7,H:5,running:false};
+function tutWorld(){return {W:7,H:5,walls:new Set(['4,1','4,3','2,4','2,0']),coins:new Set(['3,2','6,2','5,0','6,4','1,1']),robots:[{id:'me',label:'TY',i:0,ci:0,x:0,y:2,d:1,rot:90,score:0}]}}
+let tutB=null;
+function initTutorial(){
+  tutB=Board($('tutBoard'),7,5);tutB.gap=3;tutB.pad=6;tutB.build();
+  resetTutorial();
+}
+function resetTutorial(){
+  TUT.w=tutWorld();TUT.running=false;ED.tut.locked=false;ED.tut.active=null;
+  const w=Math.min(420,$('tut').clientWidth-36);if(w>0)tutB.fit(w,w*5/7);
+  tutB.render(TUT.w,null,null,null,true);renderEditor(ED.tut);
+  $('tutMsg').innerHTML='';$('tutRun').style.display='';$('tutAgain').style.display='none';
+}
+$('trainBtn').onclick=()=>{const open=$('tut').style.display==='none';$('tut').style.display=open?'':'none';$('trainBtn').classList.toggle('primary',!open);if(open){resetTutorial();$('tut').scrollIntoView({behavior:'smooth',block:'start'})}};
+$('tutAgain').onclick=()=>resetTutorial();
+$('tutRun').onclick=async()=>{
+  const ctx=ED.tut;if(TUT.running)return;
+  if(!ctx.prog.length){toast('Nejdřív poskládej program.');return}
+  TUT.running=true;ctx.locked=true;renderEditor(ctx);$('tutRun').style.display='none';
+  const w=TUT.w;const lab=($('jIn').value||'TY').toUpperCase().slice(0,2)||'TY';w.robots[0].label=lab;
+  const g=exec(ctx.prog,w,0);const trail=[[w.robots[0].x+','+w.robots[0].y]];let steps=0;
+  tutB.render(w,trail,null,null,true);await sleep(400);
+  while(steps<12){const v=g.next();if(v.done)break;ctx.active=v.value.id;const ev=[];stepWorld(w,[v.value],[0],ev);trail[0].push(w.robots[0].x+','+w.robots[0].y);steps++;
+    const fx=ev.some(e=>e.t==='bump')?['bump']:null;tutB.render(w,trail,fx,null,true);renderEditor(ctx);await sleep(550)}
+  ctx.active=null;renderEditor(ctx);tutB.render(w,trail,null,null,true);
+  const c=w.robots[0].score;
+  $('tutMsg').innerHTML=`<div class="tut-done">${steps} ${plural(steps,'krok','kroky','kroků')} · ${c} ${plural(c,'mince','mince','mincí')}</div>`;
+  $('tutAgain').style.display='';
+};
+
+/* ===================== Žák ===================== */
+const ST={id:null,round:null,sent:false,dirty:false,main:null,unsub:[],beatT:null};
+function normId(v){return (v||'').replace(/[^\p{L}]/gu,'').toUpperCase().slice(0,2)}
+$('jIn').addEventListener('input',e=>{const v=normId(e.target.value);if(e.target.value!==v)e.target.value=v;$('jErr').textContent=''});
+$('jIn').addEventListener('keydown',e=>{if(e.key==='Enter')join()});
+$('jBtn').onclick=()=>join();
+async function join(auto){
+  const id=auto||normId($('jIn').value);
+  if(id.length!==2){$('jErr').textContent='Napiš dvě písmena.';return}
+  $('jBtn').disabled=true;$('jBtn').textContent='Připojuji';$('jErr').textContent='';
+  try{
+    await backend();await B.init();
+    await B.join(id);
+    ST.id=id;ss.set('me',id);startStudent();
+  }catch(e){
+    console.warn(e);ss.del('me');
+    if(!auto)$('jErr').textContent=e&&e.code==='permission-denied'?`Iniciály ${id} už někdo používá. Zkus jiné.`:'Nepodařilo se připojit. Zkontroluj internet a zkus to znovu.';
+    show('vStart');
+  }finally{$('jBtn').disabled=false;$('jBtn').textContent='Vstup'}
+}
+function startStudent(){
+  show('vStudent');window.scrollTo(0,0);
+  ST.round=null;ST.sent=false;ST.dirty=false;
+  ST.unsub.push(B.onMain(m=>{ST.main=m;studentMain()}));
+  ST.unsub.push(B.onPlayer(ST.id,p=>{if(!p&&ST.id)leaveStudent(ST.main&&ST.main.phase==='closed'?'Hra skončila.':'Učitel tě odhlásil ze hry.')}));
+  clearInterval(ST.beatT);ST.beatT=setInterval(()=>{if(ST.id)B.beat(ST.id)},45000);
+  studentMain();
+}
+function leaveStudent(msg){
+  ST.unsub.forEach(u=>{try{u()}catch(e){}});ST.unsub=[];clearInterval(ST.beatT);
+  ST.id=null;ss.del('me');document.body.classList.remove('beast');ED.game.prog=[];ED.game.target='main';
+  show('vStart');$('jErr').textContent=msg||'';
+}
+function studentMain(){
+  const m=ST.main,ctx=ED.game;
+  if(m&&m.settings){const st=m.settings,e=st.eff||st;ctx.max=e.maxBlocks;ctx.forMax=st.forMax;ctx.python=!!st.python;ctx.maxSteps=e.maxSteps||25;ctx.beast=!!st.beast}
+  document.body.classList.toggle('beast',!!(m&&m.settings&&m.settings.beast&&m.phase!=='closed'));
+  const round=m?m.round:null;
+  if(m&&(round!==ST.round||m.gameId!==ST.gameId)){ST.round=round;ST.gameId=m.gameId;ctx.prog=[];ctx.target='main';ST.sent=false;ST.dirty=false}
+  const closed=!m||m.phase==='closed';
+  const me=m&&m.world?m.world.robots.find(r=>r.id===ST.id):null;
+  ctx.locked=!m||m.phase!=='plan'||!!(me&&me.out);
+  const sc=me?me.score:0;
+  let rank='';if(m&&m.world&&me){const sorted=m.world.robots.map(r=>r.score).sort((a,b)=>b-a);rank=` · ${sorted.indexOf(sc)+1}. místo z ${m.world.robots.length}`}
+  const lead=m&&m.world&&sc>0&&sc===Math.max(...m.world.robots.map(r=>r.score));
+  $('sTok').innerHTML=tokenHtml(ST.id||'',null,me?me.ci:0,44,lead);
+  $('sTitle').textContent=closed?'Aréna':`Kolo ${m.round}`;
+  $('sSub').textContent=`${sc} ${plural(sc,'mince','mince','mincí')}${rank}${me&&me.knife?' · máš nůž':''}${ctx.beast?' · Beast Mode':''}`;
+  const s=$('sStatus');s.className='s-status';s.style.display='';
+  if(closed){s.textContent='Aktuálně neprobíhá žádné kolo.'}
+  else if(m.phase==='end'){s.textContent='Hra skončila. Výsledky jsou na tabuli.'}
+  else if(me&&me.out){s.classList.add('run');s.textContent='Jsi vyřazený do konce hry.'}
+  else if(m.phase==='run'){s.classList.add('run');s.textContent='Kolo běží. Sleduj tabuli.'}
+  else if(ST.sent&&!ST.dirty){s.classList.add('ok');s.textContent='Odesláno ✓'}
+  else if(ST.sent&&ST.dirty){s.textContent='Upraveno, pošli znovu.'}
+  else{s.textContent='';s.style.display='none'}
+  const btn=$('sendBtn');btn.disabled=ctx.locked;btn.textContent=ST.sent&&!ST.dirty?'Odesláno':ST.sent?'Odeslat znovu':'Odeslat';
+  btn.classList.toggle('primary',!(ST.sent&&!ST.dirty));
+  renderEditor(ctx);
+}
+function studentChanged(){if(ST.sent){ST.dirty=true}studentMain()}
+$('sendBtn').onclick=async()=>{
+  const ctx=ED.game;if(ctx.locked||!ST.id)return;
+  if(!ctx.prog.length){toast('Nejdřív poskládej program.');return}
+  const btn=$('sendBtn');btn.disabled=true;btn.textContent='Odesílám';
+  try{await B.send(ST.id,{round:ST.round,gameId:ST.gameId||null,prog:JSON.stringify(strip(ctx.prog)),sentAt:Date.now()});ST.sent=true;ST.dirty=false;toast('Program odeslán.')}
+  catch(e){console.warn(e);toast('Nepodařilo se odeslat. Zkontroluj internet a zkus to znovu.')}
+  studentMain();
+};
+
+/* ===================== Učitel: vstup ===================== */
+$('toTeacher').onclick=()=>{$('ovPw').classList.add('show');$('pwIn').value='';$('pwErr').textContent='';setTimeout(()=>$('pwIn').focus(),50)};
+$('pwIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('pwOk').click()});
+$('pwOk').onclick=()=>{if($('pwIn').value===HESLO){$('ovPw').classList.remove('show');ss.set('ucitel',true);startTeacher()}else $('pwErr').textContent='Špatné heslo.'};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.overlay').classList.remove('show'));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('mousedown',e=>{if(e.target===o&&o.id!=='ovEnd')o.classList.remove('show')}));
+$('tLogout').onclick=()=>{ss.del('ucitel');location.href=location.pathname+location.search};
+
+/* ===================== Učitel: tabule ===================== */
+const T={main:null,world:null,players:{},programs:{},set:Object.assign({},DEF_SET),loaded:{main:false,players:false},running:false,pending:false,last:{},open:{},trails:null,fx:null,saveT:null};
+let tB=null;
+async function startTeacher(){
+  show('vTeacher');
+  T.url=(location.origin+location.pathname).replace(/index\.html$/,'')+(DEMO?'?demo=1':'');
+  tB=Board($('tBoard'),GW,GH);tB.build();
+  try{await backend();await B.init()}catch(e){console.warn(e);toast('Nepodařilo se připojit k databázi. Zkontroluj internet.');return}
+  B.onMain(m=>{if(!T.loaded.main){T.loaded.main=true;loadMain(m)}else if(m&&!T.running&&T.main&&m.gameId!==T.main.gameId){loadMain(m)}});
+  B.onPlayers(p=>{T.players=p||{};T.loaded.players=true;syncRobots();renderTeacher()});
+  B.onPrograms(p=>{T.programs=p||{};renderTeacher()});
+  setInterval(()=>{if(!T.running)renderPlayers()},15000);
+  window.addEventListener('resize',fitTeacher);
+}
+function ES(){const s=T.set;return s.beast?{maxBlocks:12,maxSteps:50,speed:Math.round(s.speed*0.45)}:{maxBlocks:s.maxBlocks,maxSteps:s.maxSteps,speed:s.speed}}
+function effSet(){return Object.assign({},T.set,ES())}
+function newGameId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function loadMain(m){
+  if(m&&m.world&&m.v===3&&m.phase!=='closed'){
+    T.main=m;T.set=Object.assign({},DEF_SET,m.settings||{});if(T.set.sv!==36){T.set.maxSteps=25;T.set.sv=36}
+    const mp=MAPS[m.world.map]||MAPS[0];
+    T.world={W:GW,H:GH,map:m.world.map,total:m.world.total,walls:mirror(mp.walls,GW,GH),coins:new Set(m.world.coins),big:new Set(m.world.big||[]),knives:new Set(m.world.knives||[]),robots:m.world.robots.map(r=>Object.assign({},r,{rot:r.d*90}))};
+  }else{newGame(false);saveMain()}
+  syncRobots();fitTeacher();renderTeacher();
+}
+function newGame(save=true){
+  const mp=MAPS[T.set.map]||MAPS[0];
+  const old=T.world?T.world.robots:[];
+  T.world={W:GW,H:GH,map:T.set.map,walls:mirror(mp.walls,GW,GH),coins:mirror(mp.coins,GW,GH),robots:[]};
+  T.world.big=T.set.beast?new Set([...mirror(mp.big||[],GW,GH)].filter(k=>T.world.coins.has(k))):new Set();
+  T.world.knives=T.set.beast?mirror(mp.knife||[],GW,GH):new Set();
+  T.world.total=T.world.coins.size;
+  for(const r of old){const n=Object.assign({},r,{score:0,knife:false,out:false});placeRobot(T.world,n);T.world.robots.push(n)}
+  T.main={v:3,gameId:newGameId(),phase:'plan',round:1,settings:Object.assign({},T.set),world:null};
+  T.trails=null;T.fx=null;T.last={};T.replay=null;
+  if(save)saveMain();
+}
+function perimeter(W,H){const p=[];for(let x=0;x<W;x++)p.push([x,0]);for(let y=1;y<H;y++)p.push([W-1,y]);for(let x=W-2;x>=0;x--)p.push([x,H-1]);for(let y=H-2;y>0;y--)p.push([0,y]);return p}
+function placeRobot(w,r){
+  let best=null,bd=-1;
+  for(const [x,y] of perimeter(w.W,w.H)){const k=x+','+y;if(w.walls.has(k)||w.coins.has(k)||(w.knives&&w.knives.has(k))||robotAt(w,x,y))continue;
+    let d=99;for(const o of w.robots)d=Math.min(d,Math.abs(o.x-x)+Math.abs(o.y-y));if(d>bd){bd=d;best=[x,y]}}
+  if(!best){outer:for(let y=0;y<w.H;y++)for(let x=0;x<w.W;x++)if(!blocked(w,x,y)&&!robotAt(w,x,y)&&!w.coins.has(x+','+y)){best=[x,y];break outer}}
+  const [x,y]=best||[0,0];r.x=x;r.y=y;r.d=y===0?2:y===w.H-1?0:x===0?1:3;r.rot=r.d*90;
+}
+function freeCi(w){const used=new Set(w.robots.map(r=>r.ci));let c=0;while(used.has(c))c++;return c}
+function botLevel(k){return T.set.botLvl==='mix'?['zacatecnik','stredni','chytry'][k%3]:T.set.botLvl}
+function syncRobots(){
+  if(!T.world||!T.loaded.players)return;
+  if(T.running){T.pending=true;return}
+  const w=T.world;const want=new Map();
+  Object.keys(T.players).sort((a,b)=>(T.players[a].joinedAt||0)-(T.players[b].joinedAt||0)).forEach(id=>want.set(id,{id,label:id,bot:false,lvl:null}));
+  BOTS.slice(0,T.set.bots).forEach((b,k)=>want.set('bot-'+b[1],{id:'bot-'+b[1],label:b[1],bot:true,lvl:botLevel(k)}));
+  let ch=false;
+  w.robots=w.robots.filter(r=>{if(want.has(r.id))return true;ch=true;return false});
+  for(const [id,o] of want){const ex=w.robots.find(r=>r.id===id);
+    if(!ex){const r=Object.assign({},o,{score:0,ci:freeCi(w)});placeRobot(w,r);w.robots.push(r);ch=true}
+    else if(ex.bot&&ex.lvl!==o.lvl){ex.lvl=o.lvl;ch=true}}
+  if(ch){T.trails=null;saveMainSoon()}
+}
+function worldDoc(){const w=T.world;return {map:w.map,total:w.total,coins:[...w.coins],big:[...(w.big||[])],knives:[...(w.knives||[])],robots:w.robots.map(r=>({id:r.id,label:r.label,x:r.x,y:r.y,d:r.d,score:r.score,ci:r.ci,bot:!!r.bot,lvl:r.lvl||null,knife:!!r.knife,out:!!r.out}))}}
+function saveMain(){clearTimeout(T.saveT);T.main.world=worldDoc();T.main.settings=Object.assign({},T.set,{eff:ES()});T.main.updatedAt=Date.now();return B.setMain(JSON.parse(JSON.stringify(T.main))).catch(e=>{console.warn(e);toast('Nepodařilo se uložit stav hry.')})}
+function saveMainSoon(){clearTimeout(T.saveT);T.saveT=setTimeout(saveMain,700)}
+function leaders(w){const m=Math.max(0,...w.robots.map(r=>r.score));return new Set(m>0?w.robots.filter(r=>r.score===m).map(r=>r.id):[])}
+function sentNow(id){const p=T.programs[id];return !!p&&p.round===T.main.round&&(!p.gameId||p.gameId===T.main.gameId)}
+function fitTeacher(){if(!T.world)return;const sh=$('tSheet');const full=sh.classList.contains('full');tB.fit(sh.clientWidth-(full?40:32),sh.clientHeight-(full?50:96));renderBoardT()}
+function renderBoardT(){if(!T.world)return;const rp=T.replay;if(rp&&rp.k<rp.frames.length-1&&!T.running){renderFrame();return}tB.render(T.world,T.trails,T.fx,leaders(T.world),true);renderReplay()}
+function snapFrame(w,fx){return {robots:w.robots.map(r=>Object.assign({},r)),coins:[...w.coins],big:[...(w.big||[])],knives:[...(w.knives||[])],fx:Object.assign({},fx||{})}}
+function renderFrame(){const rp=T.replay,f=rp.frames[rp.k];const w={W:GW,H:GH,walls:T.world.walls,coins:new Set(f.coins),big:new Set(f.big||[]),knives:new Set(f.knives||[]),robots:f.robots};
+  const tr=f.robots.map((r,i)=>rp.frames.slice(0,rp.k+1).map(fr=>fr.robots[i]?fr.robots[i].x+','+fr.robots[i].y:null).filter(Boolean));
+  tB.render(w,tr,rp.k?f.fx:null,leaders(w),true);renderReplay()}
+function renderReplay(){const rp=T.replay;const has=rp&&rp.frames.length>1&&!T.running;
+  $('rpPrev').disabled=!has||rp.k<=0;$('rpNext').disabled=!has||rp.k>=rp.frames.length-1;
+  $('rpLabel').innerHTML=has?`Krok <b>${rp.k}</b> / ${rp.frames.length-1}`:'Krokování po kole'}
+function replayGo(d){const rp=T.replay;if(!rp||T.running)return;const k=Math.max(0,Math.min(rp.frames.length-1,rp.k+d));if(k===rp.k)return;rp.k=k;renderBoardT()}
+$('rpPrev').onclick=()=>replayGo(-1);$('rpNext').onclick=()=>replayGo(1);
+function renderTeacher(){if(!T.main||!T.world)return;$('vTeacher').classList.toggle('beast',!!T.set.beast);document.body.classList.toggle('beast',!!T.set.beast);$('tbBeast').textContent=T.set.beast?'Back to normal':'Beast Mode';renderBar();renderPlayers();renderBoardT();
+  $('tLegend').textContent=`Mapa: ${MAPS[T.world.map].name}`}
+function renderBar(){
+  const m=T.main,w=T.world;const studs=Object.keys(T.players);const sent=studs.filter(sentNow).length;
+  $('tStats').innerHTML=`<div class="stat"><small>Kolo</small><b>${m.round}</b></div><div class="stat"><small>Odesláno</small><b>${sent} / ${studs.length}</b></div><div class="stat"><small>Mince na mapě</small><b>${w.coins.size} / ${w.total}</b></div>`;
+  $('tAct').innerHTML=m.phase==='end'?`<button class="btn" data-tb="results">Výsledky</button> <button class="btn primary" data-tb="new">${ic('refresh')}Nová hra</button>`:`<button class="btn primary" data-tb="run"${T.running?' disabled':''}>${ic('play')}Spustit kolo</button>`;
+}
+$('tAct').addEventListener('click',e=>{const b=e.target.closest('[data-tb]');if(!b)return;
+  if(b.dataset.tb==='run')runRound();
+  if(b.dataset.tb==='results')showEnd();
+  if(b.dataset.tb==='new'){newGame();syncRobots();fitTeacher();renderTeacher()}});
+let qrLib=null;
+function loadQr(){if(window.qrcode)return Promise.resolve();if(qrLib)return qrLib;
+  qrLib=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';sc.onload=res;sc.onerror=()=>{qrLib=null;rej()};document.head.appendChild(sc)});return qrLib}
+$('tQr').onclick=async()=>{
+  const url=T.url||location.href;$('qrUrl').textContent=url.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  $('qrBox').innerHTML='';$('ovQr').classList.add('show');
+  try{await loadQr();const q=qrcode(0,'M');q.addData(url);q.make();$('qrBox').innerHTML=q.createSvgTag({cellSize:8,margin:2,scalable:true})}
+  catch(e){$('qrBox').innerHTML='<div style="color:#1F2328;padding:30px;text-align:center">QR kód se nepodařilo načíst. Žáci můžou adresu opsat.</div>'}
+};
+function renderPlayers(){
+  const ids=Object.keys(T.players).sort((a,b)=>a.localeCompare(b,'cs'));
+  $('tCount').textContent=ids.length?`${ids.length} ${plural(ids.length,'připojený','připojení','připojených')}`:'';
+  const lead=T.world?leaders(T.world):new Set();
+  let h='';
+  if(!ids.length)h=`<div class="empty">Zatím se nikdo nepřipojil. Ukaž žákům QR kód (tlačítko QR nahoře).</div>`;
+  for(const id of ids){
+    const p=T.players[id];const r=T.world?T.world.robots.find(x=>x.id===id):null;
+    const online=Date.now()-(p.beat||0)<120000;const s=sentNow(id);
+    h+=`<div class="prow${online&&!(r&&r.out)?'':' off'}${r&&r.out?' out':''}" title="${r&&r.out?'Vyřazen do konce hry':s?'Program odeslán':'Program zatím neodeslán'}${online?'':' · offline'}"><div class="prow-h"><span class="dot${s?' ok':''}"></span><span class="chip" style="background:${colorOf(r?r.ci:0)}">${id}</span>${lead.has(id)?crownI:''}${r&&r.knife?knifeSvg('kn'):''}<span class="gap"></span><span class="sc">${r?r.score:0}</span>
+      <button class="mini" data-pv="${id}" title="Program z minulého kola" aria-label="Program">${ic('code')}</button><button class="mini" data-kick="${id}" title="Odhlásit žáka" aria-label="Odhlásit žáka">${ic('kick')}</button></div>
+      ${T.open[id]?`<div class="prog">${T.last[id]?renderList(null,T.last[id],'x',true)||'<div class="tag">(prázdný program)</div>':'<div class="tag">Program se ukáže po odehraném kole.</div>'}</div>`:''}</div>`;
+  }
+  if(T.world){const bots=T.world.robots.filter(r=>r.bot);if(bots.length)h+=`<div class="plhead" style="margin-top:14px"><b>Boti</b><span>${bots.length}</span></div>`+bots.map(r=>`<div class="prow${r.out?' off out':''}"><div class="prow-h"><span class="chip" style="background:${colorOf(r.ci)}">${r.label}</span>${lead.has(r.id)?crownI:''}${r.knife?knifeSvg('kn'):''}<span class="st">${r.out?'vyřazen':LVL[r.lvl]||''}</span><span class="sc">${r.score}</span></div></div>`).join('')}
+  $('tPlayers').innerHTML=h;
+}
+$('tPlayers').addEventListener('click',async e=>{
+  const pv=e.target.closest('[data-pv]');if(pv){T.open[pv.dataset.pv]=!T.open[pv.dataset.pv];renderPlayers();return}
+  const k=e.target.closest('[data-kick]');if(k){const id=k.dataset.kick;try{await B.kick(id);toast(`Žák ${id} je odhlášený.`)}catch(err){console.warn(err);toast('Odhlášení se nepovedlo.')}}
+});
+
+/* ---- botí program ---- */
+function bfs(w,ri,st,targets){
+  const key=(x,y,d)=>(y*w.W+x)*4+d;const prev=new Map();const q=[[st.x,st.y,st.d]];prev.set(key(st.x,st.y,st.d),null);
+  const occ=new Set(w.robots.filter(r=>r.i!==ri&&!r.out).map(r=>r.x+','+r.y));let h=0;
+  while(h<q.length){const [x,y,d]=q[h++];
+    if(targets.has(x+','+y)&&!(x===st.x&&y===st.y)){const p=[];let k=key(x,y,d);while(prev.get(k)){const pr=prev.get(k);p.unshift(pr.a);k=pr.k}return {path:p,x,y,d}}
+    const nx=x+DX[d],ny=y+DY[d];const opts=[['L',x,y,(d+3)%4],['R',x,y,(d+1)%4]];
+    if(!blocked(w,nx,ny)&&!occ.has(nx+','+ny))opts.unshift(['F',nx,ny,d]);
+    for(const [a,X,Y,D] of opts){const kk=key(X,Y,D);if(!prev.has(kk)){prev.set(kk,{k:key(x,y,d),a});q.push([X,Y,D])}}}
+  return null}
+function chainPlan(w,ri,maxA,first,single){const r=w.robots[ri];let st={x:r.x,y:r.y,d:r.d};const coins=new Set(w.coins);const acts=[];let t=first?new Set([first]):coins;
+  while(acts.length<maxA&&coins.size){const res=bfs(w,ri,st,t);if(!res)break;acts.push(...res.path);coins.delete(res.x+','+res.y);st={x:res.x,y:res.y,d:res.d};t=coins;if(single)break}
+  return acts.slice(0,maxA)}
+function compress(acts,maxB){const out=[];let i=0;
+  while(i<acts.length){let j=i;while(j<acts.length&&acts[j]===acts[i]&&j-i<9)j++;const run=j-i;if(run>=3){out.push(mk('REP',{n:run,body:[mk(acts[i])]}));i=j}else{out.push(mk(acts[i]));i++}}
+  const res=[];let used=0;for(const b of out){const c=cost(b);if(used+c>maxB)break;res.push(b);used+=c}return res}
+function soloScore(w,ri,prog){const c={W:w.W,H:w.H,walls:w.walls,coins:new Set(w.coins),big:new Set(w.big||[]),knives:new Set(w.knives||[]),robots:w.robots.map(r=>Object.assign({},r))};const g=exec(prog,c,ri);const s0=c.robots[ri].score;
+  for(let s=0;s<ES().maxSteps;s++){const v=g.next();if(v.done)break;const a=[];a[ri]=v.value;stepWorld(c,a,[ri])}
+  const r=c.robots[ri];let best=99;for(const k of c.coins){const [x,y]=k.split(',').map(Number);best=Math.min(best,Math.abs(x-r.x)+Math.abs(y-r.y))}return (c.robots[ri].score-s0)*100-best}
+function randomProg(){const out=[];let used=0;const mb=ES().maxBlocks;while(used<mb){const p=Math.random();
+  if(p<0.25&&used+2<=mb){out.push(mk('REP',{n:2+Math.floor(Math.random()*3),body:[mk('F')]}));used+=2}else{out.push(mk(p<0.65?'F':p<0.82?'L':'R'));used++}}return out}
+function botProgram(w,ri){
+  const lvl=w.robots[ri].lvl,S=effSet();if(w.robots[ri].out)return [];
+  if(lvl==='zacatecnik'){if(Math.random()<0.5)return randomProg();return compress(chainPlan(w,ri,S.maxSteps,null,true),Math.max(2,Math.floor(S.maxBlocks/2)))}
+  if(lvl==='stredni')return compress(chainPlan(w,ri,S.maxSteps,null,true),S.maxBlocks);
+  const cands=[compress(chainPlan(w,ri,S.maxSteps*2),S.maxBlocks)];const r=w.robots[ri];
+  const near=[...w.coins].sort((a,b)=>{const [ax,ay]=a.split(',').map(Number),[bx,by]=b.split(',').map(Number);return (Math.abs(ax-r.x)+Math.abs(ay-r.y))-(Math.abs(bx-r.x)+Math.abs(by-r.y))}).slice(0,5);
+  for(const c of near)cands.push(compress(chainPlan(w,ri,S.maxSteps*2,c),S.maxBlocks));
+  let best=cands[0],bs=-1e9;for(const p of cands){const s=soloScore(w,ri,p)-countBlocks(p)*0.01;if(s>bs){bs=s;best=p}}return best}
+
+/* ---- kolo ---- */
+async function runRound(){
+  if(T.running||!T.main||T.main.phase!=='plan')return;
+  T.running=true;const w=T.world;
+  w.robots.forEach((r,i)=>r.i=i);
+  const E=effSet();const progs=w.robots.map((r,i)=>r.out?[]:r.bot?botProgram(w,i):(sentNow(r.id)?sanitize(T.programs[r.id].prog,E):[]));
+  T.last={};w.robots.forEach((r,i)=>{if(!r.bot)T.last[r.id]=progs[i]});
+  T.main.phase='run';saveMain();renderBar();
+  const sh=$('tSheet');sh.classList.add('full');fitTeacher();
+  T.replay=null;T.trails=w.robots.map(r=>[r.x+','+r.y]);T.fx=null;renderBoardT();
+  const frames=[snapFrame(w)];
+  const cd=$('tCountdown');cd.classList.add('on');
+  for(const n of [3,2,1]){cd.textContent=n;await sleep(800)}
+  cd.classList.remove('on');await sleep(1000);
+  const gens=progs.map((p,i)=>exec(p,w,i));const done=w.robots.map(()=>false);
+  for(let step=0;step<E.maxSteps;step++){
+    const acts=gens.map((g,i)=>{if(done[i])return null;const v=g.next();if(v.done){done[i]=true;return null}return v.value});
+    if(done.every(Boolean))break;
+    const order=w.robots.map((_,k)=>(k+step+T.main.round)%w.robots.length);
+    const ev=[];stepWorld(w,acts,order,ev);
+    w.robots.forEach((r,i)=>T.trails[i].push(r.x+','+r.y));
+    T.fx={};for(const e of ev){if(e.t==='bump'||e.t==='stuck'||e.t==='weak')T.fx[e.a]='bump';if(e.t==='push')T.fx[e.b]='pushed';if(e.t==='clash'){T.fx[e.a]='bump';T.fx[e.b]='bump'}}
+    frames.push(snapFrame(w,T.fx));
+    renderBoardT();await sleep(E.speed);
+    if(!w.coins.size)break;
+  }
+  T.fx=null;renderBoardT();await sleep(1300);
+  T.replay={frames,k:frames.length-1};
+  sh.classList.remove('full');
+  T.main.round++;T.main.phase=w.coins.size?'plan':'end';
+  T.running=false;
+  if(T.pending){T.pending=false;syncRobots()}
+  await saveMain();fitTeacher();renderTeacher();
+  if(T.main.phase==='end')showEnd();
+}
+function showEnd(){
+  const w=T.world;const rs=w.robots.slice().sort((a,b)=>b.score-a.score||a.label.localeCompare(b.label));
+  let place=0,last=null;const rows=rs.map((r,k)=>{if(r.score!==last){place=k+1;last=r.score}return `<div class="${place===1?'win':''}"><span class="pl">${place}.</span><span class="chip" style="background:${colorOf(r.ci)}">${r.label}</span>${r.bot?`<span style="color:var(--muted);font-size:12px">bot</span>`:''}<span class="s">${r.score}</span></div>`});
+  $('mEnd').innerHTML=`<h2>Konec hry</h2><p class="sub">Všechny mince jsou sebrané. Hra trvala ${T.main.round-1} ${plural(T.main.round-1,'kolo','kola','kol')}.</p><div class="res">${rows.join('')}</div><div class="mfoot"><button class="btn" data-close>Zavřít</button><button class="btn primary" id="endNew">${ic('refresh')}Nová hra</button></div>`;
+  $('mEnd').querySelector('[data-close]').onclick=()=>$('ovEnd').classList.remove('show');
+  $('endNew').onclick=()=>{$('ovEnd').classList.remove('show');newGame();syncRobots();fitTeacher();renderTeacher()};
+  $('ovEnd').classList.add('show');
+}
+
+/* ---- nastavení učitele ---- */
+$('tSettings').onclick=()=>{
+  const s=T.set;const sel=(v,o)=>o.map(([k,l])=>`<option value="${k}"${String(v)===String(k)?' selected':''}>${l}</option>`).join('');
+  const num=(id,v,a,b)=>`<input type="number" id="${id}" value="${v}" min="${a}" max="${b}">`;
+  $('mSet').innerHTML=`<h2>Nastavení hry</h2><p class="sub">Změny programu se projeví od dalšího kola, mapa po kliknutí na Nová hra pod hrací plochou.</p>
+  <h3>Hra</h3>
+  <div class="frow"><label>Mapa</label><select id="sMap">${sel(s.map,MAPS.map((m,i)=>[i,m.name]))}</select></div>
+  <div class="frow"><label>Boti<small>Doplní hru o počítačové hráče.</small></label>${num('sBots',s.bots,0,13)}</div>
+  <div class="frow"><label>Obtížnost botů</label><select id="sLvl">${sel(s.botLvl,[['mix','Mix (po třetinách)'],['zacatecnik','Začátečníci'],['stredni','Střední'],['chytry','Chytří']])}</select></div>
+  <h3>Program žáků</h3>
+  <div class="frow"><label>Příkazů v programu</label>${num('sBlocks',s.maxBlocks,3,16)}</div>
+  <div class="frow"><label>Příkazů v jednom cyklu</label>${num('sFor',s.forMax,1,6)}</div>
+  <div class="frow"><label>Kroků za kolo</label>${num('sSteps',s.maxSteps,3,40)}</div>
+  <div class="frow"><label>Zobrazit žákům program v Pythonu</label><input type="checkbox" id="sPy"${s.python?' checked':''}></div>
+  <h3>Tabule</h3>
+  <div class="frow"><label>Rychlost přehrávání</label><select id="sSpeed">${sel(s.speed,[[900,'Pomalá'],[600,'Střední'],[350,'Rychlá']])}</select></div>
+  <div class="mfoot"><button class="btn" data-close>Zrušit</button><button class="btn primary" id="sSave">Uložit</button></div>`;
+  $('mSet').querySelector('[data-close]').onclick=()=>$('ovSet').classList.remove('show');
+  $('sSave').onclick=()=>{readSet();syncRobots();saveMain();renderTeacher();$('ovSet').classList.remove('show');if(T.set.map!==T.world.map)toast('Mapa se změní po kliknutí na Nová hra.')};
+  $('ovSet').classList.add('show');
+};
+async function kickAll(){const ids=Object.keys(T.players);for(const id of ids)await B.kick(id).catch(()=>{});return ids.length}
+function startNew(){newGame();syncRobots();fitTeacher();renderTeacher()}
+$('tbBeast').onclick=()=>{if(T.running||!T.main)return;if(T.main.round>1&&T.main.phase!=='end'&&!confirm(T.set.beast?'Vrátit se do normálního režimu? Začne nová hra.':'Zapnout Beast Mode? Začne nová hra.'))return;T.set.beast=!T.set.beast;startNew();toast(T.set.beast?'Beast Mode zapnutý.':'Zpět v normálním režimu.')};
+$('tbShuffle').onclick=()=>{if(T.running||!T.world)return;T.replay=null;shuffleCoins(T.world);saveMain();renderTeacher();toast('Mince jsou zamíchané.')};
+$('tbNew').onclick=()=>{if(T.running||!T.main)return;if(T.main.round>1&&T.main.phase!=='end'&&!confirm('Začít novou hru? Skóre a mince se vrátí na začátek.'))return;startNew();toast('Nová hra připravená.')};
+$('tbNewKick').onclick=async()=>{if(T.running||!T.main)return;if(!confirm('Začít novou hru a odhlásit všechny žáky?'))return;const n=await kickAll();T.players={};startNew();toast(`Nová hra připravená, odhlášeno žáků: ${n}.`)};
+$('tbEnd').onclick=async()=>{if(T.running||!T.main)return;if(!confirm('Ukončit hru? Všichni žáci budou odhlášeni a Správa se zavře.'))return;
+  T.main.phase='closed';await saveMain();await kickAll();ss.del('ucitel');location.href=location.pathname+location.search};
+function readSet(){const v=id=>$(id);const n=(id,a,b)=>Math.max(a,Math.min(b,parseInt(v(id).value)||a));
+  Object.assign(T.set,{map:+v('sMap').value,bots:n('sBots',0,13),botLvl:v('sLvl').value,maxBlocks:n('sBlocks',3,16),forMax:n('sFor',1,6),maxSteps:n('sSteps',3,40),python:v('sPy').checked,speed:+v('sSpeed').value})}
+function shuffleCoins(w){const n=w.coins.size,nb=w.big?w.big.size:0;const free=[];for(let y=0;y<w.H;y++)for(let x=0;x<w.W;x++){const k=x+','+y;if(!w.walls.has(k)&&!robotAt(w,x,y)&&!(w.knives&&w.knives.has(k)))free.push(k)}
+  for(let i=free.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[free[i],free[j]]=[free[j],free[i]]}const nc=free.slice(0,n);w.coins=new Set(nc);w.big=new Set(nc.slice(0,nb))}
+
+/* ===================== Režim a start ===================== */
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('sestacode-rezim',t)}catch(e){}document.querySelectorAll('.themeBtn').forEach(b=>b.innerHTML=ic(t==='dark'?'sun':'moon'))}
+document.querySelectorAll('.themeBtn').forEach(b=>b.onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+let th='dark';try{th=localStorage.getItem('sestacode-rezim')||'dark'}catch(e){}setTheme(th);
+document.addEventListener('keydown',e=>{
+  if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&$('vTeacher').classList.contains('on')&&!document.querySelector('.overlay.show')&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();replayGo(e.key==='ArrowLeft'?-1:1);return}
+  if(e.key==='Escape')document.querySelectorAll('.overlay.show').forEach(o=>{if(o.id!=='ovEnd')o.classList.remove('show')})});
+
+(function boot(){
+  if(ss.get('ucitel',false)){startTeacher();return}
+  show('vStart');initTutorial();
+  if(location.hash==='#sprava')$('toTeacher').click();
+  const me=ss.get('me',null);if(me){$('jIn').value=me;join(me)}
+})();
+</script>
+</body>
+</html>
