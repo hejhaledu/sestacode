@@ -48,7 +48,7 @@ Kostra pozná systém (`SESTA.isMac`, `SESTA.platform`). Zkratky v bublinách a 
 
 ## Aréna
 
-Programátorská hra pro celou třídu ve složce `arena/` (verze aplikace 4.1). Na rozdíl od ostatních aplikací nepoužívá `sesta-shell.js`: má vlastní tři obrazovky (vstup žáka s trenažérem, editor programu pro mobil, Správa pro tabuli). Ze SestaCode přebírá barvy, písmo ze `shared/fonts` a klíče s předponou `scode:arena:`; logo vede na rozcestník.
+Programátorská hra pro celou třídu ve složce `arena/` (verze aplikace 4.2). Na rozdíl od ostatních aplikací nepoužívá `sesta-shell.js`: má vlastní tři obrazovky (vstup žáka s trenažérem, editor programu pro mobil, Správa pro tabuli). Ze SestaCode přebírá barvy, písmo ze `shared/fonts` a klíče s předponou `scode:arena:`; logo vede na rozcestník.
 
 - Adresa: `…/arena/`, učitel přes odkaz Správa dole (heslo `informatika`). Ukázkový režim bez internetu: `…/arena/?demo=1`.
 - Data: Firebase projekt `sestacode-arena` (Firestore europe-west3, anonymní přihlášení, autorizovaná doména `hejhaledu.github.io`). Knihovny Firebase 10.12.2 (gstatic) a qrcode-generator 1.4.4 (jsdelivr) se načítají z CDN.

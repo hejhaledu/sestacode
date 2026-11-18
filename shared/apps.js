@@ -56,6 +56,6 @@ SESTA.apps = [
     id: 'arena', name: 'Aréna', path: 'arena/', icon: 'arena',
     desc: 'Programátorská hra pro celou třídu',
     long: 'Naprogramuj robota na mobilu, kolo se přehraje na tabuli. Sekvence a cyklus FOR, sbírání mincí, odtlačování soupeřů a Beast Mode.',
-    version: '4.1', year: 2026
+    version: '4.2', year: 2026
   }
 ];

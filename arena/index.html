@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SestaCode / Aréna</title>
-<!-- Aréna v4.1 · 18. 11. 2026 · součást SestaCode (složka arena/) · Martin Hejhal -->
+<!-- Aréna v4.2 · 18. 11. 2026 · součást SestaCode (složka arena/) · Martin Hejhal -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 /* písmo ze SestaCode (shared/fonts) */
@@ -37,6 +37,9 @@ a.logo-tile{text-decoration:none}
   --on-p:#FFFFFF;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* bez přiblížení dvojitým klepnutím (pinch zoom zůstává) */
+html,body,button,a,input,select,.pal,.blk,.add{touch-action:manipulation}
+button,.pal,.blk,.add{-webkit-user-select:none;user-select:none}
 html,body{margin:0}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-feature-settings:"tnum";background:var(--bg-work);color:var(--text);font-size:14px;min-height:100vh}
 body.t-mode{height:100vh;overflow:hidden}
@@ -282,7 +285,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
       <div style="margin-top:12px;display:flex;gap:8px"><button class="btn primary" id="tutRun"><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Spustit</button><button class="btn" id="tutAgain" style="display:none">Opakovat</button><span class="steps" id="tutSteps" style="margin-left:auto;align-self:center"></span></div>
     </div>
     <button class="sprava" id="toTeacher">Správa</button>
-    <div class="s-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal.</div>
+    <div class="s-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal.</div>
   </div>
 </div>
 
@@ -304,7 +307,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
         <div id="gPy"></div>
       </div>
     </div>
-    <div class="s-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal. <span class="demo-badge">ukázkový režim</span></div>
+    <div class="s-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal. <span class="demo-badge">ukázkový režim</span></div>
   </div>
 </div>
 
@@ -341,7 +344,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
       </div></div>
     </div>
   </div>
-  <div class="t-foot">Aréna · 2026 · verze 4.1 · Created by Martin Hejhal.</div>
+  <div class="t-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal.</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -357,7 +360,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
 
 <script>
 /* ===================== Konfigurace ===================== */
-const VERSION='4.1';
+const VERSION='4.2';
 const FB_CONFIG={
   apiKey:"AIzaSyAdlrwhz0dkTKl9pYi6VYe1fxENhNM7J0o",
   authDomain:"sestacode-arena.firebaseapp.com",
