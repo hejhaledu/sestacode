@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SestaCode / Aréna</title>
-<!-- Aréna v4.2 · 18. 11. 2026 · součást SestaCode (složka arena/) · Martin Hejhal -->
+<!-- Aréna v4.5 · 19. 11. 2026 · součást SestaCode (složka arena/) · Martin Hejhal -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231A7F37'/%3E%3Cpath d='m20 22 6-6-6-6M12 10l-6 6 6 6' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 /* písmo ze SestaCode (shared/fonts) */
@@ -74,6 +74,20 @@ body.demo .demo-badge{display:inline-block}
 .join h1{margin:0 0 4px;font-size:22px}
 .join p{margin:0 0 14px;color:var(--muted)}
 .join-row{display:flex;gap:10px}
+.join-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.join-btns .btn{height:auto;min-height:48px;padding:8px 10px;white-space:normal;line-height:1.2}
+.s-mapcard{display:none;padding:14px;justify-content:center;align-items:flex-start}
+body.pc .s-wrap,body.pc .s-head-in{max-width:1500px}
+body.pc .s-cols{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);gap:16px;align-items:start}
+body.pc .s-mapcard{display:flex;position:sticky;top:84px}
+.bot.mine .arw path{stroke:var(--text)!important;stroke-width:9}
+body.beast .bot.mine .arw path{stroke:#fff!important;stroke-width:9}
+.ptimer{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);min-width:64px;text-align:right;margin-right:6px}
+.ptimer small{display:block;font-size:10px;font-weight:500;color:var(--muted);text-align:right}
+.allin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;display:none;flex-direction:column;align-items:center;gap:12px;padding:26px 34px;border-radius:16px;background:var(--bg-app);border:2px solid var(--accent-text);box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center}
+.allin.on{display:flex}
+.allin b{font-size:26px}
+.allin small{color:var(--muted);font-size:13px}
 .join input{flex:1;min-width:0;height:46px;border-radius:9px;border:1px solid var(--border);background:var(--bg-work);color:var(--text);font:inherit;font-size:22px;font-weight:800;text-align:center;text-transform:uppercase;letter-spacing:4px}
 .join input::placeholder{font-size:16px;letter-spacing:1px;font-weight:600;text-transform:none}
 .join input:focus{outline:2px solid var(--accent-text);outline-offset:0}
@@ -149,19 +163,19 @@ body.demo .demo-badge{display:inline-block}
 body.beast{--text:#E6EDF3;--text-2:#C9D1D9;--muted:#9198A1;--accent-text:#2EA043;--seq-bg:#06162A;--seq-b:#1F6FEB;--seq-t:#79C0FF;--rep-bg:#1F1206;--rep-b:#BD561D;--rep-t:#FFA657;--if-bg:#170E29;--if-b:#8957E5;--if-t:#D2A8FF;--bg-app:#000;--bg-work:#000;--bg-canvas:#000;--bg-subtle:#0B0B0B;--border:#123A1C;--accent-soft:#06200D;
   --p0:#39FF14;--p1:#00E5FF;--p2:#FF2D95;--p3:#FF3B30;--p4:#2F7BFF;--p5:#FFD60A;--p6:#BF5AF2;--p7:#FF8A00;--p8:#FFFFFF;--p9:#00FFB3;--p10:#3D5AFE;--p11:#FF00FF;--p12:#C6FF00;--p13:#E040FB;--on-p:#000}
 body.beast .card,body.beast .prow,body.beast .modal,body.beast .s-head,body.beast #vTeacher header,body.beast aside,body.beast .t-foot{background:#000}
-#vTeacher.beast .btn.beast{background:#1E7D34;border-color:#1E7D34;color:#000}
-#vTeacher.beast .sheet{background:#000;border-color:#145A26}
-#vTeacher.beast .board{background:#000;border-color:#145A26}
-#vTeacher.beast .cell{background:#000;border-color:#124F22}
-#vTeacher.beast .cell.wall{background:#05170A;border-color:#1E7D34;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(30,125,52,.38) 6px 7px)}
-#vTeacher.beast .bot .arw path{fill:#1E7D34!important;stroke-width:4}
-#vTeacher.beast .bot.bump .arw path{stroke-width:7}
-#vTeacher.beast .bot .lab{color:#000}
-#vTeacher.beast .coin{background:radial-gradient(circle at 34% 30%,#FF9AA8 0 10%,#F0102F 30%,#A3001A 68%,#50000C 100%);border-color:#2B0006}
-#vTeacher.beast .knife{left:6%;top:6%;width:88%;height:88%;fill:#E6EDF3;stroke:#8B949E}
-#vTeacher.beast .bot svg.kb{width:54%;height:54%;right:-16%;top:-16%}
-#vTeacher.beast .legend,#vTeacher.beast .tools .stepl{color:#2EA043}
-#vTeacher.beast .count{background:rgba(0,0,0,.55);color:#2EA043}
+body.beast .btn.beast{background:#1E7D34;border-color:#1E7D34;color:#000}
+body.beast .sheet{background:#000;border-color:#145A26}
+body.beast .board{background:#000;border-color:#145A26}
+body.beast .cell{background:#000;border-color:#124F22}
+body.beast .cell.wall{background:#05170A;border-color:#1E7D34;background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(30,125,52,.38) 6px 7px)}
+body.beast .bot .arw path{fill:#1E7D34!important;stroke-width:4}
+body.beast .bot.bump .arw path{stroke-width:7}
+body.beast .bot .lab{color:#000}
+body.beast .coin{background:radial-gradient(circle at 34% 30%,#FF9AA8 0 10%,#F0102F 30%,#A3001A 68%,#50000C 100%);border-color:#2B0006}
+body.beast .knife{left:6%;top:6%;width:88%;height:88%;fill:#E6EDF3;stroke:#8B949E}
+body.beast .bot svg.kb{width:54%;height:54%;right:-16%;top:-16%}
+body.beast .legend,body.beast .tools .stepl{color:#2EA043}
+body.beast .count{background:rgba(0,0,0,.55);color:#2EA043}
 .tag{font-size:11px;color:var(--muted)}
 .add{min-height:38px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:var(--muted);cursor:pointer;background:transparent;text-align:left;width:100%}
 .add:hover{border-color:var(--muted)}
@@ -270,7 +284,8 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
     <div class="s-top"><a class="logo-tile" href="../" title="Rozcestník SestaCode">SC</a><span class="nm"><span>SestaCode /</span> <b>Aréna</b></span><span class="sp"></span><span class="demo-badge">ukázkový režim</span><button class="ibtn themeBtn" title="Tmavý / světlý režim" aria-label="Tmavý / světlý režim"></button></div>
     <div class="card join">
       <h1>Připoj se do hry</h1>
-      <div class="join-row"><input id="jIn" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Iniciály"><button class="btn primary big" id="jBtn">Vstup</button></div>
+      <div class="join-row"><input id="jIn" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Iniciály"></div>
+      <div class="join-btns"><button class="btn primary big jb" data-mode="mobile"><svg class="i" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>Spustit na telefonu</button><button class="btn primary big jb" data-mode="pc"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Spustit na PC</button></div>
       <div class="err" id="jErr"></div>
     </div>
     <button class="btn big trainbtn" id="trainBtn">Natrénuj si!</button>
@@ -285,7 +300,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
       <div style="margin-top:12px;display:flex;gap:8px"><button class="btn primary" id="tutRun"><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Spustit</button><button class="btn" id="tutAgain" style="display:none">Opakovat</button><span class="steps" id="tutSteps" style="margin-left:auto;align-self:center"></span></div>
     </div>
     <button class="sprava" id="toTeacher">Správa</button>
-    <div class="s-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal.</div>
+    <div class="s-foot">Aréna · 2026 · verze 4.5 · Created by Martin Hejhal.</div>
   </div>
 </div>
 
@@ -300,14 +315,17 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
   </div></div>
   <div class="s-wrap">
     <div class="s-status" id="sStatus"></div>
-    <div class="card" style="padding:14px">
-      <div class="ed" id="edGame" data-ed="game">
-        <div class="palette" id="gPal"></div>
-        <div class="prog" id="gProg"></div>
-        <div id="gPy"></div>
+    <div class="s-cols">
+      <div class="card" style="padding:14px">
+        <div class="ed" id="edGame" data-ed="game">
+          <div class="palette" id="gPal"></div>
+          <div class="prog" id="gProg"></div>
+          <div id="gPy"></div>
+        </div>
       </div>
+      <div class="card s-mapcard" id="sMapCard"><div class="board" id="sBoard"></div></div>
     </div>
-    <div class="s-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal. <span class="demo-badge">ukázkový režim</span></div>
+    <div class="s-foot">Aréna · 2026 · verze 4.5 · Created by Martin Hejhal. <span class="demo-badge">ukázkový režim</span></div>
   </div>
 </div>
 
@@ -319,6 +337,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
     <div class="tstats" id="tStats"></div>
     <div class="hicons">
       <span class="demo-badge">ukázkový režim</span>
+      <span class="ptimer" id="tTimer" title="Jak dlouho žáci programují"></span>
       <button class="btn" id="tQr" title="QR kód pro žáky">QR</button>
       <span id="tAct"></span>
       <button class="ibtn" id="tSettings" title="Nastavení" aria-label="Nastavení"><svg class="i" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
@@ -341,10 +360,11 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
           </div>
         </div>
         <div class="count" id="tCountdown"></div>
+        <div class="allin" id="tAllIn"><b>Všechny kódy dorazily</b><small>Odeslali všichni žáci, kteří jsou ve hře.</small><div style="display:flex;gap:8px"><button class="btn" id="aiClose">Zavřít</button><button class="btn primary" id="aiRun"><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Spustit kolo</button></div></div>
       </div></div>
     </div>
   </div>
-  <div class="t-foot">Aréna · 2026 · verze 4.2 · Created by Martin Hejhal.</div>
+  <div class="t-foot">Aréna · 2026 · verze 4.5 · Created by Martin Hejhal.</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -360,7 +380,7 @@ aside{width:236px;flex:none;background:var(--bg-app);border-right:1px solid var(
 
 <script>
 /* ===================== Konfigurace ===================== */
-const VERSION='4.2';
+const VERSION='4.5';
 const FB_CONFIG={
   apiKey:"AIzaSyAdlrwhz0dkTKl9pYi6VYe1fxENhNM7J0o",
   authDomain:"sestacode-arena.firebaseapp.com",
@@ -373,7 +393,7 @@ const FB_VER='10.12.2';
 const HESLO='informatika';
 const DEMO=/[?&]demo=1/.test(location.search)||location.protocol==='file:';
 if(DEMO)document.body.classList.add('demo');
-const DEF_SET={map:0,bots:0,botLvl:'mix',maxBlocks:8,maxSteps:25,forMax:3,speed:600,python:false,sv:36};
+const DEF_SET={map:0,bots:0,botLvl:'mix',maxBlocks:8,maxSteps:25,forMax:3,speed:600,python:false,sv:36,knives:4};
 const LVL={zacatecnik:'Začátečník',stredni:'Střední',chytry:'Chytrý'};
 const ls={get(k,d){try{const v=localStorage.getItem('scode:arena:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('scode:arena:'+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem('scode:arena:'+k)}catch(e){}}};
 const ss={get(k,d){try{const v=sessionStorage.getItem('scode:arena:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{sessionStorage.setItem('scode:arena:'+k,JSON.stringify(v))}catch(e){}},del(k){try{sessionStorage.removeItem('scode:arena:'+k)}catch(e){}}};
@@ -450,7 +470,7 @@ function sanitize(raw,set){
 function* exec(list,w,ri){for(const n of list){if(n.t==='REP'){for(let k=0;k<n.n;k++)yield* exec(n.body,w,ri)}else if(n.t==='IF'){const r=w.robots[ri];if(blocked(w,r.x+DX[r.d],r.y+DY[r.d]))yield* exec(n.body,w,ri)}else yield n}}
 function stepWorld(w,acts,order,ev){
   const collect=r=>{const k=r.x+','+r.y;
-    if(w.coins.has(k)){w.coins.delete(k);const v=w.big&&w.big.has(k)?4:1;if(v>1)w.big.delete(k);r.score+=v;ev&&ev.push({t:'coin',a:r.i})}
+    if(w.coins.has(k)){w.coins.delete(k);const v=w.big&&w.big.has(k)?3:1;if(v>1)w.big.delete(k);r.score+=v;ev&&ev.push({t:'coin',a:r.i})}
     if(w.knives&&w.knives.has(k)){w.knives.delete(k);r.knife=true;ev&&ev.push({t:'knife',a:r.i})}};
   for(const i of order){
     const a=acts[i];if(!a)continue;const r=w.robots[i];if(r.out)continue;
@@ -461,7 +481,7 @@ function stepWorld(w,acts,order,ev){
       if(blocked(w,tx,ty)){ev&&ev.push({t:'bump',a:i});continue}
       const o=robotAt(w,tx,ty);
       if(o&&(r.knife||o.knife)){
-        if(r.knife&&o.knife){r.knife=false;o.knife=false;ev&&ev.push({t:'clash',a:i,b:o.i});continue}
+        if(r.knife&&o.knife){r.out=true;o.out=true;ev&&ev.push({t:'clash',a:i,b:o.i});continue}
         if(r.knife){o.out=true;ev&&ev.push({t:'kill',a:i,b:o.i});r.x=tx;r.y=ty;collect(r);continue}
         r.out=true;ev&&ev.push({t:'kill',a:o.i,b:i});continue;
       }
@@ -673,13 +693,10 @@ function Board(el,W,H){
     for(let i=0;i<W*H;i++){const c=document.createElement('div');c.className='cell';el.appendChild(c);b.cells.push(c)}};
   b.size=cell=>{b.cell=cell;el.style.setProperty('--c',cell+'px');el.style.setProperty('--gap',b.gap+'px');el.style.setProperty('--pad',b.pad+'px');el.style.setProperty('--lf',Math.round(cell*0.29)+'px');el.style.setProperty('--sf',Math.round(cell*0.22)+'px')};
   b.fit=(w,h)=>{b.size(Math.max(16,Math.min(90,Math.floor(Math.min((w-2*b.pad-(W-1)*b.gap)/W,(h-2*b.pad-(H-1)*b.gap)/H)))))};
-  b.render=(w,trails,fx,lead,showScore)=>{
-    const tm={};(trails||[]).forEach((t,i)=>t.forEach(k=>{(tm[k]=tm[k]||new Set()).add(i)}));
-    const n=w.robots.length||1;
+  b.render=(w,trails,fx,lead,showScore,mine)=>{
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=x+','+y,c=b.cells[y*W+x];c.className='cell'+(w.walls.has(k)?' wall':'');
-      let h=w.coins.has(k)?(w.big&&w.big.has(k)?'<span class="coin big">4</span>':'<span class="coin"></span>'):'';
+      let h=w.coins.has(k)?(w.big&&w.big.has(k)?'<span class="coin big">3</span>':'<span class="coin"></span>'):'';
       if(w.knives&&w.knives.has(k))h+=knifeSvg('knife');
-      if(tm[k])for(const i of tm[k]){const a=i/n*2*Math.PI,r=w.robots[i];if(!r)continue;h+=`<span class="tr" style="background:${colorOf(r.ci)};left:calc(50% + ${Math.round(Math.sin(a)*38)}% - 1.5px);top:calc(50% - ${Math.round(Math.cos(a)*38)}% - 1.5px)"></span>`}
       c.innerHTML=h}
     const ids=new Set(w.robots.filter(r=>!r.out).map(r=>r.id));
     for(const id in b.toks)if(!ids.has(id)){b.toks[id].remove();delete b.toks[id]}
@@ -694,7 +711,7 @@ function Board(el,W,H){
       e.style.left=(b.pad+r.x*(b.cell+b.gap))+'px';e.style.top=(b.pad+r.y*(b.cell+b.gap))+'px';
       e.querySelector('.arw').style.transform=`rotate(${r.rot}deg)`;
       e.querySelector('.lab').style.transform=`translate(${-DX[r.d]*k}px,${-DY[r.d]*k}px)`;
-      e.classList.toggle('bump',!!fx&&fx[i]==='bump');e.classList.toggle('pushed',!!fx&&fx[i]==='pushed');e.classList.toggle('lead',!!lead&&lead.has(r.id));
+      e.classList.toggle('bump',!!fx&&fx[i]==='bump');e.classList.toggle('pushed',!!fx&&fx[i]==='pushed');e.classList.toggle('lead',!!lead&&lead.has(r.id));e.classList.toggle('mine',!!mine&&r.id===mine);
     });
   };
   return b;
@@ -791,24 +808,26 @@ $('tutRun').onclick=async()=>{
 const ST={id:null,round:null,sent:false,dirty:false,main:null,unsub:[],beatT:null};
 function normId(v){return (v||'').replace(/[^\p{L}]/gu,'').toUpperCase().slice(0,2)}
 $('jIn').addEventListener('input',e=>{const v=normId(e.target.value);if(e.target.value!==v)e.target.value=v;$('jErr').textContent=''});
-$('jIn').addEventListener('keydown',e=>{if(e.key==='Enter')join()});
-$('jBtn').onclick=()=>join();
-async function join(auto){
+$('jIn').addEventListener('keydown',e=>{if(e.key==='Enter')join(null,guessMode())});
+document.querySelectorAll('.jb').forEach(b=>b.onclick=()=>join(null,b.dataset.mode));
+const guessMode=()=>matchMedia('(pointer:coarse)').matches||innerWidth<760?'mobile':'pc';
+async function join(auto,mode){
   const id=auto||normId($('jIn').value);
   if(id.length!==2){$('jErr').textContent='Napiš dvě písmena.';return}
-  $('jBtn').disabled=true;$('jBtn').textContent='Připojuji';$('jErr').textContent='';
+  ST.mode=mode||ss.get('mode',null)||guessMode();
+  document.querySelectorAll('.jb').forEach(b=>b.disabled=true);$('jErr').textContent='';
   try{
     await backend();await B.init();
     await B.join(id);
-    ST.id=id;ss.set('me',id);startStudent();
+    ST.id=id;ss.set('me',id);ss.set('mode',ST.mode);startStudent();
   }catch(e){
     console.warn(e);ss.del('me');
     if(!auto)$('jErr').textContent=e&&e.code==='permission-denied'?`Iniciály ${id} už někdo používá. Zkus jiné.`:'Nepodařilo se připojit. Zkontroluj internet a zkus to znovu.';
     show('vStart');
-  }finally{$('jBtn').disabled=false;$('jBtn').textContent='Vstup'}
+  }finally{document.querySelectorAll('.jb').forEach(b=>b.disabled=false)}
 }
 function startStudent(){
-  show('vStudent');window.scrollTo(0,0);
+  show('vStudent');window.scrollTo(0,0);document.body.classList.toggle('pc',ST.mode==='pc');
   ST.round=null;ST.sent=false;ST.dirty=false;
   ST.unsub.push(B.onMain(m=>{ST.main=m;studentMain()}));
   ST.unsub.push(B.onPlayer(ST.id,p=>{if(!p&&ST.id)leaveStudent(ST.main&&ST.main.phase==='closed'?'Hra skončila.':'Učitel tě odhlásil ze hry.')}));
@@ -817,7 +836,7 @@ function startStudent(){
 }
 function leaveStudent(msg){
   ST.unsub.forEach(u=>{try{u()}catch(e){}});ST.unsub=[];clearInterval(ST.beatT);
-  ST.id=null;ss.del('me');document.body.classList.remove('beast');ED.game.prog=[];ED.game.target='main';
+  ST.id=null;ss.del('me');ss.del('mode');document.body.classList.remove('beast','pc');ED.game.prog=[];ED.game.target='main';
   show('vStart');$('jErr').textContent=msg||'';
 }
 function studentMain(){
@@ -845,8 +864,19 @@ function studentMain(){
   else{s.textContent='';s.style.display='none'}
   const btn=$('sendBtn');btn.disabled=ctx.locked;btn.textContent=ST.sent&&!ST.dirty?'Odesláno':ST.sent?'Odeslat znovu':'Odeslat';
   btn.classList.toggle('primary',!(ST.sent&&!ST.dirty));
-  renderEditor(ctx);
+  renderEditor(ctx);renderStudentMap();
 }
+let sB=null;
+function renderStudentMap(){
+  const m=ST.main;if(ST.mode!=='pc'||!m||!m.world||m.phase==='closed'){if(sB)$('sBoard').style.visibility='hidden';return}
+  $('sBoard').style.visibility='';
+  if(!sB){sB=Board($('sBoard'),GW,GH);sB.build()}
+  const mp=MAPS[m.world.map]||MAPS[0];
+  const w={W:GW,H:GH,walls:mirror(mp.walls,GW,GH),coins:new Set(m.world.coins),big:new Set(m.world.big||[]),knives:new Set(m.world.knives||[]),robots:m.world.robots.map(r=>Object.assign({},r,{rot:r.d*90}))};
+  const card=$('sMapCard');sB.fit(card.clientWidth-30,innerHeight-130);
+  sB.render(w,null,null,leaders(w),true,ST.id);
+}
+window.addEventListener('resize',()=>{if(ST.id&&ST.mode==='pc')renderStudentMap()});
 function studentChanged(){if(ST.sent){ST.dirty=true}studentMain()}
 $('sendBtn').onclick=async()=>{
   const ctx=ED.game;if(ctx.locked||!ST.id)return;
@@ -877,6 +907,7 @@ async function startTeacher(){
   B.onPlayers(p=>{T.players=p||{};T.loaded.players=true;syncRobots();renderTeacher()});
   B.onPrograms(p=>{T.programs=p||{};renderTeacher()});
   setInterval(()=>{if(!T.running)renderPlayers()},15000);
+  setInterval(renderTimer,1000);
   window.addEventListener('resize',fitTeacher);
 }
 function ES(){const s=T.set;return s.beast?{maxBlocks:12,maxSteps:50,speed:Math.round(s.speed*0.45)}:{maxBlocks:s.maxBlocks,maxSteps:s.maxSteps,speed:s.speed}}
@@ -895,10 +926,10 @@ function newGame(save=true){
   const old=T.world?T.world.robots:[];
   T.world={W:GW,H:GH,map:T.set.map,walls:mirror(mp.walls,GW,GH),coins:mirror(mp.coins,GW,GH),robots:[]};
   T.world.big=T.set.beast?new Set([...mirror(mp.big||[],GW,GH)].filter(k=>T.world.coins.has(k))):new Set();
-  T.world.knives=T.set.beast?mirror(mp.knife||[],GW,GH):new Set();
+  T.world.knives=T.set.beast?knifeCells(T.world,T.set.knives==null?4:T.set.knives):new Set();
   T.world.total=T.world.coins.size;
   for(const r of old){const n=Object.assign({},r,{score:0,knife:false,out:false});placeRobot(T.world,n);T.world.robots.push(n)}
-  T.main={v:3,gameId:newGameId(),phase:'plan',round:1,settings:Object.assign({},T.set),world:null};
+  T.main={v:3,gameId:newGameId(),phase:'plan',round:1,planAt:Date.now(),settings:Object.assign({},T.set),world:null};
   T.trails=null;T.fx=null;T.last={};T.replay=null;
   if(save)saveMain();
 }
@@ -909,6 +940,19 @@ function placeRobot(w,r){
     let d=99;for(const o of w.robots)d=Math.min(d,Math.abs(o.x-x)+Math.abs(o.y-y));if(d>bd){bd=d;best=[x,y]}}
   if(!best){outer:for(let y=0;y<w.H;y++)for(let x=0;x<w.W;x++)if(!blocked(w,x,y)&&!robotAt(w,x,y)&&!w.coins.has(x+','+y)){best=[x,y];break outer}}
   const [x,y]=best||[0,0];r.x=x;r.y=y;r.d=y===0?2:y===w.H-1?0:x===0?1:3;r.rot=r.d*90;
+}
+function knifeCells(w,n){
+  const res=new Set();if(!n)return res;
+  const pr=([x,y])=>[w.W-1-x,w.H-1-y];
+  const ok=(x,y)=>x>=2&&y>=2&&x<=w.W-3&&y<=w.H-3&&!w.walls.has(x+','+y)&&!w.coins.has(x+','+y);
+  const cand=[];for(let y=2;y<=w.H-3;y++)for(let x=2;x<=w.W-3;x++){const q=pr([x,y]);if(ok(x,y)&&ok(q[0],q[1])&&(x<q[0]||(x===q[0]&&y<q[1])))cand.push([x,y])}
+  const dist=(a,b)=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);const chosen=[];
+  while(chosen.length*2<n&&chosen.length<cand.length){
+    let best=null,bd=-1e9;const pts=chosen.flatMap(c=>[c,pr(c)]);
+    for(const c of cand){if(chosen.includes(c))continue;const d=pts.length?Math.min(...pts.map(z=>Math.min(dist(z,c),dist(z,pr(c))))):-dist(c,[4,3]);if(d>bd){bd=d;best=c}}
+    if(!best)break;chosen.push(best)}
+  for(const c of chosen){res.add(c[0]+','+c[1]);const q=pr(c);res.add(q[0]+','+q[1])}
+  return res;
 }
 function freeCi(w){const used=new Set(w.robots.map(r=>r.ci));let c=0;while(used.has(c))c++;return c}
 function botLevel(k){return T.set.botLvl==='mix'?['zacatecnik','stredni','chytry'][k%3]:T.set.botLvl}
@@ -943,7 +987,22 @@ function replayGo(d){const rp=T.replay;if(!rp||T.running)return;const k=Math.max
 $('rpPrev').onclick=()=>replayGo(-1);$('rpNext').onclick=()=>replayGo(1);
 function renderTeacher(){if(!T.main||!T.world)return;$('vTeacher').classList.toggle('beast',!!T.set.beast);document.body.classList.toggle('beast',!!T.set.beast);$('tbBeast').textContent=T.set.beast?'Back to normal':'Beast Mode';renderBar();renderPlayers();renderBoardT();
   $('tLegend').textContent=`Mapa: ${MAPS[T.world.map].name}`}
+function renderTimer(){
+  const m=T.main,el=$('tTimer');if(!el)return;
+  if(!m||m.phase!=='plan'||T.running){el.innerHTML='';return}
+  if(!m.planAt)m.planAt=Date.now();
+  const s=Math.max(0,Math.floor((Date.now()-m.planAt)/1000));el.innerHTML=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}<small>programování</small>`;
+}
+function checkAllIn(){
+  const m=T.main;if(!m||!T.world)return;
+  const alive=Object.keys(T.players).filter(id=>{const r=T.world.robots.find(x=>x.id===id);return !(r&&r.out)});
+  const all=m.phase==='plan'&&!T.running&&alive.length>0&&alive.every(sentNow);
+  $('tAllIn').classList.toggle('on',all&&T.allDismiss!==m.gameId+':'+m.round);
+}
+$('aiClose').onclick=()=>{T.allDismiss=T.main.gameId+':'+T.main.round;checkAllIn()};
+$('aiRun').onclick=()=>{$('tAllIn').classList.remove('on');runRound()};
 function renderBar(){
+  checkAllIn();renderTimer();
   const m=T.main,w=T.world;const studs=Object.keys(T.players);const sent=studs.filter(sentNow).length;
   $('tStats').innerHTML=`<div class="stat"><small>Kolo</small><b>${m.round}</b></div><div class="stat"><small>Odesláno</small><b>${sent} / ${studs.length}</b></div><div class="stat"><small>Mince na mapě</small><b>${w.coins.size} / ${w.total}</b></div>`;
   $('tAct').innerHTML=m.phase==='end'?`<button class="btn" data-tb="results">Výsledky</button> <button class="btn primary" data-tb="new">${ic('refresh')}Nová hra</button>`:`<button class="btn primary" data-tb="run"${T.running?' disabled':''}>${ic('play')}Spustit kolo</button>`;
@@ -1019,7 +1078,7 @@ async function runRound(){
   w.robots.forEach((r,i)=>r.i=i);
   const E=effSet();const progs=w.robots.map((r,i)=>r.out?[]:r.bot?botProgram(w,i):(sentNow(r.id)?sanitize(T.programs[r.id].prog,E):[]));
   T.last={};w.robots.forEach((r,i)=>{if(!r.bot)T.last[r.id]=progs[i]});
-  T.main.phase='run';saveMain();renderBar();
+  T.main.phase='run';saveMain();renderBar();$('tAllIn').classList.remove('on');
   const sh=$('tSheet');sh.classList.add('full');fitTeacher();
   T.replay=null;T.trails=w.robots.map(r=>[r.x+','+r.y]);T.fx=null;renderBoardT();
   const frames=[snapFrame(w)];
@@ -1041,7 +1100,7 @@ async function runRound(){
   T.fx=null;renderBoardT();await sleep(1300);
   T.replay={frames,k:frames.length-1};
   sh.classList.remove('full');
-  T.main.round++;T.main.phase=w.coins.size?'plan':'end';
+  T.main.round++;T.main.phase=w.coins.size?'plan':'end';T.main.planAt=Date.now();T.allDismiss=null;
   T.running=false;
   if(T.pending){T.pending=false;syncRobots()}
   await saveMain();fitTeacher();renderTeacher();
@@ -1065,6 +1124,7 @@ $('tSettings').onclick=()=>{
   <div class="frow"><label>Mapa</label><select id="sMap">${sel(s.map,MAPS.map((m,i)=>[i,m.name]))}</select></div>
   <div class="frow"><label>Boti<small>Doplní hru o počítačové hráče.</small></label>${num('sBots',s.bots,0,13)}</div>
   <div class="frow"><label>Obtížnost botů</label><select id="sLvl">${sel(s.botLvl,[['mix','Mix (po třetinách)'],['zacatecnik','Začátečníci'],['stredni','Střední'],['chytry','Chytří']])}</select></div>
+  <div class="frow"><label>Počet nožů v Beast Mode<small>Projeví se po kliknutí na Nová hra nebo zapnutí Beast Mode.</small></label><select id="sKn">${sel(s.knives==null?4:s.knives,[[0,'0'],[2,'2'],[4,'4'],[6,'6'],[8,'8']])}</select></div>
   <h3>Program žáků</h3>
   <div class="frow"><label>Příkazů v programu</label>${num('sBlocks',s.maxBlocks,3,16)}</div>
   <div class="frow"><label>Příkazů v jednom cyklu</label>${num('sFor',s.forMax,1,6)}</div>
@@ -1086,7 +1146,7 @@ $('tbNewKick').onclick=async()=>{if(T.running||!T.main)return;if(!confirm('Zač�
 $('tbEnd').onclick=async()=>{if(T.running||!T.main)return;if(!confirm('Ukončit hru? Všichni žáci budou odhlášeni a Správa se zavře.'))return;
   T.main.phase='closed';await saveMain();await kickAll();ss.del('ucitel');location.href=location.pathname+location.search};
 function readSet(){const v=id=>$(id);const n=(id,a,b)=>Math.max(a,Math.min(b,parseInt(v(id).value)||a));
-  Object.assign(T.set,{map:+v('sMap').value,bots:n('sBots',0,13),botLvl:v('sLvl').value,maxBlocks:n('sBlocks',3,16),forMax:n('sFor',1,6),maxSteps:n('sSteps',3,40),python:v('sPy').checked,speed:+v('sSpeed').value})}
+  Object.assign(T.set,{map:+v('sMap').value,bots:n('sBots',0,13),botLvl:v('sLvl').value,maxBlocks:n('sBlocks',3,16),forMax:n('sFor',1,6),maxSteps:n('sSteps',3,40),python:v('sPy').checked,speed:+v('sSpeed').value,knives:+v('sKn').value})}
 function shuffleCoins(w){const n=w.coins.size,nb=w.big?w.big.size:0;const free=[];for(let y=0;y<w.H;y++)for(let x=0;x<w.W;x++){const k=x+','+y;if(!w.walls.has(k)&&!robotAt(w,x,y)&&!(w.knives&&w.knives.has(k)))free.push(k)}
   for(let i=free.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[free[i],free[j]]=[free[j],free[i]]}const nc=free.slice(0,n);w.coins=new Set(nc);w.big=new Set(nc.slice(0,nb))}
 
@@ -1102,7 +1162,7 @@ document.addEventListener('keydown',e=>{
   if(ss.get('ucitel',false)){startTeacher();return}
   show('vStart');initTutorial();
   if(location.hash==='#sprava')$('toTeacher').click();
-  const me=ss.get('me',null);if(me){$('jIn').value=me;join(me)}
+  const me=ss.get('me',null);if(me){$('jIn').value=me;join(me,ss.get('mode',null))}
 })();
 </script>
 </body>
